@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.rqb.ips.depository.platform.mapper.IpsWithDrawMapper">
+
+	<update id="updateOrderWithDraw" parameterType="java.util.Map">
+		UPDATE wj_order SET order_status=#{trdStatus} ,channel_trade_id=#{ipsBillNo},update_date=NOW(),update_by='ips'
+		WHERE order_no=#{merBillNo};
+	</update>
+
+
+   <insert id="saveOrderWithDrawRecord" parameterType="java.util.Map">
+	INSERT INTO wj_payment_trade_record (
+	trade_no,
+	total_price,
+	price,
+	fee,
+	trade_stauts,
+	rel_biz_order_no,
+	update_date,
+	update_by
+	)
+	VALUES
+	(
+	#{ipsBillNo},
+	#{ipsTrdAmt},
+	#{ipsTrdAmt},
+	#{ipsFee},
+	#{trdStatus},
+	#{merBillNo},
+	NOW(),
+	'ips'
+	);
+
+    </insert>
+
+
+   <select id="queryWithDrawStatus" parameterType="java.lang.String" resultType="java.lang.Boolean">
+	SELECT COUNT(1) FROM wj_order wj WHERE wj.order_no=#{merBillNo} AND
+	wj.order_status='withdraw_ma_confirm' AND wj.order_type='withdraw_ma';
+   
+   
+   </select>
+
+
+<!-- 根据用户ips存管账号查询userId -->
+ <select id="queryUserIdByIpsAcctNo" parameterType="java.lang.String" resultType="java.lang.String">
+ SELECT user_id FROM wj_user_trade_account WHERE id=#{ipsAcctNo};
+ 
+ </select>
+ 
+ 
+ <!-- ma 解冻锁定冻结资金 -->
+	<update id="cancelFreezeMaAmount">
+		update wj_user_trade_account
+		set available_amount = available_amount + #{amount},
+			frozen_amount = frozen_amount - #{amount}
+		where user_id = #{userId}
+		and trade_type = 'ma'
+	</update>
+ 
+ <!-- 从冻结金额中扣除资金 -->
+	<update id="deductionFreezeMaAmount">
+		update wj_user_trade_account
+		set frozen_amount = frozen_amount - #{amount}
+		where user_id = #{userId}
+		and trade_type = 'ma'
+	</update>
+	
+<!-- 查询用户是否开户 -->
+<select id="queryUserIsOpenAccount" parameterType="java.lang.String" resultType="boolean"> 
+	SELECT
+	COUNT(*)
+	FROM
+	wj_user_trade_account ta
+	WHERE
+	ta.trade_type = 'ips'
+	AND
+	ta.trade_account_status = '1'
+	AND ta.user_id =#{userId}
+
+</select>
+
+</mapper>

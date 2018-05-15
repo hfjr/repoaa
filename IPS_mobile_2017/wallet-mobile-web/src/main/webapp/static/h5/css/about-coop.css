@@ -1,0 +1,22 @@
+@charset "utf-8";
+/**
+ * 合作伙伴
+*/
+ 
+ 
+.dynamicState{font-size:10px}
+.dynamicState .img-wrap{width:100%;margin-top:0;padding-bottom:39.61352657004831%; position:relative;}
+.dynamicState .img-wrap img{position:absolute; left:0; top:0; width:100%; height:100%; }
+.dynamicState .sm-title{font-size:1.6em;
+background:-moz-linear-gradient(left,#E9FAFF 0%,#EEFBF9 100%);
+background:-webkit-gradient(linear,left,#E9FAFF 0%,#EEFBF9 100%);
+background: -webkit-linear-gradient(left, #E9FAFF 0%,#EEFBF9 100%);
+background: -o-linear-gradient(left, #E9FAFF 0%,#EEFBF9 100%);
+background: -ms-linear-gradient(left, #E9FAFF 0%,#EEFBF9 100%);
+background: linear-gradient(left, #E9FAFF 0%,#EEFBF9 100%);
+line-height:35px;letter-spacing:2px;text-indent:5.5%;color:#5d7a8d;}
+.dynamicState .sm-wrap{padding:0 5.5%;color:#5d7a8d;font-size:1.4em;text-align:justify;}
+.dynamicState .sm-wrap-content{line-height:25px;padding-top:20px;padding-bottom:20px; }
+.dynamicState .sm-wrap-more{border:5px solid #F1F7FD;border-radius:10px;padding:18px 8px;line-height:22px;color:#3366cc;position:relative;margin-bottom:20px}
+.dynamicState .loudspeaker{width:24px;height:23px;position:absolute;top:-13px; left:10px;}
+.dynamicState .loudspeaker img{width:100%;height:100%}

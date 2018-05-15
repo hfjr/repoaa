@@ -1,0 +1,44 @@
+@charset "utf-8";
+
+/*==支付密码==*/
+
+
+.passwd-box{border-bottom:1px solid #f2f2f2;}
+.passwd-box .handle{line-height:32px; border-bottom:1px solid #f2f2f2;  padding-top:17px; font-size:14px;color:#5d7a8d; padding-left:20px;}
+.passwd-box .item{background:#fff; padding-left:20px;}
+.passwd-box .item.g-act-taped{background:#f2f2f2;}
+.passwd-box .item .item-wrap{border-bottom:1px solid #f2f2f2;}
+.passwd-box .item:last-child .item-wrap{border-bottom:0;}
+.passwd-box .item .text{line-height:59px;float:left; font-size:14px; }
+.passwd-box .item .state-wrap{float:right; width:107px; height:59px; overflow:hidden; }
+.passwd-box .item .state{width:56px; height:38px; display:block; float:right; margin:15px 20px 0 0; }
+.passwd-box .item .state-on{background:url(../img/switch.png) 0 0 no-repeat; background-size:112px 38px; background-position:-56px 0;  }
+.passwd-box .item .state-off{background:url(../img/switch.png) 0 0 no-repeat; background-size:112px 38px;background-position:0 0;  }
+.passwd-box .item .arrow-r{float:right;  margin:20px 20px 0 0; width:7px; height:15px; overflow:hidden; background:url(../img/arrow-r.png) 0 0 no-repeat;  background-size:100% 100%;}
+
+.passwd-input-bar{background:#fff; padding:0 30px; padding-bottom:104px; border-bottom:1px solid #f2f2f2;}
+.passwd-input-bar .tip{padding-top:5px; line-height:40px; text-align:center; color:#5d7a8d;}
+.passwd-input-bar .show-input{ border:2px solid #4AC0F0;}
+.passwd-input-bar .show-input .box{ float:left; width:16.666666666666668%; }
+.passwd-input-bar .show-input .box-wrap{height:auto; padding-top:100%; position:relative;}
+.passwd-input-bar .show-input .box .split{position:absolute;width:2px; right:0;top:3px; overflow:hidden; bottom:3px; background:#F2FAFF;}
+.passwd-input-bar .show-input .box .dot{width:10px; height:10px; border-radius:5px; background:#5D7A8D; position:absolute; margin:-5px 0 0 -5px; left:50%; top:50%; }
+.passwd-keybox{border-top:1px solid #f2f2f2;border-bottom:1px solid #f2f2f2;}
+.passwd-keybox .list:last-child .item-wrap{border-bottom:0;}
+.passwd-keybox{background:#fff; margin-top:10px;  }
+.passwd-keybox .item{float:left;box-sizing:border-box; height:61px; line-height:60px; overflow:hidden; width:33.333333333333336%; }
+.passwd-keybox .item-wrap{text-align:center;height:60px;  position:relative; border-bottom:2px solid #f2f2f2; }
+.passwd-keybox .item .split{position:absolute;width:2px;  right:0;top:0px;bottom:0px; overflow:hidden;  background:#EFF6F9;}
+.passwd-keybox .number{font-size:30px;}
+.passwd-keybox .item-1{padding-left:17px;}
+.passwd-keybox .list-1 .split{top:15px;}
+.passwd-keybox .item-3{padding-right:17px;}
+.passwd-keybox .list-4 .split{bottom:15px;}
+.passwd-keybox .delete-wrap{background:url(../img/delete.png) center center no-repeat; background-size:34px 26px;}
+.passwd-keybox .submit-wrap{padding-right:0;}
+.passwd-keybox .submit-wrap .btn{width:100%; height:61px; border-radius:0; background:#4AC0F0; border:0;  text-align:center; color:rgba(255,255,255, 1); font-size:16px; }
+.passwd-keybox .submit-wrap .btn[disabled]{color:rgba(255,255,255, .7);}
+
+.success-dialog{padding:20px 0;}
+.success-dialog .success-icon{width:60px; height:68px; margin:0 auto 30px; background:url(../img/success.png) center center no-repeat; background-size:100% 100%;} 
+.success-dialog  .text{font-size:16px; text-align:center; color:#5D7A8D;}

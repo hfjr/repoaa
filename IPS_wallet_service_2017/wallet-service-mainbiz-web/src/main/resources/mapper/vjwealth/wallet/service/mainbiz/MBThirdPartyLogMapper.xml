@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Mapper接口 -->
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.server.integration.mapper.IMBThirdPartyLogMapper">
+
+	<insert id="insert" parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.ThirdPartyLogDTO">
+        insert into wj_thirdparty_log
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                id,
+            </if>
+            <if test="thirdParty != null" >
+                third_party,
+            </if>
+            <if test="interfaceUrl != null" >
+                interface_url,
+            </if>
+            <if test="interfaceDesc != null" >
+                interface_desc,
+            </if>
+            <if test="inParameter != null" >
+                in_parameter,
+            </if>
+            <if test="outParameter != null" >
+                out_parameter,
+            </if>
+            <if test="errMsg != null" >
+                err_msg,
+            </if>
+            <if test="createDate != null" >
+                create_date,
+            </if>
+            <if test="createBy != null" >
+                create_by,
+            </if>
+            <if test="updateDate != null" >
+                update_date,
+            </if>
+            <if test="updateBy != null" >
+                update_by,
+            </if>
+            <if test="memo != null">
+                memo,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                #{id,jdbcType=VARCHAR},
+            </if>
+            <if test="thirdParty != null" >
+                #{thirdParty,jdbcType=VARCHAR},
+            </if>
+            <if test="interfaceUrl != null" >
+                #{interfaceUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="interfaceDesc != null" >
+                #{interfaceDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="inParameter != null" >
+                #{inParameter,jdbcType=VARCHAR},
+            </if>
+            <if test="outParameter != null" >
+                #{outParameter,jdbcType=VARCHAR},
+            </if>
+            <if test="errMsg != null" >
+                #{errMsg,jdbcType=VARCHAR},
+            </if>
+            <if test="createDate != null" >
+                #{createDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createBy != null" >
+                #{createBy,jdbcType=VARCHAR},
+            </if>
+            <if test="updateDate != null" >
+                #{updateDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateBy != null" >
+                #{updateBy,jdbcType=VARCHAR},
+            </if>
+            <if test="memo != null">
+                #{memo, jdbcType=VARCHAR},
+            </if>
+        </trim>
+
+	</insert>
+	
+	<update id="update" parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.ThirdPartyLogDTO">
+		UPDATE wj_thirdparty_log
+		<set>
+            <if test="thirdParty != null" >
+                third_party = #{thirdParty,jdbcType=VARCHAR},
+            </if>
+            <if test="interfaceUrl != null" >
+                interface_url = #{interfaceUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="inParameter != null" >
+                in_parameter = #{inParameter,jdbcType=VARCHAR},
+            </if>
+            <if test="outParameter != null" >
+                out_parameter = #{outParameter,jdbcType=VARCHAR},
+            </if>
+            <if test="errMsg != null" >
+                err_msg = #{errMsg,jdbcType=VARCHAR},
+            </if>
+            <if test="createDate != null" >
+                create_date = #{createDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createBy != null" >
+                create_by = #{createBy,jdbcType=VARCHAR},
+            </if>
+            <if test="updateDate != null" >
+                update_date = #{updateDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateBy != null" >
+                update_by = #{updateBy,jdbcType=VARCHAR},
+            </if>
+            <if test="memo != null">
+                memo = #{memo, jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id, jdbcType=VARCHAR}
+	</update>
+	
+
+</mapper>

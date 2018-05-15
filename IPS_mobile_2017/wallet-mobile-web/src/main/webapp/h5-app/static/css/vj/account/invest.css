@@ -1,0 +1,49 @@
+@charset "utf-8";
+
+/*==账户中心 我的投资==*/
+.page-account-invest{}
+.page-account-invest .fix-top{ overflow:hidden; position:fixed; width:100%; left:0;top:0; z-index:10; background:#fbfbfb ;}
+.page-account-invest .fix-top-blank{height:161px; overflow:hidden;}
+.page-account-invest .top-bar{  }
+ 
+.page-account-invest .top-bar .con{padding:18px 0 18px; background:#43C0F2;}
+.page-account-invest .top-bar .col{  text-align:center; color:#fff;  float:left; width:33.333333%;}
+.page-account-invest .top-bar .col .attr{font-size:14px;  line-height:28px; }
+.page-account-invest .top-bar .col .value{font-size:20px; line-height:26px; }
+.page-account-invest .top-bar .wen{height:14px; overflow:hidden; background:url(../img/wen-blue.png) 0 0 repeat-x; background-size:45px 13px;}
+
+.page-account-invest .tab{border-top:1px solid #F5F5F5;border-bottom:1px solid #F5F5F5;}
+.page-account-invest .tab{height:57px; line-height:57px; }
+.page-account-invest .tab li{float:left; height:57px; font-size:16px; color:rgba(188,188,188, 1);  position:relative;  text-align:center; width:33.333333%; }
+.page-account-invest .tab li .blank{position:absolute; right:0; top:9px; width:1px; height:41px; overflow:hidden; background:#F5F5F5;}
+.page-account-invest .tab li.focus{ color:rgba(74,192,240,1); }
+.page-account-invest .tab li.g-act-taped{background:none;  color:rgba(188,188,188, .5);}
+.page-account-invest .tab li.focus.g-act-taped{ color:rgba(74,192,240,.5); }
+.page-account-invest .tab li .bottom{display:none;position:absolute; bottom:-2px; background:#4AC0F0; height:3px; overflow:hidden; left:0;width:100%; }
+.page-account-invest .tab li.focus .bottom{display:block;}
+
+ 
+
+.page-account-invest .list-wrap li{border-bottom:1px solid #F2F2F2;border-top:1px solid #F2F2F2;}
+.page-account-invest .list-wrap li .title{ border-bottom:1px solid #F2F2F2;}
+.page-account-invest .list-wrap li:first-child{border-top:0; }
+
+
+.page-account-invest .list-wrap li{padding-left:12px; margin-bottom:6px;}
+.page-account-invest .list-wrap li .title{padding:0 0 0 7px;height:60px; overflow:hidden;}
+.page-account-invest .list-wrap li .title .invested{font-size:14px;float:left; line-height:60px; }
+.page-account-invest .list-wrap li .title .invested .s-1{color:#4ac0f0;}
+.page-account-invest .list-wrap li .title .state-bar{float:right;margin-right:18px;}
+.page-account-invest .list-wrap li .title .state-bar .s-1{float:left; width:61px; height:23px; line-height:23px; font-size:12px; background:url(../img/lbx.png) 0 0 no-repeat;  background-size:100% 100%;  overflow:hidden; margin-top:18px;  text-align:center;  color:#FFBD30; }
+.page-account-invest .list-wrap li .title .state-bar .s-gray{color:#ccc;}
+.page-account-invest .list-wrap li .title .state-bar .s-2{font-size:10px; color:#fff; float:left; margin-left:8px;  margin-top:22px; position:relative; width:26px; overflow:hidden;  height:16px; line-height:16px; }
+.page-account-invest .list-wrap li .title .state-bar .s-2 img{position:absolute; left:0; top:0; width:100%; height:100%;}
+
+
+.page-account-invest .list-wrap li .desc{padding:10px 7px; }
+.page-account-invest .list-wrap li .desc  h2{color:#5d7a8d; padding:5px 0; line-height:1.5;white-space:normal;word-break:break-all;  font-size:14px;}
+.page-account-invest .list-wrap li .desc .con{}
+.page-account-invest .list-wrap li .desc .con .col-l{color:#c5c3c3; float:left; width:38.005%; line-height:20px;font-size:10px;}
+.page-account-invest .list-wrap li .desc .con .col-m{float:left; width:35.052%; line-height:20px;font-size:10px;}
+.page-account-invest .list-wrap li .desc .con .col-m .s-1{color:#57cbf3;}
+.page-account-invest .list-wrap li .desc .con .col-r{float:left; text-align:center; color:#FFBD30; font-size:22px; line-height:40px; width:26.943%;}

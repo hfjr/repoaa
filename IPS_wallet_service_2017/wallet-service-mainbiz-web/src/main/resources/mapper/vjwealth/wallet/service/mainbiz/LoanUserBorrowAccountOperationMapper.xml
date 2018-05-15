@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.account.server.integration.mapper.ILoanUserBorrowOperationMapper">
+	
+	
+	<!-- Cana借款订单是否存在 -->
+	<select id="countUserLoanOrderExitsForCana" parameterType="java.lang.String" resultType="java.lang.Integer"> 
+		SELECT
+			count(1)
+		FROM
+			wj_order
+		WHERE
+		rel_order_no =#{loanId}
+	</select>
+		
+	<!-- 下单Cana借款订单 -->
+	<insert id="applyLoanOrder" parameterType="java.lang.String" >
+	INSERT INTO  wj_order  (
+			user_id ,
+			order_no ,
+			title ,
+			total_price ,
+			price ,
+			fee ,
+			virtual_amount ,
+			activity_amount ,
+			order_status ,
+			order_type ,
+		    channel_trade_id,
+			create_date ,
+			create_by ,
+			update_date 
+		)
+		VALUES
+		(
+			#{userId},
+			#{orderId},
+			'锦囊借款',
+			#{borrowAmount},
+			#{borrowAmount},
+			'0.0000',
+			'0.0000',
+			'0.0000',
+			'apply_cana_loan_confirm',
+			'apply_cana_loan',
+			#{relOrderNo},
+			now(),
+			'system',
+			now()
+		)
+	</insert>
+	
+	<!-- 校验利息记录否存在 -->
+	<select id="countUserLoanInterestExits" parameterType="java.lang.String" resultType="java.lang.Integer"> 
+		SELECT
+			count(1)
+		FROM
+			wj_loan_user_interest
+		WHERE
+		interest_id =#{interestId}
+	</select>
+	
+	<!-- 保存借款产生的利息 -->
+	<insert id="saveLoanUserInterest" parameterType="java.lang.String">
+		INSERT INTO wj_loan_user_interest (
+			user_id,
+			order_no,
+			interest_id,
+			receivable_interest_fee,
+			other_fee,
+			interest_date,
+			loan_type,
+			create_by,
+			create_date
+		)
+		VALUES
+			(
+				#{userId},
+				#{loanId},
+				#{interestId},
+				#{receivableInterestFee},
+				#{otherFee},
+				#{interestDate},
+				#{loanType},
+				'system',
+				now()
+			)
+	</insert>	
+	
+	<!-- 更新ln账户余额 -->
+	<update id="updateLoanAccount" parameterType="java.lang.String">
+		update wj_user_trade_account w
+		set w.available_amount=available_amount+(-#{amount})
+		where w.user_id=#{userId}
+		and w.trade_type='ln' 
+	</update>
+	
+	
+</mapper>

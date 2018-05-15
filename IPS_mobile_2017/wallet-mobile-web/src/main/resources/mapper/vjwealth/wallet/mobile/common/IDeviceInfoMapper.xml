@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.common.server.mapper.IDeviceInfoMapper">
+		<select id="queryDeviceInfoCountByUserId" resultType="java.lang.Integer" parameterType="java.lang.String">
+			SELECT
+				count(1)
+			FROM
+				wj_device_info
+			WHERE
+				user_id = #{userId}
+		</select>
+		
+	 <!-- 新增设备信息 -->
+     <insert id="saveDeviceInfo" parameterType="com.zhuanyi.vjwealth.wallet.mobile.common.dto.DeviceInfoDTO">
+		INSERT INTO
+		wj_device_info(
+		user_id,
+		device_type,
+		device_system_version,
+		operator,
+		network_type,
+		longitude_latitude,
+		type
+		)
+		VALUES(
+	 	#{userId},
+	 	#{deviceType},
+	 	#{deviceSystemVersion},
+	 	#{operator},
+	 	#{networkType},
+	 	#{longitudeLatitude},
+	 	#{type}
+		)
+	</insert>
+	
+	<!-- 更新设备信息 -->
+	<update id="updateDeviceInfoByUserId" parameterType="com.zhuanyi.vjwealth.wallet.mobile.common.dto.DeviceInfoDTO">
+		UPDATE 
+		    wj_device_info 
+		SET device_type=#{deviceType},
+		    device_system_version=#{deviceSystemVersion},
+		    operator=#{operator},
+		    network_type=#{networkType},
+		    longitude_latitude=#{longitudeLatitude},
+		    type=#{type}
+	 	WHERE user_id=#{userId}
+	</update>
+</mapper>

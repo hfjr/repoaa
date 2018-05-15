@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.order.server.mapper.IMBUserLoanOrderMapper">
+
+	<select id="queryUserBasicInfoById" resultType="java.util.Map" parameterType="java.lang.String">
+		SELECT
+			wui.id AS userId,
+			wui.real_name AS clientName,
+			wui.phone,
+			wui.indentity_no AS indentityNo,
+      wac.bank_card_no AS cardNo,
+      wac.bank_name AS bankName,
+		CONCAT(wac.bank_name,"储蓄卡(",RIGHT(wac.bank_card_no,4),")") AS bankInfo,
+		IF (sex = 'F', '0', '1') AS sex
+		FROM
+			wj_user_info wui,wj_trade_account_card wac
+		WHERE
+       wac.user_id = wui.id
+       and wac.card_type = 'security'
+		 AND	wui.id = #{userId}
+		
+	</select>
+	
+	
+	<insert id="addPledgeLoanOrder" parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBOrderInfoDTO">
+		insert into wj_order
+		 (
+		        user_id,
+		        order_no,
+		        title,
+		        total_price,
+		        price,
+		        trade_account_card_id,
+		        product_id,
+		        order_type,
+		        order_status,
+		        order_token,
+		        channel_trade_id,
+		        time_financial_approval,
+		        rel_order_no,
+		        create_date
+		)
+		values (
+		        #{userId},
+		        #{orderNo},
+		        #{title},
+		        #{totalPrice},
+		        #{price},
+		        #{tradeAccountCardId},
+		        #{productId},
+		        #{orderType},
+		        #{orderStatus},
+		        #{orderToken},
+		        #{tradeId},
+		        #{timeFinancialApproval},
+		        #{relOrderNo},
+		        now()
+		)
+	</insert>
+	
+	<update id="updateRelOrderInfo" parameterType="java.lang.String">
+	       UPDATE wj_order_product
+			     SET if_frozen = #{newFrozenStatus}
+			WHERE
+				order_no = #{orderNo}
+			    AND if_frozen = #{oldFrozenStatus}
+	
+	</update>
+	
+	<update id="updateRfRepayPlanToFrozen" parameterType="java.lang.String">
+	       UPDATE wj_repayment_plan
+			     SET if_frozen = 'Y'
+			WHERE 
+			     order_no = #{orderNo}
+			     AND is_repay = 'no'
+			     AND if_frozen = 'N'
+
+	</update>
+
+	<update id="updateRfRepayPlanToUnFrozen" parameterType="java.lang.String">
+		UPDATE wj_repayment_plan
+		SET if_frozen = 'N'
+		WHERE
+		order_no = #{orderNo}
+		AND if_frozen = 'Y'
+
+	</update>
+
+
+	<select id="checkFinancialIsDue" resultType="java.lang.Boolean" parameterType="java.lang.String">
+		SELECT
+			count(1)
+		FROM
+			wj_order wod,
+			wj_order_product wop
+		WHERE
+			wod.user_id = #{userId}
+		AND wod.channel_trade_id = #{loanId}
+		AND wop.order_no = wod.rel_order_no
+		AND wod.order_type = 'apply_ltb_loan'
+		AND wop.order_product_status in ('invest_end','invest_early_end')
+
+	</select>
+
+	<select id="checkIsRepeatRepay" resultType="java.lang.Boolean" parameterType="java.lang.String">
+		SELECT
+		count(1)
+		FROM
+		wj_order wod
+		WHERE
+		wod.user_id = #{userId}
+		AND wod.channel_trade_id = #{planId}
+		AND wod.order_type = 'due_repay_ltb_loan'
+        AND wod.order_status in ('due_repay_ltb_loan_process','due_repay_ltb_loan_confirm')
+
+	</select>
+		
+
+	<select id="checkIsRepeatRepayForCana" resultType="java.lang.Boolean" parameterType="java.lang.String">
+		SELECT
+		count(1)
+		FROM
+		wj_order wod
+		WHERE
+		wod.user_id = #{userId}
+		AND wod.channel_trade_id = #{planId}
+		AND wod.order_type = 'due_repay_cana_loan'
+        AND wod.order_status in ('early_auto_repay_cana_loan_process','early_auto_repay_cana_loan_confirm')
+
+	</select>
+
+	<select id="checkEarlyRepaymentIsRepeatRepayForCana" resultType="java.lang.Boolean" parameterType="java.lang.String">
+		SELECT
+		count(1)
+		FROM
+		wj_order wod
+		WHERE
+		wod.user_id = #{userId}
+		AND wod.channel_trade_id = #{planId}
+		AND wod.order_type = 'early_repay_cana_loan'
+		AND wod.order_status in ('early_repay_cana_loan_process','early_repay_loan_confirm')
+
+	</select>
+	
+
+
+	<insert id="addInterestRecord" parameterType="java.lang.String">
+		insert into wj_loan_user_interest
+				(
+				user_id,
+				order_no,
+				interest_id,
+				receivable_interest_fee,
+				other_fee,
+				interest_date,
+				loan_type,
+				create_date,
+				create_by
+				)
+				values (
+				#{userId},
+				#{loanId},
+				#{planId},
+				#{currentDayInterest},
+				'0',
+				now(),
+				'ltb',
+				now(),
+				'_ltb_system'
+				)
+	</insert>
+
+	<select id="checkIsRepeatEarlyRepay" resultType="java.lang.Boolean" parameterType="java.lang.String">
+		SELECT
+		count(1)
+		FROM
+		wj_order wod
+		WHERE
+		wod.user_id = #{userId}
+		AND wod.channel_trade_id = #{planId}
+		AND wod.order_type = 'early_repay_ltb_loan'
+		AND wod.order_status in ('early_repay_ltb_loan_process','early_repay_ltb_loan_confirm')
+
+	</select>
+
+
+	<select id="checkIsRepeatApplyLoan" resultType="java.lang.Boolean" parameterType="java.lang.String">
+		SELECT
+		count(1)
+		FROM
+		wj_order_product
+		WHERE
+		user_id = #{userId}
+		AND order_no = #{orderId}
+        AND if_frozen = 'Y'
+
+	</select>
+
+
+	<update id="updateApplyLoanOrder" parameterType="java.lang.String">
+		UPDATE wj_order
+		SET
+		        <if test="loanId != null">
+		        channel_trade_id = #{loanId},
+			   </if>
+				order_status = #{orderStatus},
+				title = #{title}
+		WHERE
+				order_no = #{applyOrderNo}
+		AND user_id = #{userId}
+
+	</update>
+
+
+	
+	<select id="checkWageAdvanceIsExistProcessOrder" resultType="java.lang.Boolean" parameterType="java.lang.String">
+		SELECT
+		count(1)
+		FROM
+		wj_order wod
+		WHERE
+		wod.user_id = #{userId}
+		AND wod.channel_trade_id = #{loanId}
+		AND wod.order_type in ('early_repay_wage_loan','early_repay_wage_loan_withhold','due_repay_wage_loan','due_repay_wage_loan_withhold')
+		AND wod.order_status in ('early_repay_wage_loan_process','early_repay_wage_loan_withhold_process','due_repay_wage_loan_process','due_repay_wage_loan_withhold_process')
+
+	</select>
+
+	<select id="checkWageAdvanceIsDueRepeatRepay" resultType="java.lang.Boolean" parameterType="java.lang.String">
+		SELECT
+		count(1)
+		FROM
+		wj_order wod
+		WHERE
+		wod.user_id = #{userId}
+		AND wod.channel_trade_id = #{loanId}
+		AND wod.order_type = 'due_repay_wage_loan'
+		AND wod.order_status in ('due_repay_wage_loan_process','due_repay_wage_loan_confirm')
+
+	</select>
+
+	<select id="checkVjSelfLoanIsDueRepeatRepay" resultType="java.lang.Boolean" parameterType="java.lang.String">
+		SELECT
+		count(1)
+		FROM
+		wj_order wod
+		WHERE
+		wod.user_id = #{userId}
+		AND wod.channel_trade_id = #{planId}
+		AND wod.order_type = 'due_repay_vj_loan_withhold'
+		AND wod.order_status in ('due_repay_vj_loan_withhold_process','due_repay_vj_loan_withhold_confirm')
+
+	</select>
+
+
+	<select id="queryApplyLoanOrderId" resultType="java.lang.String" parameterType="java.lang.String">
+		SELECT
+			order_no
+		FROM
+			wj_order
+		WHERE
+			order_type = #{orderType}
+		AND channel_trade_id = #{loanId}
+		AND user_id = #{userId}
+
+	</select>
+
+	<select id="queryCardDetailInfoByCardNo" resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MyBankCardInfoDTO" parameterType="java.lang.String">
+		SELECT
+			  card.id AS cardId,
+			  CONCAT('储蓄卡(',RIGHT (card.bank_card_no, 4),")") AS 'sufCardNo',
+			  card.bank_name AS bankName,
+			  card.card_type AS cardType,
+			  card.bank_code AS bankCode,
+			  card.bank_card_no AS cardNo,
+		   	  'normal' as status
+			FROM
+				wj_trade_account_card card
+			WHERE
+                    card.bank_card_no = #{cardNo}
+				AND card.user_id = #{userId}
+				AND card.is_valid='yes'
+
+			ORDER BY card.card_type desc
+			LIMIT 0,1
+
+	</select>
+
+
+	<select id="queryUserWageAdvanceProcessOrderInfo" resultType="java.util.Map" parameterType="java.lang.String">
+
+		SELECT
+			  total_price  AS amount,
+			  order_no  AS orderNo
+			FROM
+				wj_order
+			WHERE
+				user_id = #{userId}
+			AND channel_trade_id = #{loanId}
+			AND order_type = 'apply_wage_loan'
+			AND order_status = 'apply_wage_loan_process'
+			LIMIT 0,1
+
+	</select>
+
+
+	<select id="queryRepayOrderNos" resultType="java.lang.String" parameterType="java.lang.String">
+
+		SELECT
+			rel_order_no
+		FROM
+			wj_order
+		WHERE
+			user_id = #{userId}
+		AND order_no = #{orderNo}
+
+	</select>
+
+
+	<select id="queryOrderInfoByOrderNo" resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.order.server.dto.OrderInfoQueryDTO" parameterType="java.lang.String">
+
+		SELECT
+		  wor.order_status AS order_status,
+		  wor.total_price AS totalPrice,
+		  wrh.principal AS price,
+		  wor.rel_order_no AS relOrderNo,
+		  wor.channel_trade_id AS channelTradeId,
+		  wor.trade_account_card_id AS cardId
+		FROM
+			wj_order wor,wj_order_repay_history wrh
+		WHERE
+             wor.order_no = wrh.order_no
+		AND  wor.user_id = #{userId}
+		AND  wor.order_no = #{orderNo}
+
+	</select>
+	<insert id="addSalaryPlanOrder" parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBOrderInfoDTO">
+		insert into wj_order
+		(
+			user_id,
+			order_no,
+			title,
+			total_price,
+			price,
+			trade_account_card_id,
+			product_id,
+			order_type,
+			order_status,
+			order_token,
+			channel_trade_id,
+			time_financial_approval,
+			create_date
+		)
+		values (
+			#{userId},
+			#{orderNo},
+			#{title},
+			#{totalPrice},
+			#{price},
+			#{tradeAccountCardId},
+			#{productId},
+			#{orderType},
+			#{orderStatus},
+			#{orderToken},
+			#{tradeId},
+			#{timeFinancialApproval},
+			now()
+		)
+	</insert>
+
+
+	<select id="queryUserIdByBizNo" resultType="java.lang.String" parameterType="java.lang.String">
+
+		SELECT
+		user_id
+		FROM
+		wj_order
+		WHERE
+		order_no = #{bizNo}
+
+	</select>
+
+
+
+	<insert id="addOrderRepayHistory" parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.order.server.dto.OrderRepayHistory">
+		insert into wj_order_repay_history
+		(
+		order_no,
+		principal,
+		interest,
+		fee,
+		penalty,
+		external_biz_no,
+		is_valid,
+		create_date
+		)
+		values (
+		#{orderNo},
+		#{principal},
+		#{interest},
+		#{fee},
+		#{penalty},
+		#{externalBizNo},
+		#{isValid},
+		now()
+		)
+	</insert>
+
+
+	<insert id="updateOrderRepayHistory" parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.order.server.dto.OrderRepayHistory">
+		UPDATE wj_order_repay_history
+		SET is_valid = #{isValid}
+		WHERE
+			order_no = #{orderNo}
+	</insert>
+
+
+	<select id="queryOrderStatusByOrderNo" resultType="java.lang.String" parameterType="java.lang.String">
+
+		SELECT
+		  order_status AS order_status
+		FROM
+			wj_order
+		WHERE
+			user_id = #{userId}
+		AND order_no = #{orderNo}
+
+	</select>
+
+
+	<select id="queryWageAdvanceRepayInfo" resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.order.server.dto.DueRepaymentBankCardWithholdDTO" parameterType="java.lang.String">
+
+       SELECT
+		w1.channel_trade_id AS loanCode,
+		w2.channel_trade_id AS planId,
+		w1.total_price AS repaymentTotalMoney,
+		 w1.rel_order_no AS repayOrderNo,
+		 w1.trade_account_card_id as cardId,
+		 w1.create_date AS createDate
+		FROM
+		wj_order w1,wj_order w2
+		WHERE
+            w1.rel_order_no = w2.order_no
+		AND w1.user_id = #{userId}
+		AND w1.order_no = #{orderNo}
+
+	</select>
+
+
+	<select id="validatorBankCardIsWithhold" resultType="java.lang.Boolean" parameterType="java.lang.String">
+
+		SELECT
+		count(1)
+		FROM
+		wj_order
+		WHERE
+		channel_trade_id = #{planId}
+		AND trade_account_card_id = #{cardId}
+		AND order_type = #{orderType}
+		AND DATE_FORMAT(create_date,'%Y-%m-%d') = DATE_FORMAT(now(),'%Y-%m-%d')
+
+	</select>
+
+
+	<select id="checkIsSecurityCard" resultType="java.lang.Boolean" parameterType="java.lang.String">
+
+		SELECT
+			count(1)
+		FROM
+			wj_trade_account_card
+		WHERE
+			bank_card_no = #{cardNo}
+		AND card_type = 'security'
+
+	</select>
+
+
+	<select id="queryCurrentTime" resultType="java.lang.String">
+
+		select now() from dual
+
+	</select>
+
+
+	<select id="checkPiccLoanIsDueRepeatRepay" resultType="java.lang.Boolean" parameterType="java.lang.String">
+		SELECT
+		count(1)
+		FROM
+		wj_order wod
+		WHERE
+		wod.user_id = #{userId}
+		AND wod.channel_trade_id = #{planId}
+		AND wod.order_type = 'picc_due_repay_loan_withhold'
+        AND wod.order_status in ('picc_due_repay_loan_withhold_init','picc_due_repay_loan_withhold_process','picc_due_repay_loan_withhold_confirm')
+	</select>
+
+
+</mapper>

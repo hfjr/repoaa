@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Mapper接口 -->
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.server.integration.mapper.IMBUserAccountLfMapper">
+
+	<!-- 根据user_id查询用户信息 -->
+	<select id="queryUserInfoByUserid" resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBUserInfoDTO">
+		SELECT
+		    ui.id     'userId',
+		    ui.phone  'phone',
+		    ui.indentity_type 'indentityType',
+		    ui.indentity_no 'indentityNo',
+		    ui.email 'email',
+		    ui.real_name 'name',
+		    pf.product_id_xy 'productLoanId',
+			pf.product_id 'productId', 
+			pf.remain_balance 'productRemainBalance', 
+			pf.total_financing 'productTotalFinancing', 
+			pf.start_money 'productStartmoney', 
+			pf.increase_money 'productIncreaseMoney', 
+			pf.end_time 'productEndTime', 
+			pf.is_sold_out 'productSoldOut',
+			pf.raise_progress 'productRaiseProgress',
+			pf.receive_rate 'productReceiveRate',
+			pf.repayments_type 'productRepaymentType',
+			pf.greenhorn_receive_rate 'productGreenhornReceiveRate',
+			pf.product_flag 'productFlag',
+			pf.policy_no 'productPolicyNo',
+			pf.single_purchase_amount 'productSinglePurchaseAmount', 
+			pf.cumulative_purchase_amount 'productCumulativePurchaseAmount', 
+			pf.first_month_day 'productFirstMonthDay',
+			pf.lock_version 'lockVersion',
+			pf.contract_template_no 'contractTemplateNo',
+			pf.loan_product_id 'loanProductId',
+			CASE WHEN uf.ifpurchased &lt; 1 THEN 'no' ELSE 'yes' END 'ifPurchaseProduct',
+			useracount.available_amount 'maAvailableAmount',
+			ifnull(userproduct.purchased_amount,0) 'purchasedAmount'
+		FROM
+		    wj_user_info ui, 
+			wj_product_finace pf, 
+			(select count(user_id) ifpurchased from wj_user_action_flag where user_id = #{userId} and is_purchase_v_financial_flag = 'yes')uf,
+			(select available_amount From wj_user_trade_account where user_id = #{userId} and trade_type = 'la')useracount,
+			(select sum(amount) as purchased_amount from wj_order_product where user_id = #{userId} and product_id = #{productId}) userproduct
+		WHERE
+		    ui.id = #{userId} 
+		and pf.product_id = #{productId}	
+	</select>
+	
+	<!-- ma 冻结资金中扣除订单金额 -->
+	<update id="updateMaLessFrozenAmountByApplyMaToRf">
+		update wj_user_trade_account ta 
+		set ta.frozen_amount = ta.frozen_amount -  (
+		        select sum(ord.total_price) from wj_order ord
+		        where ord.order_no = #{orderNo}
+		)
+		where ta.user_id = #{userId}
+		and trade_type = 'la'		
+	</update>
+	
+	<!-- 更新定期理财产品，可申购余额 -->
+	<update id="updateProductFinace">
+		update 
+			wj_product_finace pf1
+		set 
+			pf1.is_sold_out = (case pf1.remain_balance - #{amount} >=pf1.start_money when true then 'no' when false then 'yes' end),
+			pf1.sold_out_time = (case pf1.remain_balance - #{amount} >=pf1.start_money when true then null when false then now() end),
+			pf1.raise_progress = FORMAT((pf1.total_financing - pf1.remain_balance + #{amount}) / pf1.total_financing, 4),
+			pf1.remain_balance = pf1.remain_balance - #{amount},
+			pf1.lock_version = pf1.lock_version +1,
+			pf1.update_date = now()			
+		where 
+			pf1.product_id = #{productId}	
+		and lock_version = #{lockVersion}	
+	</update>
+	
+	<!-- 取消订单后，更新定期理财产品，可申购余额 -->
+	<update id="cancelProductFinace">
+		update 
+			wj_product_finace pf1
+		set 
+			pf1.is_sold_out = (case pf1.remain_balance + #{amount}  >= pf1.start_money when true then 'no' when false then 'yes' end),
+			pf1.sold_out_time = (case pf1.remain_balance + #{amount} >= pf1.start_money when true then null when false then now() end),
+			pf1.raise_progress = FORMAT((pf1.total_financing - pf1.remain_balance - #{amount} ) / pf1.total_financing, 4),
+			pf1.remain_balance = pf1.remain_balance + #{amount},
+			pf1.lock_version = pf1.lock_version +1,
+			pf1.update_date = now()			
+		where 
+			pf1.product_id = #{productId}	
+		and lock_version = #{lockVersion}	
+	</update>	
+	 
+	<!-- lf 增加订单金额 -->
+	<update id="updateUserRfAcountAmount">
+		update wj_user_trade_account ta 
+		set ta.available_amount = ta.available_amount +  (
+		        select sum(ord.total_price) from wj_order ord
+		        where ord.order_no = #{orderNo}
+		)
+		where ta.user_id = #{userId}
+		and trade_type = 'lf'			
+	</update>
+	
+	<!--  -->
+	<update id="updateConfirmShareOrderStatus">
+		update wj_order ord set ord.order_status = #{orderStatus} , ord.time_confirm = now()
+		where ord.order_no = #{orderNo}
+	</update>
+
+	<!-- 更新 RF小赢理财订单 保单编号  -->
+	<update id="updateUserPolicyInfoByOrderNo">
+		update wj_policy_info vpi
+		set vpi.policy_no =  #{policyNo}
+		where  vpi.order_no = #{orderNo}
+	</update>
+	
+	<!-- 新增定期理财投资记录 -->
+	<insert id="addUserRfInvestRecord">
+		insert into wj_investment_record
+		 (
+		 		product_id,
+		 		investment_money,
+		 		order_no,
+		 		user_id,
+		        create_date
+		)
+		values (
+				#{productId},
+				#{amount},
+				#{orderNo},
+				#{userId},
+		        now()
+		)
+	</insert>	
+
+	<!-- 新增定期理财还款计划 -->
+	<insert id="addUserRfInvestRepaymentPlan" parameterType="java.util.List">
+
+		INSERT INTO wj_repayment_plan
+
+		(repayment_plan_id, user_id, order_no, repayment_type, repayment_time, repay_principal, repay_loan_interest, repay_interest, is_repay, product_flag, greenhorn_interest, term, totalterm, other_fee, product_category, create_date)
+
+		VALUES
+
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(#{item.repaymentPlanId},#{item.userId},#{item.orderNo},#{item.repaymentType},#{item.planRepayDateTime},truncate(#{item.planRepayPrincipal},2),truncate(#{item.planRepayLoanInterest},2),truncate(#{item.planRepayInterest},2),#{item.isRepay},#{item.productFlag},truncate(#{item.greenhornInterest},2),#{item.period},#{item.totalPeriod},truncate(#{item.otherFee},2),'loan_financial',NOW())
+		</foreach>
+
+	</insert>	
+
+	<!-- 新增定期理财保单 -->
+	<insert id="addUserPolicyInfo">
+		insert into wj_policy_info
+		 (
+		 		policy_no,
+		 		user_id,
+		 		product_id,
+		 		order_no,
+		 		loan_id,
+		 		trade_id,
+		 		money,
+		 		name,
+		 		identity_no,
+		        create_date
+		)
+		values (
+				#{policyNo},
+				#{userId},
+				#{productId},
+				#{orderNo},
+				#{loanId},
+				#{tradeId},
+				#{amount},
+				#{name},
+				#{identifyNo},
+		        now()
+		)
+	</insert>	
+
+	<!-- 新增定期理财订单产品明细 -->
+	<insert id="addUserOrderProductDetail">
+		insert into wj_order_product
+		 (
+		 		order_detail_no,
+		 		user_id,
+		 		product_id,
+		 		order_no,
+		 		repayment_plan_id,
+		 		amount,
+		 		order_product_status,
+		 		interest_start_time,
+		 		interest_end_time,
+		 		contract_template_no,
+		 		product_category,
+		 		order_token,
+		        create_date
+		)
+		values (
+				#{orderDetailNo},
+				#{userId},
+				#{productId},
+				#{orderNo},
+				#{repaymentPlanId},
+				#{amount},
+				'invest_going',
+				now(),
+				#{productEndTime},
+				#{contractTemplateNo},
+				'loan_financial',
+				#{token},
+		        now()
+		)
+	</insert>	
+	
+	<!-- 新增定期理财子账户 -->	
+	<insert id="addUserRfTradeAcountDetail">
+		insert into wj_user_trade_account_rf
+		 (
+		 		id,
+		 		user_id,
+		 		account_id,
+		 		order_no,
+		 		product_id,
+		 		amount,
+		 		trade_account_status,
+		        create_date
+		)
+		select #{rfAcountDetailId}, ac.user_id, ac.id as acountId, ord.order_no, #{productId}, ord.amount, 'invest_going', now() from wj_user_trade_account ac, (select order_no, sum(ord.total_price) amount from wj_order ord where ord.order_no = #{orderNo}) ord 
+		where user_id = #{userId} 
+			AND trade_type = 'lf'
+	</insert>		
+	
+	<!-- 新增定期理财最新动态 -->
+	<insert id="addRfNewestActivity">
+		insert into wj_newest_activity
+		 (
+		 		action_title,
+		 		action_type,
+		 		action_description,
+		 		order_no,
+		 		user_id,
+		        create_date
+		)
+		values (
+				#{actionTitle},
+				#{actionType},
+				#{actionDescription},
+				#{orderNo},
+				#{userId},
+		        now()
+		)
+	</insert>
+
+
+	<!-- mock 根据标的ID获取产品还款方式 用于返回mock数据格式  -->
+	<select id="queryProductRepaymentsTypeByLoanId" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT
+		pf.repayments_type 'repaymentsType'
+		FROM
+		wj_product_finace pf
+		WHERE pf.product_id_xy = #{loadId}
+	</select>
+
+	<!-- mock 用于返回mock数据格式 到期还本付息 -->
+	<select id="getRepayMaturityMock" resultType="java.lang.String">
+		SELECT QUERY_PARAM_VALUE('repay_maturity_mock','xy_repay_plan') as mockData
+	</select>
+	<!-- mock 用于返回mock数据格式 每月付息，到期还本 -->
+	<select id="getMonthlyInterestMock" resultType="java.lang.String">
+		SELECT QUERY_PARAM_VALUE('monthly_interest_mock','xy_repay_plan') as mockData
+	</select>
+	<!-- mock 用于返回mock数据格式 mock开关 -->
+	<select id="isRepayPlanMockMode"  resultType="java.lang.Boolean">
+
+		SELECT
+		count(1) as isMockMode
+		FROM
+		comm_params
+		WHERE
+		param_key = 'yzt_repay_plan_mock_switch' and param_value = 'open'
+
+	</select>
+
+	<!-- 下单token验证  -->
+	<select id="queryProductOrderByToken" parameterType="java.lang.String" resultType="java.lang.Integer">
+		SELECT
+		count(order_token) as tokencount
+		FROM
+		wj_order pf
+		WHERE pf.order_token = #{token}
+	</select>
+	
+	<!-- 根据orderID获取订单  -->
+	<select id="queryOrderByOrderNo" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBOrderInfoDTO">
+		SELECT
+			pf.user_id 'userId',
+			pf.product_id 'productId',
+			pf.title 'title',
+			pf.order_no 'orderNo',
+			pf.total_price 'totalPrice',
+			pf.price 'price',
+			pf.order_type 'orderType',
+			pf.order_status 'orderStatus',
+			pf.order_token 'orderToken',
+			pf.channel_trade_id 'tradeId'
+		FROM
+			wj_order pf
+		WHERE 
+			pf.order_no = #{orderNo}
+	</select>		
+	
+	<!-- 根据user_id查询用户信息 -->
+	<select id="queryProductInfoByProductid" resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBUserInfoDTO">
+		SELECT
+		    pf.product_id_xy 'productLoanId',
+			pf.product_id 'productId', 
+			pf.remain_balance 'productRemainBalance', 
+			pf.total_financing 'productTotalFinancing', 
+			pf.start_money 'productStartmoney', 
+			pf.increase_money 'productIncreaseMoney', 
+			pf.end_time 'productEndTime', 
+			pf.is_sold_out 'productSoldOut',
+			pf.raise_progress 'productRaiseProgress',
+			pf.receive_rate 'productReceiveRate',
+			pf.repayments_type 'productRepaymentType',
+			pf.greenhorn_receive_rate 'productGreenhornReceiveRate',
+			pf.product_flag 'productFlag',
+			pf.policy_no 'productPolicyNo',
+			pf.single_purchase_amount 'productSinglePurchaseAmount', 
+			pf.cumulative_purchase_amount 'productCumulativePurchaseAmount', 
+			pf.first_month_day 'productFirstMonthDay',
+			pf.loan_product_id 'loanProductId',
+			pf.lock_version 'lockVersion'
+			
+		FROM
+			wj_product_finace pf
+		WHERE
+			pf.product_id = #{productId}	
+	</select>	
+	
+	 <!-- select某用户在某个时间点之后的投资量 -->
+	 <select id="selectAddUpInvestmentAmount" resultType="java.math.BigDecimal">
+	 	select sum(amount) as amount from wj_order_product 
+		where user_id = #{userId}
+		and create_date > #{thattime}
+		and (product_category = 'v_financial' or product_category is null)
+	 </select>	
+	 
+	 <!-- select理财金最新授信时间 -->
+	 <select id="selectCreditIncreasingTimeFlag" resultType="java.sql.Timestamp">
+	 	select last_credit_increasing_time from wj_user_action_flag 
+		where user_id = #{userId} ORDER BY id DESC LIMIT 0,1
+	 </select>	
+	 
+	 <select id="selectCreditRemainCount" resultType="java.math.BigDecimal">
+	 	select last_credit_remain_count from wj_user_action_flag 
+		where user_id = #{userId} ORDER BY id DESC LIMIT 0,1
+	 </select>	
+	 
+	 <!-- 更新理财金最新授信时间 -->
+	 <update id="updateCreditIncreasingTimeFlag">
+	 	update wj_user_action_flag set wj_user_action_flag.last_credit_increasing_time = now() , wj_user_action_flag.last_credit_remain_count = #{amount}
+		where user_id = #{userId}
+	 </update>
+
+
+	<select id="queryLoanOrderByOrderNo" resultType="java.lang.String">
+		select wod.channel_trade_id
+		from wj_order wod,wj_repayment_plan wrp
+		where wod.order_no=wrp.order_no
+		and order_status='apply_la_to_lf_confirm'
+		and wrp.order_no=#{orderNo}
+		limit 1
+	</select>
+</mapper>

@@ -1,0 +1,19 @@
+@charset "utf-8";
+/**
+ * v信贷提示
+*/
+.color_gray{color: #a7a7a7;}
+.color_black{color:#4a4a4a;}
+.f16{font-size: 1.0rem;}
+.f14{font-size: 0.875rem;}
+.mt5{margin-top:0.3125rem;}
+.mt10{margin-top:0.625rem;}
+.mt20{margin-top:1.25rem;}
+.msg-wrap{border-bottom:1px solid #f2f2f2;text-align: center;font-size:0.875rem;}
+.msg-wrap{background:#fff none repeat scroll 0 0;margin-bottom:2.5rem;padding:3.125rem 0}
+.msg-wrap .state{height:5.4375rem;margin:0 auto;overflow:hidden;width:4.75rem}
+.msg-wrap .state-success1{background: url(../../../img/meiyuan-big.png) no-repeat scroll 0 0/100% 100%}
+.msg-wrap .state-success2{background: url(../../../img/ok-big.png) no-repeat scroll 0 0/100% 100%}
+.msg-wrap .text{font-size:1rem;line-height:6rem;text-align:center}
+.btn-bar{padding:0 1.25rem}
+

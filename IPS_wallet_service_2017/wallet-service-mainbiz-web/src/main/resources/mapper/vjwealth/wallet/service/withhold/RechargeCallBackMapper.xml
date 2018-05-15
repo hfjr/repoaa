@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.payment.server.withhold.integration.mapper.IRechargeCallBackMapper">
+	
+	<!-- 查询订单信息 -->
+	 <select id="queryRechargeOrderInfo" parameterType="java.lang.String" 
+	 	resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.payment.server.withhold.bo.RechargeCallbackBO">
+		    select w.price as amount,
+		    	w.user_id as userId,
+		        w.order_status as orderStatus,
+		        w.total_price as totalPrice
+		    from wj_order w
+			WHERE w.order_no=#{orderNo}
+	 </select>
+	<!-- 查询pc充值订单信息 -->
+	 <select id="queryPCRechargeOrderInfo" parameterType="java.lang.String" 
+	 	resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.payment.server.withhold.bo.RechargeCallbackBO">
+		    select w.price as amount,
+		    	w.user_id as userId,
+		        w.order_status as orderStatus,
+		        w.total_price as totalPrice
+		    from wj_order w
+			WHERE w.order_no=#{orderNo}
+	 </select>
+	 
+	<update id="updateRrechargeOrderSuccess" >
+		update wj_order o
+		set o.order_status = 'recharge_ma_confirm',
+		o.title = '充值'
+		where 
+		o.order_no = #{orderNo}
+		and o.order_status ='recharge_ma_confirm_dispose'
+	</update>
+	
+	<update id="updatePCRrechargeOrderSuccess" >
+		update wj_order o
+		set o.order_status = 'pc_recharge_ma_confirm',
+		o.title = '网关充值'
+		where 
+		o.order_no = #{orderNo}
+		and o.order_status ='pc_recharge_ma_confirm_dispose'
+	</update>
+	
+	<update id="updateRrechargeOrderFail" >
+		update wj_order o
+		set o.order_status = 'recharge_ma_fail',
+		o.title = '充值'
+		where 
+		o.order_no = #{orderNo}
+		and o.order_status ='recharge_ma_confirm_dispose'
+	</update>
+	
+	<update id="updatePCRrechargeOrderFail" >
+		update wj_order o
+		set o.order_status = 'pc_recharge_ma_fail',
+		o.title = '充值失败'
+		where 
+		o.order_no = #{orderNo}
+		and o.order_status ='pc_recharge_ma_confirm_dispose'
+	</update>
+	
+	
+	
+	<!-- ma 账户余额增加 -->
+	<update id="addMaAccountAmountByRecharge" parameterType="java.lang.String">
+		UPDATE wj_user_trade_account w
+		SET available_amount = available_amount + (
+			SELECT
+				m.total_price
+			FROM
+				wj_order m
+			WHERE
+				m.order_no = #{orderNo}
+			AND m.order_type = 'recharge_ma'
+			AND w.user_id=m.user_Id
+		)
+		WHERE
+			w.user_id =( SELECT
+				m.user_Id
+			FROM
+				wj_order m
+			WHERE
+				m.order_no = #{orderNo}
+			AND m.order_type = 'recharge_ma'
+			AND w.user_id=m.user_Id)
+		AND w.trade_type = 'ma'
+	</update>
+	
+	<!-- ma 账户余额增加 -->
+	<update id="addMaAccountAmountByPCRecharge" parameterType="java.lang.String">
+		UPDATE wj_user_trade_account w
+		SET available_amount = available_amount + (
+			SELECT
+				m.total_price
+			FROM
+				wj_order m
+			WHERE
+				m.order_no = #{orderNo}
+			AND m.order_type = 'recharge_ma'
+			AND w.user_id=m.user_Id
+		)
+		WHERE
+			w.user_id =( SELECT
+				m.user_Id
+			FROM
+				wj_order m
+			WHERE
+				m.order_no = #{orderNo}
+			AND m.order_type = 'pc_recharge_ma'
+			AND w.user_id=m.user_Id)
+		AND w.trade_type = 'ma'
+	</update>
+	
+	
+	  <select id="queryTradeNoByOrderNo" parameterType="java.lang.String"  resultType="java.lang.String" >
+		 	SELECT
+				tt.trade_no
+			FROM
+				wj_payment_trade_record tt
+			WHERE
+				tt.rel_biz_order_no = #{orderNo}
+	  </select>
+	
+	  <select id="checkBankCardExit" parameterType="java.lang.String"  resultType="java.lang.Integer" >
+		 	 SELECT
+				COUNT(1)
+			FROM
+				wj_ebatong_trade_history t,
+				wj_trade_account_card m
+			WHERE
+				t.user_id = m.user_id
+			AND t.card_no = m.bank_card_no
+			AND m.is_valid = 'yes'
+			AND t.out_trade_no = #{tradeNo}
+	  </select>
+	  
+	  <select id="countBankCard" parameterType="java.lang.String"  resultType="java.lang.Integer" >
+		 	 SELECT
+				COUNT(1)
+			FROM
+				wj_trade_account_card tt
+			WHERE
+				tt.user_id = #{userId}
+			AND tt.is_valid = 'yes'
+	  </select>
+	  
+	  
+	  
+  	<insert id="insertCardSecurity" parameterType="java.lang.String">
+		INSERT INTO wj_trade_account_card (
+			id,
+			card_ower,
+			user_id,
+			bank_card_no,
+			aside_bank_phone,
+			bank_name,
+			bank_code,
+			create_date,
+			create_by,
+			card_type,
+			is_valid
+		) SELECT
+			t.customer_id,
+			t.real_name,
+			t.user_id,
+			t.card_no,
+			t.card_bind_mobile_phone_no,
+			get_bank_name (t.bank_code),
+			t.bank_code,
+			now(),
+			'SYSTEM',
+			'security',
+			'yes'
+		FROM
+			wj_ebatong_trade_history t
+		WHERE
+			t.out_trade_no = #{tradeNo}
+	</insert>
+	
+	
+  	<insert id="insertCardRecharge" parameterType="java.lang.String">
+		INSERT INTO wj_trade_account_card (
+			id,
+			card_ower,
+			user_id,
+			bank_card_no,
+			aside_bank_phone,
+			bank_name,
+			bank_code,
+			create_date,
+			create_by,
+			card_type,
+			is_valid
+		) SELECT
+			get_full_seq_nextval('CA','vj_user_card'),
+			t.real_name,
+			t.user_id,
+			t.card_no,
+			t.card_bind_mobile_phone_no,
+			get_bank_name (t.bank_code),
+			t.bank_code,
+			now(),
+			'SYSTEM',
+			'recharge',
+			'yes'
+		FROM
+			wj_ebatong_trade_history t
+		WHERE
+			t.out_trade_no = #{tradeNo}	
+	</insert>
+	
+	
+	<!--  绑定新的充值卡时,非第一次绑卡 -->
+	<insert id="insertCardRechargeForNewCard" parameterType="java.lang.String">
+		INSERT INTO wj_trade_account_card (
+			id,
+			card_ower,
+			user_id,
+			bank_card_no,
+			aside_bank_phone,
+			bank_name,
+			bank_code,
+			create_date,
+			create_by,
+			card_type,
+			is_valid
+		) SELECT
+			t.customer_id,
+			t.real_name,
+			t.user_id,
+			t.card_no,
+			t.card_bind_mobile_phone_no,
+			get_bank_name (t.bank_code),
+			t.bank_code,
+			now(),
+			'SYSTEM',
+			'recharge',
+			'yes'
+		FROM
+			wj_ebatong_trade_history t
+		WHERE
+			t.out_trade_no = #{tradeNo}	
+	</insert>
+	
+	
+	<update id="completeUserInfo" parameterType="java.lang.String">
+		update wj_user_info w INNER JOIN ( SELECT
+			t.real_name,	
+			t.bank_code,
+			t.cert_no,
+			t.user_id
+		FROM
+			wj_ebatong_trade_history t
+		WHERE
+			t.out_trade_no = #{tradeNo}	)  his
+		on w.id=his.user_id
+		set w.real_name= his.real_name,
+		indentity_type='01',
+		indentity_no=his.cert_no
+	</update>
+	
+</mapper>

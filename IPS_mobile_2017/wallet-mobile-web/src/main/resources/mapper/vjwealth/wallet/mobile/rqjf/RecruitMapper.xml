@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Mapper接口 -->
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.rqjf.server.mapper.IRecruitMapper">
+	
+	
+	 <select id="queryRecruitList" parameterType="java.lang.Integer"  resultType="java.util.HashMap" >
+		SELECT
+			T.recruit_id AS recruitId,
+			T.recruit_name AS recruitName,
+			CONCAT(T.recruit_number,'名') AS recruitNumber,
+			get_city_name(T.recruit_area) AS recruitArea,
+			DATE_FORMAT(T.publish_time,'%Y-%m-%d') AS publishTime
+		FROM
+			rqb_recruit_info T
+		WHERE
+			T.publish_status='open'
+		LIMIT #{page},10
+	</select>
+	
+	 <select id="queryRecruitDetail" parameterType="java.lang.String"  resultType="java.util.HashMap" >
+		SELECT
+			T.recruit_id AS recruitId,
+			T.recruit_name AS recruitName,
+			CONCAT(T.recruit_number,'名') AS recruitNumber,
+			get_city_name(T.recruit_area) AS recruitArea,
+			DATE_FORMAT(T.publish_time,'%Y-%m-%d') AS publishTime,
+			T.recruit_education as  recruitEducation,
+			T.recruit_address as  recruitAddress,
+			CONCAT(T.recruit_experience,'年') as  recruitExperience,
+			T.recruit_english_level as  recruitEnglishLevel,
+			T.recruit_describe as  recruitDescribe
+		FROM
+			rqb_recruit_info T
+		WHERE
+			T.publish_status='open'
+		AND T.recruit_id = #{recruitId}	
+	</select>
+	
+	 <select id="checkCanApply" parameterType="java.lang.String"  resultType="java.lang.Integer" >
+		SELECT
+			COUNT(1)
+		FROM
+			rqb_recruit_apply aa
+		WHERE
+			aa.user_id = #{userId}
+		AND aa.recruit_id = #{recruitId}
+		and aa.apply_status in ('success','process')
+	</select>
+	
+	
+	 <select id="applyInit" parameterType="java.lang.String"  resultType="java.util.HashMap" >
+		SELECT
+			m.real_name AS realName,
+<!-- 			m.indentity_no AS idNo, -->
+			m.phone AS phone
+		FROM
+			wj_user_info m
+		WHERE
+			m.id = #{userId}
+	</select>
+	
+	
+	<insert id="doApply" parameterType="java.lang.String">
+		INSERT INTO
+		rqb_recruit_apply(
+			trade_no,
+			recruit_id,
+			user_id,
+			apply_time,
+			real_name,
+			work_experience,
+			salary_expectation,
+			apply_status,
+			create_by,
+			create_date
+		)
+		VALUES(
+	 	 	get_full_seq_nextval('RA','rqb_recruit_apply_trade_no'),
+		 	#{recruitId},
+		 	#{userId},
+		 	now(),
+		 	#{realName},
+		 	#{applyPhone},
+		 	#{workExperience},
+		 	#{salaryExpectation},
+		 	'process',
+			'SYSTEM',
+			now()
+		)
+	</insert>
+	
+	
+	
+	
+</mapper>

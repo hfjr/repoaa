@@ -1,0 +1,799 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.product.server.mapper.IProductFinaceMapper">
+
+
+
+	<select id="queryProductListForOld" parameterType="java.lang.Integer" resultType="com.zhuanyi.vjwealth.wallet.mobile.product.server.dto.ProductListQueryOldDTO">
+		select pp.*
+		from
+		(select
+		<!-- 产品售光标识：产品剩余份额<100,募集进度为1,已售光,产品过期 -->
+		CASE when remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then 'yes'
+		else 'no'
+		end as isSoldOut,
+		create_date as createDate,
+		ordering_weight_value as orderingWeightValue,
+		product_id as productId,
+		product_name as productName,
+		CONCAT(product_name,product_id) as productCode,
+		product_term_type as projectTerm,
+		receive_rate+IFNULL(greenhorn_receive_rate,0) as annualYield,
+
+		'保险公司承保' as insuranceCompany,
+		'' as productSalesMark,
+
+		CONCAT("&lt;font color=#9B9B9B>项目期限&lt;/font> &lt;font color=#FFBD30>",
+		-- 项目期限
+		CASE when (remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S'))
+		AND sold_out_time is not null then IFNULL(QUERY_MONTH_AND_DAY(DATE_FORMAT(sold_out_time,'%Y-%m-%d'),end_time),'')
+		ELSE QUERY_MONTH_AND_DAY(DATE_FORMAT(now(),'%Y-%m-%d'),end_time) end,"&lt;/font> &lt;font color=#9B9B9B> | 剩余可投&lt;/font> &lt;font color=#FFBD30>",
+		-- 剩余可投金额
+		CASE when remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then 0
+		ELSE TRUNCATE(remain_balance/10000,2) end,"万元&lt;/font>") as remainTermAndAmount,
+
+
+		IFNULL(QUERY_ITEM_NAME("repayments_type",repayments_type),"")  as repayment,
+
+		<!-- 是否为新手标 -->
+		case when product_flag = 'common' then 'false'
+		when product_flag = 'greenhorn' then 'true'
+		end as newPersonMark,
+
+		<!--产品图标：热卖中，已抢光，新手标 -->
+		case when product_flag = 'common' and is_sold_out = 'no' and remain_balance >= 100 AND raise_progress &lt; 1 AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')  then QUERY_PARAM_VALUE('app_pic_selling',"xy_image")
+		when product_flag = 'greenhorn' and is_sold_out = 'no' and remain_balance >= 100 AND raise_progress &lt; 1 AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') > DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then QUERY_PARAM_VALUE('app_pic_new',"xy_image")
+		ELSE QUERY_PARAM_VALUE('app_pic_finished',"xy_image")
+		end as productSalesOrNewPersonMarkURL,
+
+		<!-- 募集进度 -->
+		case when wpf.is_sold_out = 'no' then TRUNCATE(wpf.raise_progress,2)
+		when wpf.is_sold_out = 'yes' then '1'
+		end as schedule
+
+		from  wj_product_finace wpf
+		where is_shelves='yes'
+		AND DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(start_time,'%Y-%m-%d %H:%i:%S')
+		and product_category='v_financial'
+		)	pp
+
+		order by pp.isSoldOut asc , pp.orderingWeightValue desc
+		LIMIT #{page},10
+
+
+
+	</select>
+
+	    <!--V理财-->
+		<select id="queryProductList" parameterType="java.lang.Integer" resultType="com.zhuanyi.vjwealth.wallet.mobile.product.server.dto.ProductListQueryDTO">
+		  select pp.* 
+		   from
+            (select 
+                <!-- 产品售光标识：产品剩余份额<100,募集进度为1,已售光,产品过期 -->
+			    CASE when remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then 'yes'
+		        else 'no'
+		        end as isSoldOut,
+                create_date as createDate,
+                ordering_weight_value as orderingWeightValue,
+				product_id as productId,
+				product_name as productName,
+                CONCAT(product_name,product_id) as productCode,
+		        product_term_type as projectTerm,
+		        receive_rate+IFNULL(greenhorn_receive_rate,0) as annualYield,
+		        
+		        QUERY_PARAM_VALUE('app_pic_insurance_company_img',"xy_image") as insuranceCompanyURL,
+		        '当日计息' as interestDate,
+		        '' as productSalesMark,
+		        
+		        CONCAT("&lt;font color=#9B9B9B>项目期限&lt;/font> &lt;font color=#FFBD30>", 
+                      -- 项目期限
+                      CASE when (remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')) 
+		                  AND sold_out_time is not null then IFNULL(QUERY_MONTH_AND_DAY(DATE_FORMAT(sold_out_time,'%Y-%m-%d'),end_time),'')
+                      ELSE QUERY_MONTH_AND_DAY(DATE_FORMAT(now(),'%Y-%m-%d'),end_time) end,"&lt;/font> &lt;font color=#9B9B9B> | 剩余可投&lt;/font> &lt;font color=#FFBD30>",
+                      -- 剩余可投金额
+                      CASE when remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then 0
+                      ELSE TRUNCATE(remain_balance,0) end,"元&lt;/font>") as remainTermAndAmount,
+		        
+		        
+		        IFNULL(QUERY_ITEM_NAME("repayments_type",repayments_type),"")  as repayment,
+		        
+		        <!-- 是否为新手标 -->
+				case when product_flag = 'common' then 'false' 
+				     when product_flag = 'greenhorn' then 'true' 
+				end as newPersonMark,
+				
+				<!--产品图标：热卖中，已抢光，新手标 --> 
+				case when product_flag = 'common' and is_sold_out = 'no' and remain_balance >= 100 AND raise_progress &lt; 1 AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')  then QUERY_PARAM_VALUE('app_pic_selling',"xy_image") 
+				     when product_flag = 'greenhorn' and is_sold_out = 'no' and remain_balance >= 100 AND raise_progress &lt; 1 AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') > DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then QUERY_PARAM_VALUE('app_pic_new',"xy_image")
+				     ELSE QUERY_PARAM_VALUE('app_pic_finished',"xy_image")
+				end as productSalesOrNewPersonMarkURL,
+				
+				<!-- 募集进度 -->
+				case when wpf.is_sold_out = 'no' then TRUNCATE(wpf.raise_progress,2) 
+				     when wpf.is_sold_out = 'yes' then '1'
+				end as schedule     
+				
+			from  wj_product_finace wpf
+			where is_shelves='yes'
+			AND wpf.product_category = 'v_financial'
+			AND DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(start_time,'%Y-%m-%d %H:%i:%S') 
+			)	pp	
+			
+			    order by pp.isSoldOut asc , pp.orderingWeightValue desc 
+            LIMIT #{page},10
+				 
+				 
+
+		</select>
+
+
+	<!--V理财v3.4 -->
+	<select id="queryProductListV4" parameterType="java.lang.Integer" resultType="com.zhuanyi.vjwealth.wallet.mobile.product.server.dto.ProductListQueryV4DTO">
+		select pp.*
+		from
+		(select
+		<!-- 产品售光标识：产品剩余份额<100,募集进度为1,已售光,产品过期 -->
+		CASE when remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then 'yes'
+		else 'no'
+		end as isSoldOut,
+		create_date as createDate,
+		ordering_weight_value as orderingWeightValue,
+		product_id as productId,
+		product_name as productName,
+		CONCAT(product_name,product_id) as productCode,
+		product_term_type as projectTerm,
+		receive_rate+IFNULL(greenhorn_receive_rate,0) as annualYield,
+
+		QUERY_PARAM_VALUE('app_pic_insurance_company_img',"xy_image") as insuranceCompanyURL,
+		'当日计息' as interestDate,
+		'' as productSalesMark,
+
+		CONCAT("&lt;font color=#9B9B9B>项目期限&lt;/font> &lt;font color=#FFBD30>",
+		-- 项目期限
+		CASE when (remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S'))
+		AND sold_out_time is not null then IFNULL(QUERY_MONTH_AND_DAY(DATE_FORMAT(sold_out_time,'%Y-%m-%d'),end_time),'')
+		ELSE QUERY_MONTH_AND_DAY(DATE_FORMAT(now(),'%Y-%m-%d'),end_time) end,"&lt;/font> &lt;font color=#9B9B9B> | 剩余可投&lt;/font> &lt;font color=#FFBD30>",
+		-- 剩余可投金额
+		CASE when remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then 0
+		ELSE TRUNCATE(remain_balance,0) end,"元&lt;/font>") as remainTermAndAmount,
+
+
+		IFNULL(QUERY_ITEM_NAME("repayments_type",repayments_type),"")  as repayment,
+
+
+		CONCAT(TRUNCATE(start_money,0),"元起投") as fromInvestmentAmount,
+
+		<!-- 是否为新手标 -->
+		case when product_flag = 'common' then 'false'
+		when product_flag = 'greenhorn' then 'true'
+		end as newPersonMark,
+
+		<!--产品图标：热卖中，已抢光，新手标 -->
+		case when product_flag = 'common' and is_sold_out = 'no' and remain_balance >= 100 AND raise_progress &lt; 1 AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')  then QUERY_PARAM_VALUE('app_pic_selling',"xy_image")
+		when product_flag = 'greenhorn' and is_sold_out = 'no' and remain_balance >= 100 AND raise_progress &lt; 1 AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') > DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then QUERY_PARAM_VALUE('app_pic_new',"xy_image")
+		ELSE QUERY_PARAM_VALUE('app_pic_finished',"xy_image")
+		end as productSalesOrNewPersonMarkURL,
+
+		<!-- 募集进度 -->
+		case when wpf.is_sold_out = 'no' then TRUNCATE(wpf.raise_progress,2)
+		when wpf.is_sold_out = 'yes' then '1'
+		end as schedule
+
+		from  wj_product_finace wpf
+		where is_shelves='yes'
+		AND wpf.product_category = 'v_financial'
+		AND DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(start_time,'%Y-%m-%d %H:%i:%S')
+		)	pp
+
+		order by pp.isSoldOut asc , pp.orderingWeightValue desc
+		LIMIT #{page},10
+
+
+
+	</select>
+
+	<!--融桥金服v3.6-定期理财 -获取理财产品列表-->
+	<select id="queryProductListV6" parameterType="java.lang.Integer" resultType="com.zhuanyi.vjwealth.wallet.mobile.product.server.dto.ProductListQueryV6DTO">
+		select pp.*
+		from
+		(select
+		<!-- 产品售光标识：产品剩余份额<100,募集进度为1,已售光,产品过期 -->
+		CASE when remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then 'yes'
+		else 'no'
+		end as isSoldOut,
+		create_date as createDate,
+		ordering_weight_value as orderingWeightValue,
+		start_time,
+		product_id as productId,
+		product_name as productName,
+		CONCAT(product_name, RIGHT(product_id,7)) as productCode,
+		-- product_term_type as projectTerm,
+		receive_rate+IFNULL(greenhorn_receive_rate,0) as annualYield,
+		'当日计息' as interestDate,
+		' ' as zhongAnTip,
+		CONCAT(TRUNCATE(start_money,0),"元起投") as fromInvestmentAmount,
+		
+		IFNULL(QUERY_ITEM_NAME("repayments_type",repayments_type),"")  as repayment,
+
+		-- 项目期限
+<!-- 		CASE when (remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')) -->
+<!-- 		AND sold_out_time is not null then IFNULL(QUERY_MONTH_AND_DAY(DATE_FORMAT(sold_out_time,'%Y-%m-%d'),end_time),'') -->
+<!-- 		ELSE QUERY_MONTH_AND_DAY(DATE_FORMAT(interest_date,'%Y-%m-%d'),end_time) end  as projectTerm, -->
+		QUERY_MONTH_AND_DAY(interest_date,end_time) as projectTerm,
+		-- 项目期限-排序用
+		CASE when (remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S'))
+		AND sold_out_time is not null then IFNULL(DATEDIFF(sold_out_time,end_time),0)
+		ELSE DATEDIFF(now(),end_time)  end  as projectTermOrderby,
+		
+		-- 剩余可投金额
+		CASE when remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then 0
+		ELSE CONCAT(TRUNCATE(remain_balance/10000,2),'万元') end as remainingInvestment,
+		-- 总份额
+		CONCAT(TRUNCATE(total_financing/10000,2),'万元') as totalFinancing,
+		<!-- 是否为新手标 -->
+		case when product_flag = 'common' then 'false'
+		when product_flag = 'greenhorn' then 'true'
+		end as newPersonMark,
+		-- 卡券标志
+		coupon_mark as couponMark,
+		-- 红包标识
+		package_mark as packageMark,
+		<!-- 是否优选标 -->
+		case when product_flag = 'common' then 'true'
+		when product_flag = 'greenhorn' then 'false'
+		end as goodChoiceMark,
+		<!--产品图标：已抢光，新手标 -->
+		case when product_flag = 'greenhorn' and is_sold_out = 'no' and remain_balance >= 100 AND raise_progress &lt; 1 AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') > DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then QUERY_PARAM_VALUE('app_pic_new_v3.6',"xy_image")
+		ELSE ''
+		end as newPersonMarkUrl,
+
+		<!--产品图标：热卖中，已抢光 -->
+		case when (product_flag = 'greenhorn' or product_flag = 'common') and is_sold_out = 'no' and remain_balance >= 100 AND raise_progress &lt; 1 AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')  then QUERY_PARAM_VALUE('app_pic_selling_v3.6',"xy_image")
+		ELSE QUERY_PARAM_VALUE('app_pic_finished_v3.6',"xy_image")
+		end as productSalesMarkURL,
+
+		<!-- 募集进度 -->
+		case when wpf.is_sold_out = 'no' then TRUNCATE(wpf.raise_progress,2)
+		when wpf.is_sold_out = 'yes' then '1'
+		end as schedule
+
+		from  wj_product_finace wpf
+		where is_shelves='yes'
+		AND wpf.product_category = 'v_financial'
+		AND DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(start_time,'%Y-%m-%d %H:%i:%S')
+		)	pp
+
+		<if test="productType != null and productType == 'addCoupon'">
+			where pp.couponMark='yes'
+		</if>
+		<choose> 
+			
+			<when test="orderBy != null and orderBy == 'yield'">
+				order by pp.isSoldOut asc ,pp.annualYield desc, case when pp.isSoldOut = 'no' then pp.orderingWeightValue  else pp.start_time end desc, pp.createDate desc
+			</when>
+			<when test="orderBy != null and orderBy == 'term'">
+				order by pp.isSoldOut asc ,case when pp.projectTermOrderby &lt; 0 then pp.projectTermOrderby  end  desc, case when pp.isSoldOut = 'no' then pp.orderingWeightValue  else pp.start_time end desc,pp.createDate desc
+			</when>
+			<otherwise>
+				order by pp.isSoldOut asc , case when pp.isSoldOut = 'no' then pp.orderingWeightValue  else pp.start_time end desc ,pp.createDate desc
+			</otherwise>
+		</choose>
+		LIMIT #{page},10
+
+	</select>
+		<!--融桥金服v3.6-定期理财 -获取首页新手理财产品列表-->
+	<select id="queryHomeNewPersonProductList" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.product.server.dto.ProductListQueryV6DTO">
+		select pp.*
+		from
+		(select
+		<!-- 产品售光标识：产品剩余份额<100,募集进度为1,已售光,产品过期 -->
+		CASE when remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then 'yes'
+		else 'no'
+		end as isSoldOut,
+		create_date as createDate,
+		ordering_weight_value as orderingWeightValue,
+		start_time,
+		product_id as productId,
+		product_name as productName,
+		CONCAT(product_name, RIGHT(product_id,7)) as productCode,
+		-- product_term_type as projectTerm,
+		receive_rate+IFNULL(greenhorn_receive_rate,0) as annualYield,
+		'当日计息' as interestDate,
+		' ' as zhongAnTip,
+		CONCAT(TRUNCATE(start_money,0),"元起投") as fromInvestmentAmount,
+
+		IFNULL(QUERY_ITEM_NAME("repayments_type",repayments_type),"")  as repayment,
+
+		-- 项目期限
+		CASE when (remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S'))
+		AND sold_out_time is not null then IFNULL(QUERY_MONTH_AND_DAY(DATE_FORMAT(sold_out_time,'%Y-%m-%d'),end_time),'')
+		ELSE QUERY_MONTH_AND_DAY(DATE_FORMAT(now(),'%Y-%m-%d'),end_time) end  as projectTerm,
+		-- 项目期限-排序用
+		CASE when (remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S'))
+		AND sold_out_time is not null then IFNULL(DATEDIFF(sold_out_time,end_time),0)
+		ELSE DATEDIFF(now(),end_time)  end  as projectTermOrderby,
+
+		-- 剩余可投金额
+		format(CASE when remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then 0
+		ELSE TRUNCATE(remain_balance,0) end,0) as remainingInvestment,
+		-- 总份额
+		total_financing as totalFinancing,
+		<!-- 是否为新手标 -->
+		case when product_flag = 'common' then 'false'
+		when product_flag = 'greenhorn' then 'true'
+		end as newPersonMark,
+		-- 卡券标志
+		coupon_mark as couponMark,
+		-- 红包标识
+		package_mark as packageMark,
+		<!-- 是否优选标 -->
+		case when product_flag = 'common' then 'true'
+		when product_flag = 'greenhorn' then 'false'
+		end as goodChoiceMark,
+		<!--产品图标：已抢光，新手标 -->
+		case when product_flag = 'greenhorn' and is_sold_out = 'no' and remain_balance >= 100 AND raise_progress &lt; 1 AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') > DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then QUERY_PARAM_VALUE('app_pic_new_v3.6',"xy_image")
+		ELSE ''
+		end as newPersonMarkUrl,
+
+		<!--产品图标：热卖中，已抢光 -->
+		case when (product_flag = 'greenhorn' or product_flag = 'common') and is_sold_out = 'no' and remain_balance >= 100 AND raise_progress &lt; 1 AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')  then QUERY_PARAM_VALUE('app_pic_selling_v3.6',"xy_image")
+		ELSE QUERY_PARAM_VALUE('app_pic_finished_v3.6',"xy_image")
+		end as productSalesMarkURL,
+
+		<!-- 募集进度 -->
+		case when wpf.is_sold_out = 'no' then TRUNCATE(wpf.raise_progress,2)
+		when wpf.is_sold_out = 'yes' then '1'
+		end as schedule
+
+		from  wj_product_finace wpf
+		where is_shelves='yes'
+		AND wpf.product_flag='greenhorn'
+		AND wpf.product_category = 'v_financial'
+		AND DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(start_time,'%Y-%m-%d %H:%i:%S')
+		)	pp
+
+		<choose>
+			<when test="orderBy != null and orderBy == 'yield'">
+				order by pp.isSoldOut asc ,pp.annualYield desc, case when pp.isSoldOut = 'no' then pp.orderingWeightValue  else pp.start_time end desc, pp.createDate desc
+			</when>
+			<when test="orderBy != null and orderBy == 'term'">
+				order by pp.isSoldOut asc ,case when pp.projectTermOrderby &lt; 0 then pp.projectTermOrderby  end  desc, case when pp.isSoldOut = 'no' then pp.orderingWeightValue  else pp.start_time end desc,pp.createDate desc
+			</when>
+			<otherwise>
+				order by pp.isSoldOut asc , case when pp.isSoldOut = 'no' then pp.orderingWeightValue  else pp.start_time end desc ,pp.createDate desc
+			</otherwise>
+		</choose>
+		LIMIT 0,1
+
+	</select>
+
+
+	<!--融桥金服v3.6-定期理财 -获取首页普通理财产品列表-->
+	<select id="queryCommonProductList" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.product.server.dto.ProductListQueryV6DTO">
+		select pp.*
+		from
+		(select
+		<!-- 产品售光标识：产品剩余份额<100,募集进度为1,已售光,产品过期 -->
+		CASE when remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then 'yes'
+		else 'no'
+		end as isSoldOut,
+		create_date as createDate,
+		ordering_weight_value as orderingWeightValue,
+		start_time,
+		product_id as productId,
+		product_name as productName,
+		CONCAT(product_name, RIGHT(product_id,7)) as productCode,
+		-- product_term_type as projectTerm,
+		receive_rate+IFNULL(greenhorn_receive_rate,0) as annualYield,
+		'当日计息' as interestDate,
+		' ' as zhongAnTip,
+		CONCAT(TRUNCATE(start_money,0),"元起投") as fromInvestmentAmount,
+
+		IFNULL(QUERY_ITEM_NAME("repayments_type",repayments_type),"")  as repayment,
+
+		-- 项目期限
+<!-- 		CASE when (remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')) -->
+<!-- 		AND sold_out_time is not null then IFNULL(QUERY_MONTH_AND_DAY(DATE_FORMAT(sold_out_time,'%Y-%m-%d'),end_time),'') -->
+<!-- 		ELSE QUERY_MONTH_AND_DAY(interest_date,end_time) end  as projectTerm, -->
+		QUERY_MONTH_AND_DAY(interest_date,end_time) as projectTerm,
+		-- 项目期限-排序用
+		CASE when (remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S'))
+		AND sold_out_time is not null then IFNULL(DATEDIFF(sold_out_time,end_time),0)
+		ELSE DATEDIFF(now(),end_time)  end  as projectTermOrderby,
+
+		-- 剩余可投金额
+		format(CASE when remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then 0
+		ELSE TRUNCATE(remain_balance,0) end,0) as remainingInvestment,
+		-- 总份额
+		total_financing as totalFinancing,
+		<!-- 是否为新手标 -->
+		case when product_flag = 'common' then 'false'
+		when product_flag = 'greenhorn' then 'true'
+		end as newPersonMark,
+		-- 卡券标志
+		coupon_mark as couponMark,
+		-- 红包标识
+		package_mark as packageMark,
+		<!-- 是否优选标 -->
+		case when product_flag = 'common' then 'true'
+		when product_flag = 'greenhorn' then 'false'
+		end as goodChoiceMark,
+		<!--产品图标：已抢光，新手标 -->
+		case when product_flag = 'greenhorn' and is_sold_out = 'no' and remain_balance >= 100 AND raise_progress &lt; 1 AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') > DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then QUERY_PARAM_VALUE('app_pic_new_v3.6',"xy_image")
+		ELSE ''
+		end as newPersonMarkUrl,
+
+		<!--产品图标：热卖中，已抢光 -->
+		case when (product_flag = 'greenhorn' or product_flag = 'common') and is_sold_out = 'no' and remain_balance >= 100 AND raise_progress &lt; 1 AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')  then QUERY_PARAM_VALUE('app_pic_selling_v3.6',"xy_image")
+		ELSE QUERY_PARAM_VALUE('app_pic_finished_v3.6',"xy_image")
+		end as productSalesMarkURL,
+
+		<!-- 募集进度 -->
+		case when wpf.is_sold_out = 'no' then TRUNCATE(wpf.raise_progress,2)
+		when wpf.is_sold_out = 'yes' then '1'
+		end as schedule
+
+		from  wj_product_finace wpf
+		where is_shelves='yes'
+		AND wpf.product_flag='common'
+		AND wpf.product_category = 'v_financial'
+		AND DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(start_time,'%Y-%m-%d %H:%i:%S')
+		)	pp
+
+		<choose>
+			<when test="orderBy != null and orderBy == 'yield'">
+				order by pp.isSoldOut asc ,pp.annualYield desc, case when pp.isSoldOut = 'no' then pp.orderingWeightValue  else pp.start_time end desc, pp.createDate desc
+			</when>
+			<when test="orderBy != null and orderBy == 'term'">
+				order by pp.isSoldOut asc ,case when pp.projectTermOrderby &lt; 0 then pp.projectTermOrderby  end  desc, case when pp.isSoldOut = 'no' then pp.orderingWeightValue  else pp.start_time end desc,pp.createDate desc
+			</when>
+			<otherwise>
+				order by pp.isSoldOut asc , case when pp.isSoldOut = 'no' then pp.orderingWeightValue  else pp.start_time end desc ,pp.createDate desc
+			</otherwise>
+		</choose>
+		LIMIT 0,4
+
+	</select>
+	<select id="countMyInvestment" parameterType="java.lang.String" resultType="java.lang.Integer">
+		SELECT
+			count(wir.id)
+		FROM
+			 wj_investment_record wir
+               INNER JOIN wj_order_product wop ON wop.order_no = wir.order_no
+			INNER JOIN wj_product_finace wpf ON wpf.product_id = wop.product_id AND wpf.product_category = 'v_financial'
+		WHERE
+			wir.user_id = #{userId}
+	</select>
+
+		
+		<!--有登录状态-->
+		<select id="queryProductDetail" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.product.server.dto.ProductDetailQueryDTO">
+			select 
+				product_id as productId,
+				product_name as productName,
+		        CONCAT(product_name,product_id) as productCode,
+		        
+		        <!-- 产品期限：如果产品售光，则产品期限为：产品结束时间-售光时间；如果正在热卖，则产品期限为：产品结束时间-当前系统时间 -->
+		        CASE when (remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')) 
+		                  AND sold_out_time is not null then IFNULL(QUERY_MONTH_AND_DAY(DATE_FORMAT(sold_out_time,'%Y-%m-%d'),end_time),'')
+                 ELSE QUERY_MONTH_AND_DAY(DATE_FORMAT(now(),'%Y-%m-%d'),end_time)
+		        end as projectTerm,
+		        
+			    CONCAT(TRUNCATE(total_financing,0),"元") as totalFinancing,
+			    
+			    <!-- 剩余可投金额 -->
+			    CASE when remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then 0
+                ELSE TRUNCATE(remain_balance,0)
+		        end as remainingInvestment,
+		        
+		        
+				receive_rate+IFNULL(greenhorn_receive_rate,0) as annualYield,
+				DATE_FORMAT(end_time,'%Y-%m-%d') as expirationDate,
+				'当日计息' as interestDate,
+				
+				
+				IFNULL(QUERY_ITEM_NAME("repayments_type",repayments_type),"")  as repayment,
+				greenhander_contents as newPersonExclusiveContent,
+				project_contents as projectIntroduction,
+				'回款须知' as paymentNoticeLabel,
+				'该项目允许提前回款，按截至提前到期日的实际天数计算利息' as paymentNotice,
+				guarantee_contents as guaranteeContents,
+				'true' as principalAndInterestGuarantee,
+				borrower_type as borrowerType,
+                borrower_detail_json as borrowerStr,
+                
+                <!-- 产品投资记录数 -->
+				(select count(1) from wj_investment_record where product_id = #{productId}) as investmentRecord,
+				
+				<!-- 可投资的条件：产品未售光，剩余可投金额大于100，募集进度小于1，产品未过期且产品已开始发售，如果为新手标则当前用户之前没有投资过定期理财  -->
+				case when wpf.`is_sold_out` = 'no' 
+				          AND wpf.`remain_balance` >= 100 
+				          AND raise_progress &lt; 1
+				          AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') > DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') AND DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(start_time,'%Y-%m-%d %H:%i:%S')
+                          AND (product_flag = 'common' OR (product_flag = 'greenhorn' and (select count(1) from wj_user_action_flag where user_id = #{userId} and is_purchase_v_financial_flag = 'yes') = 0 ))  then  'true'					 
+				     ELSE 'false'
+				end as whetherInvestment,
+				
+				
+				<!-- 提示：新手专享 -->
+				case when product_flag = 'greenhorn' and (select count(1) from wj_user_action_flag where user_id = #{userId} and is_purchase_v_financial_flag = 'yes')>0 then '该项目只适用新手专享'
+				     <!-- 提示：产品未开售 -->
+				     when DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(start_time,'%Y-%m-%d %H:%i:%S') then '产品未开售'
+                     <!-- 提示：立即投资 -->
+                     when wpf.`is_sold_out` = 'no' and wpf.`remain_balance` >= 100 AND raise_progress &lt; 1 AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') > DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then  '立即投资'
+					 <!-- 提示: 卖光了 -->
+					 else  '卖完了'
+				end as investmentInformation,
+				
+				
+				case when product_flag = 'common' then 'false' 
+						 when product_flag = 'greenhorn' then 'true' 
+				end as newPersonMark,
+				(case when wpf.is_pre_expire='yes' then 'true' else 'false' end) isShowAdvancePaymentDate,
+				'提前回款' as advancePaymentDateLabel,
+				wpf.wj_advance_due_date advancePaymentDate
+
+			from  wj_product_finace wpf 
+            where wpf.product_id=#{productId}
+
+		</select>
+
+    <!-- 无登录状态 -->
+	<select id="queryProductDetailV2" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.product.server.dto.ProductDetailQueryDTO">
+		select
+		product_id as productId,
+		product_name as productName,
+		CONCAT(product_name,product_id) as productCode,
+
+		<!-- 产品期限：如果产品售光，则产品期限为：产品结束时间-售光时间；如果正在热卖，则产品期限为：产品结束时间-当前系统时间 -->
+		CASE when (remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S'))
+		AND sold_out_time is not null then IFNULL(QUERY_MONTH_AND_DAY(DATE_FORMAT(sold_out_time,'%Y-%m-%d'),end_time),'')
+		ELSE QUERY_MONTH_AND_DAY(DATE_FORMAT(now(),'%Y-%m-%d'),end_time)
+		end as projectTerm,
+
+		CONCAT(TRUNCATE(total_financing,0),"元") as totalFinancing,
+
+		<!-- 剩余可投金额 -->
+		CASE when remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then 0
+		ELSE TRUNCATE(remain_balance,0)
+		end as remainingInvestment,
+
+
+		receive_rate+IFNULL(greenhorn_receive_rate,0) as annualYield,
+		DATE_FORMAT(end_time,'%Y-%m-%d') as expirationDate,
+		'当日计息' as interestDate,
+
+
+		IFNULL(QUERY_ITEM_NAME("repayments_type",repayments_type),"")  as repayment,
+		greenhander_contents as newPersonExclusiveContent,
+		project_contents as projectIntroduction,
+		guarantee_contents as guaranteeContents,
+		'false' as principalAndInterestGuarantee,
+		borrower_type as borrowerType,
+		borrower_detail_json as borrowerStr,
+
+		<!-- 产品投资记录数 -->
+		(select count(1) from wj_investment_record where product_id = #{productId}) as investmentRecord,
+
+		<!-- 可投资的条件：产品未售光，剩余可投金额大于100，募集进度小于1，产品未过期且产品已开始发售 -->
+		case when wpf.`is_sold_out` = 'no'
+		AND wpf.`remain_balance` >= 100
+		AND raise_progress &lt; 1
+		AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') > DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') AND DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(start_time,'%Y-%m-%d %H:%i:%S')
+		AND (product_flag = 'common' OR product_flag = 'greenhorn' )  then  'true'
+		ELSE 'false'
+		end as whetherInvestment,
+
+
+		<!-- 提示：产品未开售 -->
+  case when DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(start_time,'%Y-%m-%d %H:%i:%S') then '产品未开售'
+		<!-- 提示：立即投资 -->
+		when wpf.`is_sold_out` = 'no' and wpf.`remain_balance` >= 100 AND raise_progress &lt; 1 AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') > DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then  '立即投资'
+		<!-- 提示: 卖光了 -->
+		else  '卖完了'
+		end as investmentInformation,
+
+
+		case when product_flag = 'common' then 'false'
+		when product_flag = 'greenhorn' then 'true'
+		end as newPersonMark
+
+		from  wj_product_finace wpf
+		where wpf.product_id=#{productId}
+
+	</select>
+	
+	<!--融桥金服v3.6-定期理财 -根据productId获取产品详情-->
+	<select id="queryProductDetailV6" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.product.server.dto.ProductDetailQueryV6DTO">
+		select
+		product_id as productId,
+		product_name as productName,
+		CONCAT(product_name,product_id) as productCode,
+
+		<!-- 产品期限：如果产品售光，则产品期限为：产品结束时间-售光时间；如果正在热卖，则产品期限为：产品结束时间-当前系统时间 -->
+		CASE when (remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S'))
+		AND sold_out_time is not null then IFNULL(QUERY_MONTH_AND_DAY(DATE_FORMAT(sold_out_time,'%Y-%m-%d'),end_time),'')
+		ELSE QUERY_MONTH_AND_DAY(DATE_FORMAT(now(),'%Y-%m-%d'),end_time)
+		end as projectTerm,
+
+        CONCAT(TRUNCATE(start_money,0),"元") as startInvestmentAmount,
+
+		<!-- 剩余可投金额 -->
+		format(CASE when remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then 0
+		ELSE TRUNCATE(remain_balance,0) end,0) as remainingInvestment,
+
+		receive_rate+IFNULL(greenhorn_receive_rate,0) as annualYield,
+		DATE_FORMAT(end_time,'%Y-%m-%d') as expirationDate,
+
+		IFNULL(QUERY_ITEM_NAME("repayments_type",repayments_type),"")  as repayment,
+		greenhander_contents as newPersonExclusiveContent,
+		project_contents as projectIntroduction,
+		guarantee_contents as guaranteeContents,
+		'false' as principalAndInterestGuarantee,
+		borrower_type as borrowerType,
+		borrower_detail_json as borrowerStr,
+
+		<!-- 产品投资记录数 -->
+		(select count(1) from wj_investment_record where product_id = #{productId}) as investmentRecord,
+
+		<!-- 可投资的条件：产品未售光，剩余可投金额大于100，募集进度小于1，产品未过期且产品已开始发售 -->
+		case when wpf.`is_sold_out` = 'no'
+		AND wpf.`remain_balance` >= 100
+		AND raise_progress &lt; 1
+		AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') > DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') AND DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(start_time,'%Y-%m-%d %H:%i:%S')
+		AND (product_flag = 'common' OR (product_flag = 'greenhorn' and (select count(1) from wj_user_action_flag where user_id = #{userId} and is_purchase_v_financial_flag = 'yes') = 0 ))  then  'true'
+		ELSE 'false'
+		end as whetherInvestment,
+
+
+		<!-- 提示：新手专享 -->
+		case when product_flag = 'greenhorn' and (select count(1) from wj_user_action_flag where user_id = #{userId} and is_purchase_v_financial_flag = 'yes')>0 then '立即投资'
+		<!-- 提示：产品未开售 -->
+		when DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(start_time,'%Y-%m-%d %H:%i:%S') then '产品未开售'
+		<!-- 提示：立即投资 -->
+		when wpf.`is_sold_out` = 'no' and wpf.`remain_balance` >= 100 AND raise_progress &lt; 1 AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') > DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then  '立即投资'
+		<!-- 提示: 卖光了 -->
+		else  '卖完了'
+		end as investmentInformation,
+
+
+		case when product_flag = 'common' then 'false'
+		when product_flag = 'greenhorn' then 'true'
+		end as newPersonMark,
+		wpf.is_pre_expire as isPreExpire,
+		wpf.wj_advance_due_date wjAdvanceDueDate
+
+		from  wj_product_finace wpf
+		where wpf.product_id=#{productId}
+
+	</select>
+	
+	<!--融桥金服v3.7-定期理财 -根据productId获取产品详情-->
+	<select id="queryProductDetailV7" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.product.server.dto.ProductDetailQueryV7DTO">
+		select
+		product_id as productId,
+		product_name as productName,
+		CONCAT(product_name,product_id) as productCode,
+		coupon_mark as couponMark,
+		package_mark as packageMark,
+		<!-- 产品期限：如果产品售光，则产品期限为：产品结束时间-售光时间；如果正在热卖，则产品期限为：产品结束时间-当前系统时间 -->
+<!-- 		CASE when (remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')) -->
+<!-- 		AND sold_out_time is not null then IFNULL(QUERY_MONTH_AND_DAY(DATE_FORMAT(sold_out_time,'%Y-%m-%d'),end_time),'') -->
+<!-- 		ELSE QUERY_MONTH_AND_DAY(DATE_FORMAT(interest_date,'%Y-%m-%d'),end_time) -->
+<!-- 		end as projectTerm, -->
+		QUERY_MONTH_AND_DAY(interest_date,end_time) as projectTerm,
+		
+		-- 相差月份
+		IFNULL(TRUNCATE ((TIMESTAMPDIFF(DAY,DATE_FORMAT(interest_date, '%Y-%m-%d'),DATE_FORMAT(end_time, '%Y-%m-%d'))+1) / 30,0),0) AS monthDiff,
+
+        CONCAT(TRUNCATE(start_money,0),"元") as startInvestmentAmount,
+
+		<!-- 剩余可投金额 -->
+		CASE when remain_balance &lt; 100 OR raise_progress = 1 OR is_sold_out = 'yes' OR DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then 0
+		ELSE TRUNCATE(remain_balance/10000,2) end as remainingInvestment,
+		-- 总份额
+		total_financing as totalFinancing,
+		receive_rate+IFNULL(greenhorn_receive_rate,0) as annualYield,
+		DATE_FORMAT(end_time,'%Y-%m-%d') as expirationDate,
+
+		IFNULL(QUERY_ITEM_NAME("repayments_type",repayments_type),"")  as repayment,
+		greenhander_contents as newPersonExclusiveContent,
+		project_contents as projectIntroduction,
+		guarantee_contents as guaranteeContents,
+		'false' as principalAndInterestGuarantee,
+		borrower_type as borrowerType,
+		borrower_detail_json as borrowerStr,
+
+		<!-- 产品投资记录数 -->
+		(select count(1) from wj_investment_record where product_id = #{productId}) as investmentRecord,
+
+		<!-- 可投资的条件：产品未售光，剩余可投金额大于100，募集进度小于1，产品未过期且产品已开始发售 -->
+		case when wpf.`is_sold_out` = 'no'
+		AND wpf.`remain_balance` >= 100
+		AND raise_progress &lt; 1
+		AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') > DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') AND DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(start_time,'%Y-%m-%d %H:%i:%S')
+		AND (product_flag = 'common' OR (product_flag = 'greenhorn' and (select count(1) from wj_user_action_flag where user_id = #{userId} and is_purchase_v_financial_flag = 'yes') = 0 ))  then  'true'
+		ELSE 'false'
+		end as whetherInvestment,
+
+
+		<!-- 提示：新手专享 -->
+		case when product_flag = 'greenhorn' and (select count(1) from wj_user_action_flag where user_id = #{userId} and is_purchase_v_financial_flag = 'yes')>0 then '立即投资'
+		<!-- 提示：产品未开售 -->
+		when DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') &lt; DATE_FORMAT(start_time,'%Y-%m-%d %H:%i:%S') then '产品未开售'
+		<!-- 提示：立即投资 -->
+		when wpf.`is_sold_out` = 'no' and wpf.`remain_balance` >= 100 AND raise_progress &lt; 1 AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') > DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S') then  '立即投资'
+		<!-- 提示: 卖光了 -->
+		else  '卖完了'
+		end as investmentInformation,
+
+
+		case when product_flag = 'common' then 'false'
+		when product_flag = 'greenhorn' then 'true'
+		end as newPersonMark,
+		wpf.is_pre_expire as isPreExpire,
+		wpf.wj_advance_due_date wjAdvanceDueDate,
+		CONCAT(QUERY_PARAM_VALUE('rqb_project_url','rqb_param'),'/api/v3.6/product/bidAnnouncement','?productId=',wpf.product_id) as bidAnnouncement
+		from  wj_product_finace wpf
+		where wpf.product_id=#{productId}
+
+	</select>
+		
+		
+		<select id="queryProductBidAnnouncementDetail" parameterType="java.lang.String" resultType="java.lang.String">
+			SELECT
+				t.bid_announcement AS content
+			FROM
+				wj_product_finace t
+			WHERE
+				t.product_id = #{productId}
+		</select>
+		
+		<select id="queryProductInvestmentRecordList" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.product.server.dto.ProductInvestmentListQueryDTO">
+			SELECT
+				wir.investment_money AS investmentAmount,
+				date_format(wir.create_date,'%Y-%m-%d %H:%i:%S') AS investmentTime,
+				CONCAT (LEFT(wui.phone,3),'****',RIGHT(wui.phone,4)) AS phone
+			FROM
+				wj_investment_record wir,
+				wj_user_info wui
+			WHERE
+			  wir.user_id = wui.id
+			AND product_id = #{productId}
+			order by wir.create_date desc
+		</select>
+
+	    <!--分页-->
+		<select id="queryProductInvestmentRecordListV2" parameterType="java.util.Map" resultType="com.zhuanyi.vjwealth.wallet.mobile.product.server.dto.ProductInvestmentListQueryDTO">
+			SELECT
+				wir.investment_money AS investmentAmount,
+				date_format(wir.create_date,'%Y-%m-%d %H:%i:%S') AS investmentTime,
+				CONCAT (LEFT(wui.phone,3),'****',RIGHT(wui.phone,4)) AS phone
+			FROM
+				wj_investment_record wir,
+				wj_user_info wui
+			WHERE
+			  wir.user_id = wui.id
+			AND product_id = #{productId}
+			order by wir.create_date desc
+			LIMIT #{page},10
+		</select>
+		
+		<select id="queryUserBuyVIPProductPermission" resultType="boolean">
+			SELECT
+			case when count(1) &gt; 0 and FIND_IN_SET(#{userId}, vip_users) &lt;= 0 then true else false end as noVipPermission
+			FROM
+				wj_product_finace_other
+			WHERE
+			is_vip_customized = 'yes'
+			AND product_id = #{productId};
+		</select>
+		
+		<select id="queryProductInfoByOrderNo"  parameterType="java.lang.String" resultType="java.util.HashMap">
+			SELECT CONCAT(p.product_name,p.product_id) as productName,p.product_id as productId from wj_order_product w,wj_product_finace p
+			where w.order_no=#{orderNo}
+			and w.product_id=p.product_id
+		</select>
+		
+</mapper>

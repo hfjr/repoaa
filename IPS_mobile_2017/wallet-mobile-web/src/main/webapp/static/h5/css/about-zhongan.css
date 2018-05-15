@@ -1,0 +1,10 @@
+@charset "utf-8";
+/**
+ * 推广页面
+*/
+body{background:#413870;}
+.banner1{padding-top:100%;position:relative;}
+.images{height: 100%;width: 100%;left: 0; position: absolute; top: 0;}
+.about1{padding-top:74.758%;}
+.about5{padding-top:61.836%}
+

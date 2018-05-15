@@ -1,0 +1,22 @@
+ol,ul{padding:0;list-style:none;}
+textarea{resize:vertical;}
+body{font-family:"Helvetica Neue", Helvetica, Microsoft Yahei, Hiragino Sans GB, WenQuanYi Micro Hei, sans-serif;background-color:#fbfbfb;}
+
+.color-blue{color:#2a69d2;}
+.color-blue-gray{color:#64798a;}
+
+.mheader{display:block;width:100%;}
+
+.mlist-bank{margin:0 1.5rem 1.5rem 0;}
+.mlist-bank li{float:left;width:50%;padding:1.5rem 0 0 1.5rem;}
+.mlist-bank .box{border:2px solid #d0dfe6;}
+.mlist-bank .box img{display:block;width:100%;}
+
+.mbank{padding:0 0 1.5rem 0;}
+.mbank .title{position:relative;padding:0 1.5rem;background-color:#e7f6f9;font-size:1.6rem;line-height:3rem;color:#64798a;text-indent:0.8em;}
+.mbank .title:before{content:'';position:absolute;left:1.5rem;top:50%;margin:-1px 0 0 0;width:2px;height:2px;background-color:#64798a;}
+.mbank .descr{margin:1.5rem 1.5rem 0;color:#64798a;line-height:1.6em;text-align:justify;}
+.mbank .message{position:relative;margin:1.5rem 1.5rem 0;padding:1.5rem 1.5rem 1rem;border:6px solid #eef3f9;border-radius:6px;color:#2a69d2;text-align:justify;}
+.mbank .message:before{content:'';position:absolute;left:0.8rem;top:-1.1rem;width:2rem;height:2rem;background:url(../img/base/icon-laba.png) no-repeat;background-size:100%;}
+
+.mlist-bank:after{content:'';display:table;clear:both;}

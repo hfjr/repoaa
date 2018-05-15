@@ -1,0 +1,51 @@
+<# if(self.autoAppendMsgWraper){ #>
+<div class="ui-msgWraper" id="<# print(self.domId("msgWraper")); #>" style="display:none;"></div>
+<# }; #>
+<#
+	print(__content__);
+#>		
+<# if(self.showHomeNav){ #>
+<span data-tap-path="index/index" class="widget-back-home" style="display:none;"></span>
+<# } #>
+<#
+	var showFooter = false;
+	var showFooterTab = _g_getParam("showFooterTab");
+	if(showFooterTab !== null){
+		showFooter = showFooterTab == 1;
+	}else{
+		showFooter = self.showFooterNav;
+	}
+	console.log("showFooterTab", showFooterTab);
+	console.log("showFooter", showFooter);
+	
+#>
+<# if(showFooter){ #>
+<div class="g-downNavPlace"></div>
+<nav class="g-downnav border-box flex-box">
+	
+	<dl data-tap-path="index/index" <# if( self.routerPath == "index/index" ){ #> class="active"  <# } #> >
+		<dt>
+			<span class="icon_nav"></span>
+		</dt>
+		<dd>首页</dd>
+	</dl>
+	<dl data-tap-path="invest/index" <# if(self.routerData.controller == "eAccount" || self.routerData.controller == "invest"){ #> class="active" <# } #>>
+		<dt>
+			<span class="icon_nav"></span>
+		</dt>
+		<dd>理财</dd>
+	</dl>
+	<dl  data-tap-path="salaryLoan/index" <# if( self.routerData.controller == "salaryLoan" ){ #> class="active"  <# } #>>
+		<dt>
+			<span class="icon_nav"></span>
+		</dt>
+		<dd>信贷</dd>
+	</dl>
+	<dl data-tap-path="account/index" <# if( self.routerData.controller == "account" ){ #> class="active"  <# } #>>
+		<dt>
+			<span class="icon_nav"></span>
+		</dt>
+		<dd>个人</dd>
+	</dl>
+</nav>
+<# } #>

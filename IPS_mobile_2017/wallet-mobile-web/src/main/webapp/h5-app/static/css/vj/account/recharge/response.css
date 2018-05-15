@@ -1,0 +1,14 @@
+@charset "utf-8";
+
+/*==账户中心 充值成功==*/
+.msg-wrap{border-bottom:1px solid #f2f2f2; }
+.recharge-response{}
+.msg-wrap{ padding:50px 0; background:#fff; margin-bottom:40px; }
+.msg-wrap .state{width:76px; height:87px; overflow:hidden; margin:0 auto; }
+.msg-wrap .state-success{background:url(../img/recharge-success.png) 0 0 no-repeat; background-size:100% 100%;}
+.msg-wrap .state-dispose{background:url(../img/recharge-dispose.png) 0 0 no-repeat; background-size:100% 100%;}
+.msg-wrap .state-fail{background:url(../img/recharge-fail.png) 0 0 no-repeat; background-size:100% 100%;}
+.msg-wrap .text{text-align:center; line-height:96px; font-size:16px; }
+
+.btn-bar{padding:0 20px;}
+.btn-bar .btn{}

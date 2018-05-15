@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Mapper接口 -->
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.server.integration.mapper.ISHQBUserMapper">
+
+    <select id="queryUserInfoByPhone" resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.SHQBUserInfoDTO">
+        select phone,
+        real_name realName,
+        identity_no identityNo,
+        bank_card_no bankCardNo
+        from shqb_user_info
+        where phone = #{phone}
+    </select>
+    <select id="queryUserInfoByIdentityNo" resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.SHQBUserInfoDTO">
+        select phone,
+        real_name realName,
+        identity_no identityNo,
+        bank_card_no bankCardNo
+        from shqb_user_info
+        where identity_no = #{identityNo}
+        LIMIT 0,1
+    </select>
+
+    <update id="updateUserBankCardNo">
+        update shqb_user_info set bank_card_no = #{bankCardNo} where phone = #{phone}
+    </update>
+    
+    <select id="querySHQBEnterpriseId" resultType="String">
+        select param_value from comm_params
+        where param_group = 'shqb' and param_key = 'shqb_enterprise_id'
+    </select>
+
+    <insert id="saveChannelForSHQB">
+        INSERT INTO wj_user_channel_ref (
+          channel_no,
+          user_id,
+          create_date,
+          create_by)
+        VALUES (
+        (select param_value from comm_params where param_group = 'shqb' and param_key = 'shqb_enterprise_channel_no'),
+        #{userId},
+        now(),
+        '系统初始化'
+        )
+    </insert>
+
+    <select id="queryUserSecurityCardNo" resultType="String">
+        SELECT bank_card_no from wj_trade_account_card where user_id = #{userId} and card_type = 'security'
+    </select>
+
+    <update id="updateUserSecurityCardNo">
+        update wj_trade_account_card
+        set bank_card_no = #{newBankCardNo},
+         bank_name = #{bankName},
+         bank_code = #{bankCode}
+        where user_id = #{userId} and bank_card_no = #{oldBankCardNo}
+    </update>
+
+    <insert id="createUserInfo" parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.SHQBUserInfoDTO">
+        insert into shqb_user_info(
+          phone,
+          real_name,
+          identity_no,
+          bank_card_no,
+          channel_type,
+          create_date
+        )
+        VALUES (
+          #{phone},
+          #{realName},
+          #{identityNo},
+          #{bankCardNo},
+          #{channelType},
+          now()
+        )
+    </insert>
+
+    <select id="queryBankInfoByCardBin" resultType="Map">
+        SELECT
+          bank_unionpay_name bankName,
+          bank_code bankCode
+        from wj_bank_bin_info
+        where
+        card_bin = #{cardBin6} or card_bin = #{cardBin8}
+        LIMIT 1
+    </select>
+
+    <select id="queryNoMatchTip" resultType="string">
+        SELECT QUERY_PARAM_VALUE('shqb_no_match_tip','shqb')
+    </select>
+</mapper>

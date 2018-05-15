@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.rqjf.server.mapper.IHomeMapper">
+	
+	
+	<!-- home初始化 -->
+	<select id="queryAccumulateTotal"  resultType="java.lang.String">
+		SELECT
+<!-- 			CONCAT(cast( tt.total / 100000000 as decimal(18, 2) ), '亿') AS accumulateAmt -->
+			FORMAT(tt.total,0) as accumulateAmt
+		FROM
+			rqb_home_accumulate tt
+		where tt.accumulate_type ='accumulate_year'
+	</select>
+		
+	
+	<!-- 定期理财 -->
+	<select id="queryYearFinances"  resultType="java.util.HashMap">
+		SELECT
+			 t.accumulate_name AS 'title',
+			'http://hf-resource.oss-cn-shanghai.aliyuncs.com/pic/accumulate/1%403x.png' AS picUrl,
+			CONCAT(cast( t.total / 100000000 as decimal(18, 2) ), '亿') AS accumulateAmt,
+			t.count as countRecord,
+			CONCAT('以上数据统计截至时间:',t.create_date) AS accumulateTip
+		FROM
+			rqb_home_accumulate t
+		where accumulate_type='year_finances'
+	</select>
+		
+	<!-- 理财统计细节 -->
+	
+	<!-- 今日成交 -->
+	<select id="queryFinancesToday"  resultType="java.util.HashMap">
+		select  d.labelName,d.labelValue,CONCAT('成交',countRecords,'笔') as tip from (
+			SELECT
+				tt.accumulate_name AS labelName,
+				CONCAT(
+					cast(
+						sum(tt.total + sumMoney) / 10000 AS DECIMAL (18, 2)
+					),
+					'万元'
+				) AS labelValue,
+				sum(tt.count + countRecord) as countRecords
+			FROM
+				rqb_home_accumulate tt,
+				(
+					SELECT
+						IFNULL(sum(t.trade_price), 0) AS sumMoney,
+						COUNT(1) AS countRecord
+					FROM
+						rqb_home_accumulate_detail t
+					WHERE
+						t.trade_type = 'finances'
+					AND date_format(t.create_date, '%Y-%m-%d') = date_format(now(), '%Y-%m-%d')
+				) d
+			WHERE
+				tt.accumulate_type = 'today_finances'
+			) d
+	</select>
+	
+	<!-- 昨日成交 -->
+	<select id="queryFinancesYesterday"  resultType="java.util.HashMap">
+			select  d.labelName,d.labelValue,CONCAT('成交',countRecords,'笔') as tip from (
+			SELECT
+				tt.accumulate_name AS labelName,
+				CONCAT(
+					cast(
+						sum(tt.total + sumMoney) / 10000 AS DECIMAL (18, 2)
+					),
+					'万元'
+				) AS labelValue,
+				sum(tt.count + countRecord) as countRecords
+		 from  rqb_home_accumulate tt ,(select IFNULL(sum(t.trade_price),0) as sumMoney,COUNT(1) as countRecord from rqb_home_accumulate_detail t where t.trade_type='finances' and  date_format(t.create_date,'%Y-%m-%d')=date_format(DATE_SUB(curdate(), INTERVAL 1 DAY),'%Y-%m-%d') ) d
+		where tt.accumulate_type='yesterday_finances') d
+	</select>
+	
+	<!-- 查询上周 -->
+	<select id="queryFinancesLastWeek"  resultType="java.util.HashMap">
+			select  d.labelName,d.labelValue,CONCAT('成交',countRecords,'笔') as tip from (
+			SELECT
+				tt.accumulate_name AS labelName,
+				CONCAT(
+					cast(
+						sum(tt.total + sumMoney) / 10000 AS DECIMAL (18, 2)
+					),
+					'万元'
+				) AS labelValue,
+				sum(tt.count + countRecord) as countRecords
+			 from  rqb_home_accumulate tt ,(select IFNULL(sum(t.trade_price),0) as sumMoney,COUNT(1) as countRecord from rqb_home_accumulate_detail t where t.trade_type='finances' and  YEARWEEK(date_format(t.create_date,'%Y-%m-%d')) = YEARWEEK(now())-1 ) d
+			where tt.accumulate_type='lastweek_finances') d
+	</select>
+	
+	<!-- 查询上个月的数据  -->
+	<select id="queryFinancesLastMonth"  resultType="java.util.HashMap">
+		select  d.labelName,d.labelValue,CONCAT('成交',countRecords,'笔') as tip from (
+			SELECT
+				tt.accumulate_name AS labelName,
+				CONCAT(
+					cast(
+						sum(tt.total + sumMoney) / 10000 AS DECIMAL (18, 2)
+					),
+					'万元'
+				) AS labelValue,
+				sum(tt.count + countRecord) as countRecords
+		 from  rqb_home_accumulate tt ,(select IFNULL(sum(t.trade_price),0) as sumMoney,COUNT(1) as countRecord from rqb_home_accumulate_detail t where t.trade_type='finances' and  date_format(t.create_date,'%Y-%m')=date_format(DATE_SUB(curdate(), INTERVAL 1 MONTH),'%Y-%m')  ) d
+		where tt.accumulate_type='last_month_finances') d
+	</select>
+		
+	<!-- ////////////////////////////////////////////////////////////////////////////////////////////// -->
+		
+	<!-- 今年贷款 -->
+	<select id="queryYearLoan"  resultType="java.util.HashMap">
+		SELECT
+			 t.accumulate_name AS 'title',
+			'http://hf-resource.oss-cn-shanghai.aliyuncs.com/pic/accumulate/2%403x.png' AS picUrl,
+			CONCAT(cast( t.total / 100000000 as decimal(18, 2) ), '亿') AS accumulateAmt,
+			t.count as countRecord,
+			CONCAT('以上数据统计截至时间:',t.create_date) AS accumulateTip
+		FROM
+			rqb_home_accumulate t
+		where accumulate_type='year_loan'
+	</select>
+	
+	<!-- 今日成交 -->
+	<select id="queryLoanToday"  resultType="java.util.HashMap">
+	select  d.labelName,d.labelValue,CONCAT('成交',countRecords,'笔') as tip from (
+			SELECT
+				tt.accumulate_name AS labelName,
+				CONCAT(
+					cast(
+						sum(tt.total + sumMoney) / 10000 AS DECIMAL (18, 2)
+					),
+					'万元'
+				) AS labelValue,
+				sum(tt.count + countRecord) as countRecords
+ 		from  rqb_home_accumulate tt ,(select IFNULL(sum(t.trade_price),0) as sumMoney,COUNT(1) as countRecord from rqb_home_accumulate_detail t where t.trade_type='loan' and  date_format(t.create_date,'%Y-%m-%d')=date_format(now(),'%Y-%m-%d') ) d
+		where tt.accumulate_type='today_loan') d
+	</select>
+	<!-- 昨日成交 -->
+	
+	<select id="queryLoanYesterday"  resultType="java.util.HashMap">
+		select  d.labelName,d.labelValue,CONCAT('成交',countRecords,'笔') as tip from (
+			SELECT
+				tt.accumulate_name AS labelName,
+				CONCAT(
+					cast(
+						sum(tt.total + sumMoney) / 10000 AS DECIMAL (18, 2)
+					),
+					'万元'
+				) AS labelValue,
+				sum(tt.count + countRecord) as countRecords
+		 from  rqb_home_accumulate tt ,(select IFNULL(sum(t.trade_price),0) as sumMoney,COUNT(1) as countRecord from rqb_home_accumulate_detail t where t.trade_type='loan' and  date_format(t.create_date,'%Y-%m-%d')=date_format(DATE_SUB(curdate(), INTERVAL 1 DAY),'%Y-%m-%d') ) d
+		where tt.accumulate_type='yesterday_loan') d
+	</select>
+	
+	<!-- 查询上周 -->
+	<select id="queryLoanLastWeek"  resultType="java.util.HashMap">
+	select  d.labelName,d.labelValue,CONCAT('成交',countRecords,'笔') as tip from (
+			SELECT
+				tt.accumulate_name AS labelName,
+				CONCAT(
+					cast(
+						sum(tt.total + sumMoney) / 10000 AS DECIMAL (18, 2)
+					),
+					'万元'
+				) AS labelValue,
+				sum(tt.count + countRecord) as countRecords
+		 from  rqb_home_accumulate tt ,(select IFNULL(sum(t.trade_price),0) as sumMoney,COUNT(1) as countRecord from rqb_home_accumulate_detail t where t.trade_type='loan' and  YEARWEEK(date_format(t.create_date,'%Y-%m-%d')) = YEARWEEK(now())-1 ) d
+		where tt.accumulate_type='lastweek_loan') d
+	</select>
+	
+	<!-- 查询上个月的数据  -->
+	<select id="queryLoanLastMonth"  resultType="java.util.HashMap">
+		select  d.labelName,d.labelValue,CONCAT('成交',countRecords,'笔') as tip from (
+			SELECT
+				tt.accumulate_name AS labelName,
+				CONCAT(
+					cast(
+						sum(tt.total + sumMoney) / 10000 AS DECIMAL (18, 2)
+					),
+					'万元'
+				) AS labelValue,
+				sum(tt.count + countRecord) as countRecords
+		 from  rqb_home_accumulate tt ,(select IFNULL(sum(t.trade_price),0) as sumMoney,COUNT(1) as countRecord from rqb_home_accumulate_detail t where t.trade_type='loan' and  date_format(t.create_date,'%Y-%m')=date_format(DATE_SUB(curdate(), INTERVAL 1 MONTH),'%Y-%m')  ) d
+		where tt.accumulate_type='last_month_loan') d
+	</select>
+	
+	<!-- ////////////////////////////////////////////////////////////////////////////////////////////// -->
+		
+		
+	<!-- 累计-->
+	<select id="queryAccumulate"  resultType="java.util.HashMap">
+		SELECT
+			 t.accumulate_name AS 'title',
+			'http://hf-resource.oss-cn-shanghai.aliyuncs.com/pic/accumulate/3%403x.png' AS picUrl,
+			FORMAT((select sum(t.total_price) from wj_order t where t.order_status in ('apply_ma_to_rf_confirm'))+t.total,2) AS accumulateAmt
+		FROM
+			rqb_home_accumulate t
+		where accumulate_type='accumulate_year'
+	</select>
+	
+	<!-- 累计细节 -->
+	<select id="queryAccumulateCountList"  resultType="java.util.HashMap">
+		select f.labelName,f.labelValue,f.tip from (
+			SELECT
+				tt.id,
+				tt.accumulate_name AS labelName,
+				CONCAT(cast( tt.total / 10000 as decimal(18, 2) ), '万元') AS labelValue,
+			case when tt.accumulate_type ='accumulate_loan' then 	CONCAT('借款', tt.count, '人') 
+			when tt.accumulate_type ='accumulate_receive' then 	CONCAT('注册', tt.count, '人') 
+			when tt.accumulate_type ='accumulate_store' then 	tt.count
+			end 
+			AS tip
+			FROM
+				rqb_home_accumulate tt
+			WHERE
+				tt.accumulate_type IN (
+					'accumulate_loan',
+					'accumulate_receive',
+					'accumulate_store'
+				)
+			union ALL
+			SELECT
+			a.id,
+				a.accumulate_name AS labelName,
+			a.total as labelValue,
+			a.count tip
+			FROM
+				rqb_home_accumulate a
+			WHERE
+				a.accumulate_type IN (
+					'accumulate_safe'
+				)
+			
+			ORDER BY id asc) f
+	</select>
+	
+	
+	<select id="queryLatestDynamicHomeList" resultType="java.util.HashMap">
+		SELECT
+				T.title as  title,
+				T.sub_title as  subTitle,
+				T.small_pic as  smallPic,
+				T.detail_url as  detailUrl,		
+			 	DATE_FORMAT( T.publish_time,'%Y-%m-%d')	as  publishTime
+		FROM
+			rqb_activity_info t
+		where t.is_valid='Y'
+		ORDER BY t.sort DESC
+		LIMIT 0,3
+	</select>
+	
+	
+	<select id="queryLatestDynamicList" parameterType="java.lang.Object" resultType="java.util.HashMap">
+		SELECT
+				T.title as  title,
+				T.sub_title as  subTitle,
+				T.small_pic as  smallPic,
+				T.detail_url as  detailUrl,		
+			 	DATE_FORMAT( T.publish_time,'%Y-%m-%d')	as  publishTime
+		FROM
+			rqb_activity_info t
+		where t.is_valid='Y'
+		ORDER BY t.sort DESC
+		LIMIT #{page},10
+	</select>
+	
+	<select id="queryReportList" parameterType="java.lang.Object" resultType="java.util.HashMap">
+		SELECT	
+				T.report_id as reportId,
+				T.title as  title,
+				T.small_pic as  imgUrl,
+			 	DATE_FORMAT( T.create_date,'%Y-%m-%d')	as  publishTime
+		FROM
+			rqb_report_info t
+		where t.is_valid='Y'
+		ORDER BY t.sort DESC
+		LIMIT #{page},10
+	</select>
+	
+	<select id="queryReportDetail" parameterType="java.lang.Object" resultType="java.lang.String">
+		SELECT	
+			detail_content as detailContent
+		FROM
+			rqb_report_info t
+		where t.report_id=#{reportId}
+	</select>
+	
+	
+	
+	<select id="queryAccumulateList"  resultType="java.util.HashMap" >
+		-- 累积
+		SELECT	
+		'累积成交' as labelName,
+		(select sum(t.total_price) from wj_order t where t.order_status in ('apply_ma_to_rf_confirm'))+w.total as labelValue ,
+		'' as tip 
+		FROM 	rqb_home_accumulate w WHERE 	w.accumulate_type = 'accumulate_year'
+		UNION all
+		-- 平稳运营
+		select '已平稳运营' as labelName,
+		CONCAT(TIMESTAMPDIFF(DAY,'2017-09-25',now())+(SELECT	w.total FROM	rqb_home_accumulate w WHERE w.accumulate_type = 'accumulate_safe_add'),'天') as labelValue ,
+		'' as tip
+		from dual
+		UNION all
+		-- 注册人数
+		SELECT
+		'注册人数' as labelName,
+		CONCAT( count(1)+(SELECT	w.total FROM	rqb_home_accumulate w WHERE w.accumulate_type = 'accumulate_user_regrist'),'人')  as labelValue,
+		'' as tip  from wj_user_info 
+		UNION all
+		-- 收益
+		select '给用户带来收益' as labelName,
+		sum(mm.repay_interest)+(SELECT	w.total FROM	rqb_home_accumulate w WHERE w.accumulate_type = 'accumulate_user_receive') as labelValue,
+		'' as tip from wj_repayment_plan mm
+	</select>
+	
+	<select id="queryHomeBannerList"  resultType="java.util.HashMap" >
+		SELECT
+			T.title AS title,
+			T.small_pic AS smallPic,
+			T.detail_url AS detailUrl,
+			CASE
+		WHEN t.detail_url != '' THEN	'Y'
+		ELSE	'N'
+		END AS isClick
+		FROM
+			rqb_home_banner t
+		WHERE
+			t.is_valid = 'Y'
+		ORDER BY	t.sort DESC
+	</select>
+	
+	
+	
+	
+</mapper>

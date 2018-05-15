@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.yingzt.server.integration.mapper.YingZTDataInteractionMapper">
+
+    <!-- 新增小赢交互接口日志记录 -->
+    <insert id="insertYingZTDataInteraction"
+            parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.yingzt.server.dto.YingZTDataInteractionDTO">
+        INSERT INTO
+        wj_yingzt_data_interaction(
+        user_id,
+        send_json_str,
+        return_json_str,
+        type_interaction,
+        create_by,
+        create_date
+        )
+        VALUES
+        (
+        #{userId},
+        #{sendJsonStr},
+        #{returnJsonStr},
+        #{typeInteraction},
+        #{createBy},
+        now()
+        );
+    </insert>
+
+</mapper>

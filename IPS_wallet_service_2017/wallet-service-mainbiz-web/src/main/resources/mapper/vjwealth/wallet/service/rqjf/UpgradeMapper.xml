@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.rqjf.server.mapper.IUpgradeMapper">
+	
+	<select id="countCommissionRecord" parameterType="java.lang.String" resultType="java.lang.Integer">
+		SELECT
+			count(1)
+		FROM
+			rqb_ckb_commission t
+		WHERE
+		    t.recommender_user_id=#{userId} 
+		and t.apply_status='success' 
+	</select>
+	
+<!-- 	<select id="sumFinancesCommissionAmt" parameterType="java.lang.String" resultType="java.lang.Double"> -->
+<!-- 		SELECT -->
+<!-- 			sum(t.trade_price) -->
+<!-- 		FROM -->
+<!-- 			rqb_ckb_commission t -->
+<!-- 		WHERE -->
+<!-- 			t.trade_type = 'finances' -->
+<!-- 		and t.recommender_user_id=#{userId} -->
+<!-- 		and t.apply_status='success'  -->
+<!-- 	</select>	 -->
+	
+<!-- 	<select id="countLoanCommissionRecord" parameterType="java.lang.String" resultType="java.lang.Integer"> -->
+<!-- 		SELECT -->
+<!-- 			count(t.trade_price) -->
+<!-- 		FROM -->
+<!-- 			rqb_ckb_commission t -->
+<!-- 		WHERE -->
+<!-- 			t.trade_type ='loan' -->
+<!-- 		and t.recommender_user_id=#{userId}  -->
+<!-- 		and t.apply_status='success'  -->
+<!-- 	</select> -->
+		
+<!-- 	<select id="queryLevelId" parameterType="java.lang.Object" resultType="java.util.HashMap"> -->
+<!-- 			SELECT -->
+<!-- 				tt.level_id as levelId, -->
+<!-- 				tt.sort as sort -->
+<!-- 			FROM -->
+<!-- 				rqb_ckb_upgrade_rule tt -->
+<!-- 			WHERE -->
+<!-- 				tt.trade_type = #{tradeType} -->
+<!-- 			AND tt.deal_min_amount &lt; #{sumAmt} -->
+<!-- 			AND tt.deal_max_amount &gt;= #{sumAmt} -->
+<!-- 			ORDER BY tt.sort DESC -->
+<!-- 			LIMIT 0, 1 -->
+<!-- 	</select>	 -->
+	
+	<select id="queryCKLevelId" parameterType="java.lang.String" resultType="java.lang.String">
+			SELECT
+				tr.levelId
+			FROM
+				(
+					SELECT
+						tt.level_id AS levelId,
+						tt.sort AS sort
+					FROM
+						rqb_ckb_upgrade_rule tt,
+						(
+							SELECT
+								IFNULL(sum(t.trade_price), 0) AS compare
+							FROM
+								rqb_ckb_commission t
+							WHERE
+								t.trade_type = 'finances'
+							AND t.recommender_user_id = #{userId}
+							AND t.apply_status = 'success'
+						) r
+					WHERE
+						tt.trade_type = 'finances'
+					AND tt.deal_min_amount &lt; r.compare
+					AND tt.deal_max_amount &gt;= r.compare
+					UNION ALL
+						SELECT
+							tt.level_id AS levelId,
+							tt.sort AS sort
+						FROM
+							rqb_ckb_upgrade_rule tt,
+							(
+								SELECT
+									count(t.trade_price) AS compare
+								FROM
+									rqb_ckb_commission t
+								WHERE
+									t.trade_type = 'loan'
+								AND t.recommender_user_id = #{userId}
+								AND t.apply_status = 'success'
+							) r
+						WHERE
+							tt.trade_type = 'loan'
+						AND tt.deal_min_amount  &lt; r.compare
+						AND tt.deal_max_amount &gt;= r.compare
+				) tr
+			ORDER BY	tr.sort DESC
+			LIMIT 0,1
+	</select>	
+	
+	<update id="updateUserLevelId" parameterType="java.lang.String" >
+		update wj_user_info 
+		set level_id=#{levelId},
+		is_ckb_vip='Y'
+		where id=#{userId} 
+	</update>	
+		
+	
+</mapper>

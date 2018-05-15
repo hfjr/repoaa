@@ -1,0 +1,24 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	<div class="invest-success">
+		<p class="text-1">
+			<#
+				print(self.getParam("message"));
+			#>
+		</p>
+		<p class="text-2">
+		<#
+			print(self.getParam("paymentInformation"));
+		#>
+		</p>
+	</div>
+	<p class="wen"></p>
+	<div class="btn-bar">
+		<span class="btn-1" data-url="account/invest">查看投资</span>
+		<span class="btn-2" data-url="invest/index">继续投资</span>
+	</div>
+</script>
+<div class="page">
+	
+	<div class="main-view"></div>
+</div>
+

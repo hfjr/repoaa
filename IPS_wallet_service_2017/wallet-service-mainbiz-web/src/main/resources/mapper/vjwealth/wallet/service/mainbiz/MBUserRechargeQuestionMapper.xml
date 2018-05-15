@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.server.integration.mapper.IMBUserRechargeQuestionMapper">
+	<!-- 查询错误对应信息 -->
+	 <select id="queryErrorMessageByCodeAndPlateformId" parameterType="java.lang.String" 
+	 	resultType="java.lang.String">
+		    SELECT
+				p.message as message
+			FROM
+				wj_pay_channel_question_code c
+			INNER JOIN wj_pay_platform_question_code p ON c.platform_code=p.code 
+			where c.code = #{code}
+			AND c.plateform_id = #{plateformId}
+	 </select>
+</mapper>

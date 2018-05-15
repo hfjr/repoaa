@@ -1,0 +1,20 @@
+@charset "utf-8";
+/**
+ * 账单
+*/
+.group .item-list{border-top:1px solid #f2f2f2;border-bottom:1px solid #f2f2f2;}
+.group .item-wrap{border-bottom:1px solid #f2f2f2;}
+
+.group{}
+.group .handle{ background:#fbfbfb; box-sizing:border-box; line-height:40px; padding-left:20px;font-size:14px; color:#bcbcbc;}
+.group .item-list{}
+.group .item{padding-left:20px; background:#fff; }
+.group .item.g-act-taped{background:#f6f6f6;}
+.group .item:last-child .item-wrap{border-bottom:0;}
+.group .item-wrap{ height:69px; position:relative;}
+.group .item .col-l{position:absolute; left:0;top:0;}
+.group .item .col-l .text{line-height:22px; font-size:14px;padding-top:15px;}
+.group .item .col-l .date{font-size:10px; line-height:14px; color:#c5c3c3;}
+.group .item .col-r{position:absolute; right:0;top:0;}
+.group .item .col-r .amount{float:left; position:absolute;right:47px; top:0;  line-height:69px;font-size:24px;}
+.group .item .col-r .arrow{ float:left; margin:28px 20px 0 15px;background:url(../img/arrow-r.png) 0 0 no-repeat; width:7px; height:15px; background-size:100% 100%; }

@@ -1,0 +1,18 @@
+@charset "utf-8";
+/**
+ * 【用户协议】收益权产品认购协议
+*/
+
+.contract{padding:20px;}
+.contract h1{width:100%;heigth:50px;line-height:50px;text-align:center;font-weight:bold;}
+.bottom{margin-bottom:20px;}
+.loan-height{line-height:26px; position:relative;}
+
+.height{height:26px;}
+.row{text-indent: 2em;}
+.loan-bold{font-weight:bold;}
+u{text-decoration:underline;width:100px;}
+.loan-padding{padding-top:20px;padding-bottom:20px;padding-left:15px;}
+.signature{position:absolute;right:20px;top:0;}
+.right{position:absolute;right:60px;top:0;}
+a{text-decoration:none;}

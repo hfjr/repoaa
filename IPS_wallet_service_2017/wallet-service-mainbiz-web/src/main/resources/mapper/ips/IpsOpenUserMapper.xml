@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.rqb.ips.depository.platform.mapper.IpsOpenUserMapper">
+	<!-- ips传入json数据 -->
+	<insert id="insertJsons" parameterType="java.util.Map">
+		INSERT INTO
+		wj_ebatong_trade_history (
+		status,
+		source,
+		operation_type,
+		create_date,
+		recharge_send_json,
+		recharge_return_json
+		)
+		VALUES
+		(
+		#{status},
+		#{source},
+		#{operationType},
+		#{createDate},
+		#{sendJson},
+		#{returnJson}
+		)
+	</insert>
+	<!-- 查询用户是否开过户 -->
+	<select id="queryUserIsOpen" parameterType="java.lang.String"
+		resultType="java.util.Map">
+		SELECT wj.user_id AS userId,
+		wj.trade_type AS tradeType,
+		wj.trade_account_status AS tradeStatus
+		FROM
+		wj_user_trade_account wj
+		INNER JOIN wj_user_info u on wj.user_id=u.id
+		WHERE
+		wj.user_id =#{userId}
+		AND trade_type='ips'
+		AND trade_account_status='1'
+	</select>
+	<!-- 查询用户手机号 -->
+	<select id="queryUserPhone" parameterType="java.lang.String"
+		resultType="java.util.Map">
+		SELECT
+		phone AS phone
+		FROM
+		wj_user_info
+		WHERE
+		id = #{userId}
+	</select>
+	<!-- 查询用户开户次数 -->
+	<select id="queryUserFreQuency" parameterType="java.lang.String"
+		resultType="java.lang.Integer">
+		SELECT
+		COUNT(title)
+		FROM
+		wj_order
+		WHERE
+		user_id = #{userId}
+		AND title = '用户开户'
+	</select>
+	<!-- 查询开户的类型 -->
+	<select id="queryUserType" resultType="java.util.Map">
+		SELECT
+		c.param_value AS
+		userType,
+		b.param_value AS bizType
+		FROM
+		comm_params
+		c,comm_params b
+		WHERE
+		c.param_group = 'user_register'
+		AND b.param_key
+		='bizType'
+		AND
+		c.param_key = 'userType'
+		LIMIT 0,1
+	</select>
+	<!-- 创建用户 -->
+	<update id="insertUserInfo" parameterType="java.lang.String">
+		UPDATE wj_user_info
+		SET user_name = #{userName},
+		real_name = #{realName},
+		indentity_type='01',
+		user_status='00',
+		indentity_no =
+		#{identNo}
+		WHERE
+		id =
+		#{userId}
+	</update>
+
+	<!-- 创建用户订单号 -->
+	<insert id="insertUserBillNo" parameterType="java.lang.String">
+		INSERT INTO wj_order
+		(
+		user_id,
+		order_no,
+		title,
+		order_type,
+		order_status,
+		create_date
+		)
+		VALUES
+		(
+		#{userId},
+		#{merBillNo},
+		'用户开户',
+		'user_register',
+		#{openAccountConfirm},
+		<!-- 状态为请求中 -->
+		NOW()
+		)
+	</insert>
+</mapper>

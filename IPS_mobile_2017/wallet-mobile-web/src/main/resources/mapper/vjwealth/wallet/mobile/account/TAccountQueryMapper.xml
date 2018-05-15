@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.account.server.mapper.TAccountQueryMapper">
+
+     <!-- 获取ta账户信息 -->
+     <select id="queryTAccountInfo" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT
+			TRUNCATE (wa.available_amount, 2) AS totalAccountAmount,
+			TRUNCATE (
+				IFNULL(sum(o.total_price), 0),
+				2
+			) AS amountFrozen
+		FROM
+			wj_user_trade_account wa
+		LEFT JOIN wj_order o ON o.user_id = wa.user_id
+		AND o.order_type IN (
+			'withdraw_ta',
+			'apply_ma_to_ta'
+		)
+		AND o.order_status IN (
+			'withdraw_ta_process',
+			'withdraw_ta_unknown',
+			'apply_ma_to_ta_noconfirm'
+		)
+		WHERE
+			wa.user_id = #{userId}
+		AND wa.trade_type = 'ta'
+     
+     </select>
+	 
+	 
+	    
+     <!-- 获取ta账户的昨日收益 -->
+     <select id="queryTAccountYestodayReceive" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT
+			TRUNCATE (fu.product_receive, 2) as yesterdayReceive
+		FROM
+			wj_user_trade_account wa,
+			fund_user_receive fu
+		WHERE	
+		    wa.user_id=fu.user_id
+		AND wa.trade_type=fu.trade_type
+		AND fu.batch_status='success'
+		AND wa.trade_type = 'ta'
+		AND wa.user_id = #{userId}
+		AND fu.receive_date = #{receiveDate}
+     </select>
+	 
+	 
+	     <!-- 获取ta账户的总收益 -->
+     <select id="queryTAccountTotalReceive" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT
+			TRUNCATE (IFNULL(sum(ur.product_receive),0), 2)  as allAreadyReceive
+		FROM
+				fund_user_receive ur,
+				wj_user_trade_account trade
+		WHERE
+			ur.user_id = trade.user_id
+		AND ur.trade_type=trade.trade_type
+	    AND ur.batch_status = 'success'
+		AND trade.user_id = #{userId}
+	    AND trade.trade_type='ta'
+     
+     </select>
+	 
+	 
+	   <!-- 获取ta账户转入明细-->
+     <select id="queryTAccountBillDetail" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+			TRUNCATE (o.total_price, 2) AS 'amount',
+			date_format(o.create_date,'%Y-%m-%d %H:%i:%S') AS 'date',
+			o.title AS 'title',
+			TRUNCATE (o.total_price, 2) AS 'tradeAmount',
+			date_format(o.create_date,'%Y-%m-%d %H:%i:%S') AS 'tradeDate',
+			o.title AS 'tradeTitle',
+            IF(card.bank_name IS NULL,'',CONCAT(card.bank_name,'(尾号',RIGHT(card.bank_card_no,4),')')) AS bank,
+			IF(card.bank_code IS NULL,'',card.bank_code) AS bankCode,
+			o.order_type AS orderType,
+			o.order_status AS orderStatus,
+			'金额' AS amountTitle,
+			'类型' AS typeTitle,
+			o.order_no as 'orderNo'
+		FROM
+			wj_order o
+            LEFT JOIN wj_trade_account_card card on o.trade_account_card_id=card.id
+		WHERE
+			o.user_id = #{userId}
+		AND o.order_type IN ('apply_ma_to_ta','batch_apply','transfer_ta_to_ma','withdraw_ta')
+		AND o.order_status IN ('batch_apply_confirm',
+		                           'apply_ma_to_ta_noconfirm','apply_ma_to_ta_failconfirm','apply_ma_to_ta_confirm',
+		                           'transfer_ta_to_ma_confirm','transfer_ta_to_ma_fail',
+		                           'withdraw_ta_process','withdraw_ta_unknown','withdraw_ta_success')
+		ORDER BY
+			o.create_date DESC
+		LIMIT #{page},10     
+     </select>
+	 
+	 <!-- 获取ta账户历史收益列表-->
+     <select id="queryTAccountReciveDetail" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+			TRUNCATE (ur.product_receive, 2) + '' AS 'reciveAmount',
+			date_format(ur.receive_date, '%Y-%m-%d') AS 'reciveDate'
+		FROM
+			fund_user_receive ur,
+			wj_user_trade_account trade
+		WHERE
+			trade.user_id = #{userId}
+		AND trade.trade_type = 'ta'
+		AND ur.user_id = trade.user_id
+		AND ur.trade_type=trade.trade_type
+		AND ur.batch_status = 'success'
+		AND ur.product_receive > 0
+		ORDER BY
+			ur.create_date DESC
+		LIMIT #{page},10
+     
+     </select>
+     
+	 
+    <!-- 查询ta账户的万分收益及七日年化利率-->
+     <select id="queryTAccountFundWanInfo" resultType="java.util.Map">
+         SELECT
+			fwr.wan_receive AS everyReceiveRate,
+			fwr.week_receive_rate AS weekReceiveRate
+		FROM
+			fund_wan_receive fwr
+		WHERE
+			fwr.trade_type = 'ta'
+		ORDER BY
+			fwr.wan_receive_date DESC
+		LIMIT 0,1
+     
+     </select>
+	 
+      <!-- ta账户提现前查询,可用余额-->
+      <select id="queryTAccountCanUseAmount" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+			TRUNCATE (wa.available_amount,2) as amountAvailable
+		FROM
+			wj_user_trade_account wa
+		WHERE
+			wa.user_id = #{userId}
+		AND wa.trade_type = 'ta'
+     </select>
+
+	<!-- ta账户提现前查询,可用余额-->
+	<select id="queryTAccountCanUseAmountV36" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT
+		TRUNCATE (wa.available_amount,2) as amountAvailable
+		FROM
+		wj_user_trade_account wa
+		WHERE
+		wa.user_id = #{userId}
+		AND wa.trade_type = 'ma'
+	</select>
+	 
+       <!-- ta账户提现前查询,可提现次数-->
+      <select id="queryTAccountCanWithdrawTimes" parameterType="java.lang.String" resultType="java.util.Map">
+         select 
+			(select p.param_value from comm_params p where p.param_group = 'withdraw' and p.param_key = 'day_withdraw_times' limit 0 ,1 ) 
+				- 
+				(select 
+						count(*)			
+					from
+						wj_order
+					where
+						user_id = #{userId}
+					and
+						 date_format(create_date,'%Y-%m-%d') =  date_format(now(),'%Y-%m-%d')
+					and
+						order_type = 'withdraw_ta'
+            and order_status in ('withdraw_ta_process','withdraw_ta_unknown','withdraw_ta_success')
+					) as 'canUseCount'
+			from dual
+     </select>
+     
+     <!-- ta账户提现,提示-->
+      <select id="queryTAccountWithdrawTips" resultType="java.util.Map">
+           SELECT
+				'50000' AS singleLimit,
+				'单笔上限5万元' AS tip
+			FROM
+				comm_params p
+			WHERE
+				p.param_group = 'withdraw'
+			AND p.param_key = 'day_withdraw_times'
+			LIMIT 0,1
+     </select>
+     
+      <!-- ta账户冻结金额详细-->
+      <select id="queryTAccountFrozenDetail" parameterType="java.util.Map" resultType="java.util.Map">
+           SELECT
+			TRUNCATE (o.total_price, 2) AS 'amount',
+			date_format(o.create_date,'%Y-%m-%d %H:%i:%S') AS 'date',
+			o.title AS 'title',
+            IF(card.bank_name IS NULL,'',CONCAT(card.bank_name,'(尾号',RIGHT(card.bank_card_no,4),')')) AS bank,
+			IF(card.bank_code IS NULL,'',card.bank_code) AS bankCode,
+			o.order_type AS orderType,
+			o.order_status AS orderStatus,
+			'金额' AS amountTitle,
+			'类型' AS typeTitle ,o.order_no as 'orderNo'
+			FROM
+				wj_order o
+        LEFT JOIN wj_trade_account_card card on o.trade_account_card_id=card.id
+			WHERE
+				o.user_id = #{userId}
+			AND o.order_type IN (
+				'withdraw_ta',
+				'apply_ma_to_ta'
+			)
+			AND o.order_status IN (
+				'withdraw_ta_process','withdraw_ta_unknown',
+				'apply_ma_to_ta_noconfirm'
+			)
+			ORDER BY
+			    o.create_date DESC
+			LIMIT #{page},10    
+     </select>
+     
+
+</mapper>

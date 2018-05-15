@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.rqb.ips.depository.platform.mapper.ipsOpenUserResultMapper">
+
+	<!-- ips传入json数据 -->
+	<insert id="insertInfo" parameterType="java.util.Map">
+		INSERT INTO
+		wj_ebatong_trade_history (
+		create_date,
+		operation_type,
+		notice_send_json
+		)
+		VALUES
+		(
+		NOW(),
+		'user_register',
+		#{json}
+		)
+	</insert>
+	<!-- 根据merbillno得到userId -->
+	<select id="queryUserId" parameterType="java.lang.String"
+		resultType="java.util.Map">
+		SELECT
+		wj.user_id AS userId
+		FROM
+		wj_order wj
+		WHERE
+		wj.order_no =
+		#{merBillNo}
+	</select>
+	<!-- 根据id,merbillno 跟新用户订单状态 和反回订单号 -->
+	<update id="updateUserOrder" parameterType="java.lang.String">
+		UPDATE wj_order wj
+		SET wj.channel_trade_id = #{ipsBillNo},
+		wj.order_status = #{status}
+		WHERE
+		wj.user_id = #{id}
+		AND wj.order_no = #{merBillNo}
+	</update>
+	<!-- //根据userid 去存ipsAcctNo -->
+	<insert id="insertUserId" parameterType="java.lang.String">
+	INSERT INTO
+		wj_user_trade_account (
+		id,
+		user_id,
+		trade_type,
+		trade_account_status,
+		create_date
+		)
+		VALUES
+		(
+		#{ipsAcctNo},
+		#{id},
+		'ips',
+		#{status},
+		NOW()
+		)
+	</insert>
+	<!-- 查询反回状态 -->
+	<select id="queryUserOpenStuats" parameterType="java.lang.String"
+		resultType="java.util.Map">
+		SELECT
+		wj.order_status AS openStatus
+		FROM
+		wj_order wj
+		WHERE
+		wj.user_id = #{id}
+		AND wj.order_no = #{merBillNo}
+	</select>
+</mapper>

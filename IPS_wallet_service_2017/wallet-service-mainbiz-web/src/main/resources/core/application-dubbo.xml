@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	 http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.0.xsd
+    http://code.alibabatech.com/schema/dubbo 
+    http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+	
+	<dubbo:application name="wallet-service-mainbiz-web" />
+
+	<!-- zookeeper注册中心地址 -->
+    <dubbo:registry protocol="zookeeper" address="${dubbo.zookeeper}" />
+	<dubbo:protocol name="dubbo" port="-1" />
+	<!-- 关闭所有启动检查 -->
+	<dubbo:consumer check="false" />
+<!-- 	<dubbo:reference interface="com.vjwealth.sms.dubbo.SmsDubboService" id="smsDubboService" version="1.0.0"  /> -->
+	<!-- 事件平台 -->
+	<dubbo:reference interface="com.vjwealth.event.api.service.IExcuteEventService" id="excuteEventService" version="1.0.0"   />
+
+	<!-- 统计服务 -->
+	<dubbo:service interface="com.zhuanyi.vjwealth.wallet.service.mainbiz.rqjf.server.service.IAccumulateService" ref="accumulateService" version="1.0.0"/>
+	<!-- 佣金服务 -->
+	<dubbo:service interface="com.zhuanyi.vjwealth.wallet.service.mainbiz.rqjf.server.service.ICommissionService" ref="commissionService" version="1.0.0"/>
+	<!-- 会员升级 -->
+	<dubbo:service interface="com.zhuanyi.vjwealth.wallet.service.mainbiz.rqjf.server.service.IUpgradeService" ref="upgradeService" version="1.0.0"/>
+	
+	<!-- 消息推送 -->
+	<dubbo:service interface="com.zhuanyi.vjwealth.wallet.service.mainbiz.rqjf.server.service.IPushMessageService" ref="pushMessageService" version="1.0.0"/>
+
+	<!--抽奖服务-->
+	<dubbo:service interface="com.zhuanyi.vjwealth.wallet.service.mainbiz.rqjf.server.service.ILotteryService" ref="lotteryService" version="1.0.0"/>
+	<!-- 注册服务 -->
+	<dubbo:service interface="com.zhuanyi.vjwealth.wallet.service.mainbiz.rqjf.server.service.IRegisteredService" ref="registeredService" version="1.0.0"/>
+
+
+     <!-- 解冻 -->
+	 <dubbo:service interface="com.rqb.ips.depository.platform.faced.UnfreezeServices" ref="UnfreezeServices" version="1.0.0"/>
+	<bean id="UnfreezeServices" class="com.zhuanyi.vjwealth.wallet.service.mainbiz.unfreeze.impl.IPSUnfreezeServices"></bean> 
+
+		
+	<!-- 开户服务 -->
+	<dubbo:service interface="com.rqb.ips.depository.platform.faced.IPSOpenUserService" ref="ipsOpenUserService" version="1.0.0"/>
+    <bean id="ipsOpenUserService" class="com.rqb.ips.depository.platform.service.IPSOpenUserServiceImpl">
+	</bean> 
+	<!-- 红包冻结回掉 -->
+	<dubbo:service interface="com.rqb.ips.depository.platform.faced.IpsPacketFrozenService" ref="packetFrozenService" version="1.0.0"/>
+	<bean id="packetFrozenService" class="com.rqb.ips.depository.platform.service.ExcuteIpsPacketFrozenService">
+	</bean> 
+	
+	
+	<!-- 转账接口 -->
+	<dubbo:service interface="com.rqb.ips.depository.platform.faced.IpsTransferAccountsService" ref="ipsTransferAccountsService" version="1.0.0"/>
+	<bean id="ipsTransferAccountsService" class="com.rqb.ips.depository.platform.service.ExcuteIpsTransferAccountsService"></bean>
+	
+	<!--  平台下用户登录  -->
+	<dubbo:service interface="com.rqb.ips.depository.platform.faced.IpsPlatformLoginService" ref="ipsPlatformLoginService" version="1.0.0"/>
+	<bean id="ipsPlatformLoginService" class="com.rqb.ips.depository.platform.service.ExcuteIpsPlatformLoginService"></bean>
+	
+	<!--ips用户信息查询  -->
+	<dubbo:service interface="com.rqb.ips.depository.platform.faced.IPSQueryUserInfoService" ref="iPSQueryUserInfoService" version="1.0.0"/>
+	<bean id="iPSQueryUserInfoService" class="com.rqb.ips.depository.platform.service.IPSQueryUserInfoServiceimpl"></bean>
+	
+
+	
+	 <!-- 冻结接口 -->
+	 <dubbo:service interface="com.rqb.ips.depository.platform.faced.IPsFreezeService" ref="iPsFreezeService" version="1.0.0"/>
+	<bean id="iPsFreezeService" class="com.rqb.ips.depository.platform.service.ExcuteIpsFreezeService"></bean>
+	
+	<!-- 转账接口 2
+	<dubbo:service interface="com.rqb.ips.depository.platform.faced.IpsTransferService" ref="ipsTransferService" version="1.0.0"/>
+	<bean id="ipsTransferService" class="com.rqb.ips.depository.platform.service.ExcuteIpsTransferService"></bean>-->
+	</beans>

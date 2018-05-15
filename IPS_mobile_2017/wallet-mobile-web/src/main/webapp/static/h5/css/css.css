@@ -1,0 +1,41 @@
+@charset "utf-8";
+body,button,dd,div,dl,dt,form,h1,h2,h3,h4,h5,h6,hr,input,label,li,ol,p,table,tbody,td,textarea,th,thead,tr,ul{margin:0;padding:0}
+body,html{width:100%;background:#fff;-webkit-user-select:none;-webkit-text-size-adjust:none}
+html{font-size:16px; margin:0; padding:0;  }
+body{ }
+body,button,input,select,textarea{font-size:14px;color:#4a4a4a; font-family:Helvetica,STHeiti,Droid Sans Fallback}
+a{color:#606060;text-decoration:none;-webkit-tap-highlight-color:transparent}
+img{max-width:100%;border:0}
+input{-webkit-appearance:none;opacity:1;}
+input:focus{outline:0}
+
+
+
+input::-webkit-input-placeholder {color:#d8d8d8;opacity:1;}
+input:-moz-placeholder{color:#d8d8d8;opacity:1;}
+input::-moz-placeholder{color:#d8d8d8;opacity:1;}
+input:-ms-input-placeholder {color:#d8d8d8;opacity:1;}
+.ui-button{ color:#fff; cursor:pointer; height:40px; line-height:40px; border-radius:5px; font-size:17px;  text-align:center; background:#4ac0f0;border:0; display:block; }
+
+/*==按钮点击变色==*/
+.g-act-taped{background:#f6f6f6;}
+.ui-button-disabled{background:#F2F2F2!important;cursor:default!important; color:#D8D8D8!important; }
+.ui-button.g-act-taped{background:#0879b2;}
+input[type=submit].ui-button[disabled]{background:#F2F2F2!important; color:#D8D8D8!important; border:1px solid #D8D8D8; box-sizing:border-box; }
+.ui-button-bdBlue{ color:#4ac0f0;border:solid 1px #4ac0f0; cursor:pointer; height:38px; line-height:38px; border-radius:5px; font-size:17px;  text-align:center; background:#fff;display:block;}
+
+table{border-collapse:collapse;border-spacing:0}
+li,ol,ul{list-style:none}
+i{font-style: normal;}
+textarea{resize:none}
+*{-webkit-tap-highlight-color:transparent}
+.fix:after{content:".";display:block;height:0;clear:both;visibility:hidden}
+.fix{display:inline-block;min-height:1%}
+*html .fix{zoom:1}
+.fix{display:block}
+h1,h2,h3,h4,h5,h6{font-size:1rem; font-weight:normal;}
+
+.fl{float: left;}
+.fr{float: right;}
+.ta-r{text-align:right;}
+.ta-c{text-align:center;}

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rqb.ips.depository.platform.mapper.IpsTransferMapper">
+
+	<select id="transdetail" parameterType="java.lang.String"  resultType="java.util.Map" >
+		SELECT o.coupons_id as couponsId,o.user_id as userId,o.product_id as productId,o.channel_trade_id as ipsNO,ta.id as outips,ag.fina_ipsAcct_No as inips,o.total_price as price from wj_order o 
+		left join wj_product_finace pf on o.product_id=pf.product_id 
+		LEFT JOIN wj_product_finace_agent ag on ag.fina_id=pf.fina_id 
+		LEFT JOIN wj_user_trade_account ta on o.user_id=ta.user_id and ta.trade_type='ips'
+		where o.order_no = #{orderNo}
+	</select>
+	
+	<select id="queryMerType" parameterType="java.lang.String" resultType="java.util.Map">
+		select t.param_key as "key",t.param_value as "value" from comm_params t where t.param_group= #{paramGroup}	
+	</select>
+	
+	<update	id="updateRedPacket" parameterType="java.lang.String">
+		update rqb_package_info t set t.is_use='Y' where t.rel_order_no = #{orderNo}
+ 	</update>
+ 	
+ 	<update	id="updateCoupons" parameterType="java.lang.String">
+		UPDATE rqb_coupons_info t set t.is_use='Y' where  t.coupons_id= #{couponsId}
+ 	</update>
+ 		
+	<select id="queryPacket" parameterType="java.lang.String" resultType="java.util.Map">
+		SELECT rpi.is_use as isUse,rpi.is_valid as valid,rpi.rel_order_no orderNo from rqb_package_info rpi where rpi.rel_order_no in (
+		select o.order_no from wj_order o where o.channel_trade_id in(
+		select p.freezeId from wj_order p where p.order_no= #{orderNo} ))
+	</select>
+	
+</mapper>

@@ -1,0 +1,40 @@
+@charset "utf-8";
+/**
+ * v信贷完善信息
+*/
+.border-box{-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;}
+.f12{font-size: 12px;}
+.fb{font-weight: bold;}
+.vm{vertical-align: middle;}
+.color_blue{ color:#5d7a8d; }
+.color_orange{color:#f5a623;}
+.mt80{margin-top: 80px;}
+.completeInfor{min-height: 100%;font-size:14px; color: #4a4a4a;}
+.completeInfor *{line-height: 1.5em;}
+.commonLinkUl{background-color: #fff;border-bottom: solid 1px #f2f2f2;border-top: solid 1px #f2f2f2;  }
+.commonLinkUl li{ position:relative; padding-left:48px; }
+.commonLinkUl li.g-act-taped{background:#f6f6f6;}
+.commonLinkUl li .table{ width:100%; display: table;border-bottom: solid 1px #f2f2f2;padding-right:20px;-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
+.commonLinkUl li:last-child .table{border-bottom: none;}
+.commonLinkUl li .cell{ display: table-cell; vertical-align: middle; height: 71px; }
+.commonLinkUl li.hasarrow:after{content: ""; background:url(../../../img/arrow-r.png) 100% 0 no-repeat; width:7px; height:15px; background-size:100% 100%; position: absolute;right:20px; top:50%;margin-top: -8px; }
+.commonLinkUl li.edit:after{background-image: url(../../../img/icon_edit.png);width:14px;height: 15px;}
+.commonLinkUl li.hasarrow .table,.commonLinkUl li.hasrightpad .table{padding-right: 40px;}/*无箭头，又想与有箭头的行右对齐时用hasrightpad*/
+.commonLinkUl li.noborder .table{border-bottom: none;}/*没有下边框时用noborder*/
+.smallpadul li .cell{height: 25px;}/*上下padding小时用smallpadul*/
+.commonLinkUl li.multirows{padding: 10px 20px 0 48px; height: auto;}
+.commonLinkUl li.multirows .table{padding-right: 0;padding-bottom: 10px;}
+.commonLinkUl li.multirows:last-child .table{margin-bottom:15px;}
+.commonLinkUl li.multirows .cell p{margin-bottom: 5px;}
+.commonLinkUl li.multirows p:last-child{margin-bottom: 0;}
+.commonLinkUl input{font-size:14px;color:#5d7a8d;text-align: right;display: block;width:100%;border:none;background: none;}
+.line-dot{width:100%;height: 3px; background: url(../../../img/line.png) no-repeat;background-size:100% 100%;display: block; margin-top:15px;}
+.completeInfor .tt{ color:#5d7a8d; padding: 13px 0;position: relative;z-index: 101;font-size: 16px;}
+.confirmul li{ padding:15px 0 0 20px; }
+.confirmul .ul_tt{width:40%;}
+.confirmul .ul_words{width:60%;}
+.icon_book{ width:14px; height:15px; background:url(../../../img/icon_book.png) no-repeat; background-size:100% 100%; display:inline-block; margin-right:2px; vertical-align: middle;}
+.downbtn{padding:20px;}
+.downbtn .ui-button{display: block;width:100%;}
+.confirmul li.downtablewrap{padding-bottom: 15px;}
+.contractWraper{padding:10px 0;}

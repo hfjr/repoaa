@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.user.server.integration.mapper.ISHQBLoginLogMapper">
+	
+	<insert id="insertLoginLog" parameterType="com.zhuanyi.vjwealth.wallet.mobile.user.dto.SHQBLoginLogDTO">
+		insert into shqb_login_log (
+			in_param_encrypt,
+			in_param,
+			out_param_encrypt,
+			out_param,
+			create_date
+		) VALUES (
+			#{inParamEncrypt},
+			#{inParam},
+			#{outParamEncrypt},
+			#{outParam},
+			now()
+		)
+	</insert>
+
+</mapper>

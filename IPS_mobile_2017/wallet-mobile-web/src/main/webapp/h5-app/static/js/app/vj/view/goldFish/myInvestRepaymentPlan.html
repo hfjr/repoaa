@@ -1,0 +1,76 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	<div class="page-account-investRepaymentPlan">
+		<div class="top">
+			<div class="top-wrap">
+				<div class="item">
+					<div class="con fix">
+						<span class="attr">投资本金</span>
+						<span class="value">
+							<span class="s-1"><# print(self.initData.investmentPrincipal); #></span>
+							<span class="s-2">元</span>
+						</span>
+					</div>
+				</div>
+				<div class="item">
+					<div class="con fix">
+						<span class="attr">待收利息</span>
+						<span class="value">
+							<span class="s-1"><# print(self.initData.interestReceived); #></span>
+							<span class="s-2">元</span>
+						</span>
+					</div>
+				</div>
+			</div>
+			<div class="wen"></div>
+		</div>
+		
+		<div class="repay-list">
+			
+			<# if(self.initData.repaymentPlanList.length > 0){ #>
+			<div class="list">
+				<# $.each(self.initData.repaymentPlanList, function(i, o){ #>
+				<div class="item">
+					<div class="state-bar">
+						<div class="b-top" <# if(i == 0){ #> style="display:none;" <# } #> ></div>
+						<div class="b-middle"></div>
+						<div class="b-bottom"></div>
+					</div>
+					<div class="desc">
+						<div class="title fix">
+							<span class="text"><# print(o.paymentInstallments); #></span>
+							<span class="date"><# print(o.paymentDate); #></span>
+						</div>
+						<div class="text-1 fix">
+							<span class="attr">应回本息</span>
+							<span class="value">
+								<span class="s-1"><# print(o.principalAndInterestReceivable); #></span>
+								<span class="s-2">&nbsp;元</span>
+							</span>
+						</div>
+						<div class="text-2">
+							<div class="text">
+								<# print(o.principalAndInterestDesc); #>
+							</div>
+						</div>
+					</div>
+				</div>
+				<# if(i+1 != self.initData.repaymentPlanList.length){ #>
+				<p class="item-blank">
+					<span class="con">
+						<span class="split"></span>
+					</span>
+				</p>
+				<# } #>
+				<# }); #>
+			</div>
+			<# }else{ #>
+			<div class="widget-no-data">
+				<div class="img"></div>
+				<p class="text">暂无记录</p>
+			</div>
+			<# } #>
+		</div>
+		
+	</div>		
+</script>
+<div class="page"></div>

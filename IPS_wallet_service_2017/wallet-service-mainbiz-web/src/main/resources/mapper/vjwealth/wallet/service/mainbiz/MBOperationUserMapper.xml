@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Mapper接口 -->
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.server.integration.mapper.IMBUserOperationMapper">
+
+	<!-- 查询密码 -->
+	<select id="queryPasswordByUserId" resultType="java.lang.String">
+		SELECT
+		    ui.password 'password'
+		FROM
+		    wj_user_info ui
+		WHERE
+		    ui.id = #{userId}
+	</select>
+	
+	<!-- 更新密码 -->
+	<update id="updateModifyPassword">
+		UPDATE wj_user_info 
+			SET
+		 	password=#{encodePassword},
+		 	update_date = now()
+	 	WHERE id = #{userId}
+	</update>
+	
+	
+	
+	<select id="countNextWorkDayExit" parameterType="java.lang.String" resultType="java.lang.Integer">
+		SELECT
+			count(1)
+		FROM
+			wj_confirm_share_date_info csd
+		WHERE
+			csd.batch_date_int > DATE_FORMAT(#{targetDate}, '%Y%m%d')
+		AND csd.working_day_flag = 'Y'
+		ORDER BY
+			csd.batch_date_int ASC
+		LIMIT 0, 1
+	</select>
+	
+	<!-- 查询下一个工作日 -->
+	<select id="queryNextWorkDay" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT
+			DATE_FORMAT(csd.batch_date_int, '%Y-%m-%d') AS 'nextWorkDay'
+		FROM
+			wj_confirm_share_date_info csd
+		WHERE
+			csd.batch_date_int > DATE_FORMAT(#{targetDate}, '%Y%m%d')
+		AND csd.working_day_flag = 'Y'
+		ORDER BY
+			csd.batch_date_int ASC
+		LIMIT 0, 1
+	</select>
+	
+</mapper>

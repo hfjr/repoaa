@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.common.server.mapper.ICommonSequenceMapper">
+		<select id="getCurrentValue" parameterType="java.lang.String" resultType="java.lang.Long">
+			/*master*/ select seq_currval(#{value}) as 'currval'
+		</select>
+		
+		<select id="getNextValue" parameterType="java.lang.String" resultType="java.lang.Long">
+			/*master*/ select seq_nextval(#{value}) as 'nextval'
+		</select>
+</mapper>

@@ -1,0 +1,53 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	<#
+		var o = self.initData;
+		var formData = self.formData;
+	#>
+	<section class="completeInfor border-box">
+		<form id="f-form">
+			<# $.each(formData, function(name, value){ #>
+			<input type="hidden" name="<# print(name); #>" value="<# print(value); #>">
+			<# }); #>
+			<ul class="commonLinkUl smallpadul confirmul">
+				<li class="noborder">
+					<# $.each(o.personalInformation, function(i, o){ #>
+					<div class="table">
+						<div class="cell ul_tt">
+							<p class="fb"><# print(o.label); #></p>
+						</div>
+						<div class="cell ul_words ta-r">
+							<p class="color_blue"><# print(o.value); #></p>
+						</div>
+					</div>
+					<# }); #>
+					<p class="line-dot"></p>
+				</li>
+				<li class="downtablewrap">
+					<# $.each(o.loadDetailInformation, function(i, o){ #>
+					<div class="table">
+						<div class="cell ul_tt">
+							<P><# print(o.label); #></P>
+						</div>
+						<div class="cell ul_words ta-r">
+							<p class="color_blue"><# print(o.value); #></p>
+						</div>
+					</div>
+					<# }); #>
+				</li>
+			</ul>
+			<div class="downbtn downbtn2 mt50">
+				<input type="submit" id="f-btn" class="ui-button" g-act-tap="true" value="确认">
+			</div>
+			<div id="f-contractWraper" class="contractWraper" data-tap-path="<# print(self.createURL("goldFish/contractTemplate", { contractTemplateUrl : o.contractURL })) #>">
+				<p class="f12 ta-c color_blue "><# print(o.protocolSpecification); #></p>
+				<p class="color_orange f12 ta-c"><# print(o.contractTitle); #></p>
+			</div>
+		</form>
+	</section>
+	
+</script>
+<div class="page">
+	
+	<div class="main-view"></div>
+</div>
+

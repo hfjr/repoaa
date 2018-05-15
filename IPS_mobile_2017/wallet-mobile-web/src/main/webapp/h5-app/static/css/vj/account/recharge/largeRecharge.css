@@ -1,0 +1,37 @@
+@charset "utf-8";
+
+/*==大额充值==*/
+.border-box{-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;}
+.largeRecharge{padding:1.25rem 0;background: url("../../../../img/index_bg.png") repeat; background-size:10px 11px;color:#5d7a8d; min-height: 100%;font-size:0.75rem;line-height: 1.6em;}
+.f16{font-size: 1.0rem;}
+.f12{font-size: 0.75rem;}
+.pl20{padding-left: 1.25rem;}
+.mt20{margin-top: 1.25rem;}
+.mt10{margin-top:0.625rem;}
+.ml20{margin-left: 1.25rem;}
+.toptt{font-size:1.25rem;text-align: center;position: relative;font-weight: bold;}
+.toptt .line{position: absolute;border-bottom: solid 1px #8bb9de;width: 100%;height: 0;font-size: 0;top:50%;margin-top:-1px;z-index: 1;}
+.toptt .words{padding:0 1.25rem;background: url("../../../../img/index_bg.png") repeat; background-size:10px 11px;position: relative;z-index: 20; display: inline-block;}
+.wuliu{ margin:2.1875rem 0.625rem 0 1.875rem; border-left:dashed 1px #8bb9de; padding-left:1.375rem; padding-right: 2.5rem; padding-bottom:0.625rem;}
+.wuliu_tt{ position:relative; height:0rem; width:100%;}
+.wuliu_tt .activeimg{position:absolute; left:-3.0625rem; top:-1.75rem;}
+.wuliu .block{ position:relative; top:-0.125rem;}
+.wuliu .block .tt,.block_last .tt,.sweettips .tt{font-size:0.875rem;display: inline-block; padding-bottom:0.125rem;margin-bottom: 0.3125rem; border-bottom: dashed 1px #8bb9de;}
+.wuliu .black{ top:-0.25rem;}
+.block_last{padding-left:1.375rem;padding-right: 2.5rem; position:relative; top:-1.0625rem;margin:0 0.625rem 0 1.875rem;}
+.block_last p{ margin:0.3125rem 0 1.375rem;}
+.wuliu p{margin:-0.125rem 0 1.25rem;}
+.wuliu_tt .icon_step1{background: url(../../../../img/recharge/num1.png) no-repeat;}
+.wuliu_tt .icon_step2{background: url(../../../../img/recharge/num2.png) no-repeat;top:-1.0rem;}
+.wuliu_tt .icon_step3{background: url(../../../../img/recharge/num3.png) no-repeat;top:-1.0rem;}
+.wuliu_tt .icon_steps{width:3.1875rem;height:3.9375rem;background-size:100% 100%; display: block;}
+
+.mid_block{margin:1.25rem;border:dashed 1px #8bb9de;padding:1.25rem 0.625rem 0.625rem;position: relative; font-weight: bold;}
+.mid_block .tt{position:absolute;top:-0.75rem;left: 0.625rem;display: inline-block;padding: 0 0.625rem;background: url("../../../../img/index_bg.png") repeat; background-size:10px 11px;}
+.mid_block .tt .inner{background: url("../../../../img/recharge/bg_tt.png") repeat-x 0 100%; background-size:10px 20px;padding:0 10px;display: inline-block;font-size: 0.875rem;font-weight: bold;}
+.mid_block li{width:100%;float: left;}
+.mid_block label{float: left;}
+.mid_block .rightwords{margin-left: 4.375rem;}
+
+.sweettips{background-color: rgba(200,200,200,.05);border-top:dashed 1px #e1ebf4;padding: 0.9375rem 3.125rem 0.9375rem 2.125rem; font-size:0.6875rem;}
+.sweettips ul li{ list-style-position: outside;padding-left: 1.25rem; background: url(../../../../img/recharge/icon_squre.png) no-repeat 0 0.3125rem;margin-bottom: 0.625rem; background-size: 0.4375rem 0.4375rem;}

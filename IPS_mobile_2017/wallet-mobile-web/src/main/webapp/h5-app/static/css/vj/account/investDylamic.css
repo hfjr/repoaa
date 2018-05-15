@@ -1,0 +1,28 @@
+@charset "utf-8";
+
+.page-account-investDylamic{height:100%; background:#fff; }
+.page-account-investDylamic .top{}
+.page-account-investDylamic .top .attr{  }
+.page-account-investDylamic .top-wrap{ padding:10px 0 0;}
+.page-account-investDylamic .top  .item{font-size:15px;  background:url(../img/dot-gray.png) 93px 0 repeat-y; background-size:4px auto;  }
+.page-account-investDylamic .top .value{float:left;width:100%;color:#5d7a8d; }
+.page-account-investDylamic .top .value .con{ margin-left:96px;padding-left:11px; padding-right:20px;}
+.page-account-investDylamic .top .value .con p{ height:35px; display:table-cell; vertical-align:middle;}
+.page-account-investDylamic .top .value .text{  width:100%; overflow:hidden; white-space:normal;word-break:break-all;}
+.page-account-investDylamic .top .attr{  line-height:35px; float:left; width:96px; box-sizing:border-box;  padding-left:20px; margin-left:-100%; }
+.page-account-investDylamic .top .wen{background:url(../img/wen.png) 0 0 repeat-x;background-size:36px 18px; height:18px; overflow:hidden;}
+
+.page-account-investDylamic .dylamic-list{margin-top:22px; }
+.page-account-investDylamic .dylamic-list li{ position:relative; }
+.page-account-investDylamic .dylamic-list li .col-desc{float:left; width:100%;}
+.page-account-investDylamic .dylamic-list li .col-desc .con{margin:0 20px 0 40px; padding-left:20px; padding-bottom:25px;}
+.page-account-investDylamic .dylamic-list li:last-child .col-desc .con{padding-bottom:0;}
+.page-account-investDylamic .dylamic-list li .col-desc .text{font-size:16px; color:#4ac0f0;line-height:22px;}
+.page-account-investDylamic .dylamic-list li .col-desc .date{font-size:12px; color:#9b9b9b;line-height:18px;}
+.page-account-investDylamic .dylamic-list li .col-desc .desc{font-size:12px; line-height:18px;}
+
+.page-account-investDylamic .dylamic-list li .col-icon{ position:absolute;  left:20px;top:0; width:20px;  height:100%; }
+.page-account-investDylamic .dylamic-list li .col-icon .icon{ width:20px; height:24px; display:block; background:url(../img/meiyuan2.png) 0 0 no-repeat; background-size:20px 24px; }
+.page-account-investDylamic .dylamic-list li.item-gray .col-icon .icon{background-image:url(../img/meiyuan2-gray.png);}
+.page-account-investDylamic .dylamic-list li.item-gray .text, .page-account-investDylamic .dylamic-list li.item-gray .date,.page-account-investDylamic .dylamic-list li.item-gray .desc{color:#9b9b9b;}
+.page-account-investDylamic .dylamic-list li .col-icon .split{ position:absolute; background:#f2f2f2; left:50%;  margin-left:-1px; width:2px; top:24px; bottom:0; }

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.common.server.mapper.IWeixinHomeMapper">
+    <!--bannerQueryList 查询微信banner列表-->
+    <select id="bannerQueryList" resultType="java.util.Map">
+        SELECT
+        img_url AS imgUrl,
+        is_click AS isClick,
+        link_url AS linkUrl,
+        action_type AS actionType
+        FROM
+        wj_advertisement_info
+        WHERE
+        type = "weixin"
+        AND banner_type = 'top_banner'
+        ORDER BY sort
+    </select>
+<!--productRecommendList 产品推荐列表-->
+    <select id="productRecommendList" resultType="java.util.Map">
+        SELECT
+        img_url AS imgUrl,
+        webp_img_url AS webpImgUrl,
+        is_click AS isClick,
+        link_url AS linkUrl,
+        action_type AS actionType
+        FROM
+        wj_advertisement_info
+        WHERE
+        type = "weixin" AND banner_type = 'product_recommend'
+        ORDER BY	sort
+        LIMIT 0, 1
+    </select>
+<!--finacalRecommendList 理财推荐列表-->
+    <select id="finacalRecommendList" resultType="java.util.Map">
+
+
+
+        (
+        SELECT
+        "新手专享" as title,
+        IFNULL(QUERY_ITEM_NAME("repayments_type",repayments_type),"")  as repayment,
+        product_id AS productId,
+        product_name AS productName,
+        QUERY_MONTH_AND_DAY(DATE_FORMAT(now(),'%Y-%m-%d'),end_time) AS projectTerm,
+        receive_rate + IFNULL(greenhorn_receive_rate, 0) AS annualYield,
+        CONCAT(QUERY_PARAM_VALUE('weixin_list_to_detail_url',"weixin"),product_id) AS linkUrl,
+        CONCAT(TRUNCATE(remain_balance,0),"元") as remainBalance,
+
+        case when is_sold_out = 'no' then TRUNCATE(raise_progress,2)
+        when is_sold_out = 'yes' then '1'
+        end as schedule,
+
+
+        case when product_flag = 'common' then 'false'
+        when product_flag = 'greenhorn' then 'true'
+        end as newPersonMark
+        FROM wj_product_finace
+        where is_shelves='yes' AND is_sold_out="no" AND product_flag = 'greenhorn'
+        AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')
+        AND DATE_FORMAT(start_time,'%Y-%m-%d %H:%i:%S')  &lt;=DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')
+        AND product_category  = 'v_financial'
+        order by create_date desc
+        LIMIT 0,1
+        )
+        UNION ALL
+        (
+        SELECT
+        "理财精选" as title,
+        IFNULL(QUERY_ITEM_NAME("repayments_type",repayments_type),"")  as repayment,
+        product_id AS productId,
+        product_name AS productName,
+        QUERY_MONTH_AND_DAY(DATE_FORMAT(now(),'%Y-%m-%d'),end_time) AS projectTerm,
+        receive_rate + IFNULL(greenhorn_receive_rate, 0) AS annualYield,
+        CONCAT(QUERY_PARAM_VALUE('weixin_list_to_detail_url',"weixin"),product_id) AS linkUrl,
+        CONCAT(TRUNCATE(remain_balance,0),"元") as remainBalance,
+
+        case when is_sold_out = 'no' then TRUNCATE(raise_progress,2)
+        when is_sold_out = 'yes' then '1'
+        end as schedule,
+
+
+        case when product_flag = 'common' then 'false'
+        when product_flag = 'greenhorn' then 'true'
+        end as newPersonMark
+        FROM wj_product_finace
+        where is_shelves='yes' AND is_sold_out="no" AND product_flag = 'common'
+        AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')
+        AND DATE_FORMAT(start_time,'%Y-%m-%d %H:%i:%S')  &lt;=DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')
+        AND product_category  = 'v_financial'
+        order by create_date desc
+        LIMIT 0,1
+        )
+        UNION ALL
+        (
+        SELECT
+        "高息推荐" as title,
+        IFNULL(QUERY_ITEM_NAME("repayments_type",repayments_type),"")  as repayment,
+        product_id AS productId,
+        product_name AS productName,
+        QUERY_MONTH_AND_DAY(DATE_FORMAT(now(),'%Y-%m-%d'),end_time) AS projectTerm,
+        receive_rate + IFNULL(greenhorn_receive_rate, 0) AS annualYield,
+        CONCAT(QUERY_PARAM_VALUE('weixin_list_to_detail_url',"weixin"),product_id) AS linkUrl,
+        CONCAT(TRUNCATE(remain_balance,0),"元") as remainBalance,
+
+        case when is_sold_out = 'no' then TRUNCATE(raise_progress,2)
+        when is_sold_out = 'yes' then '1'
+        end as schedule,
+
+
+        case when product_flag = 'common' then 'false'
+        when product_flag = 'greenhorn' then 'true'
+        end as newPersonMark
+        FROM wj_product_finace
+        where is_shelves='yes' AND is_sold_out="no" AND product_flag = 'common'
+        AND DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')
+        AND DATE_FORMAT(start_time,'%Y-%m-%d %H:%i:%S')  &lt;=DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%S')
+        AND product_category  = 'v_financial'
+        order by receive_rate desc
+        LIMIT 0,1
+        )
+    </select>
+<!--platformDescribeList 平台介绍列表 先在代码里写死,暂不启用-->
+    <select id="platformDescribeList" resultType="java.util.Map">
+        SELECT
+        img_url AS imgUrl,
+        is_click AS isClick,
+        link_url AS linkUrl,
+        action_type AS actionType,
+        link_title as linkTitle,
+        content as content
+        FROM
+        wj_advertisement_info
+        WHERE
+        type = "weixin"
+        AND banner_type = 'platform_description'
+        ORDER BY
+        sort
+        LIMIT 0, 3
+    </select>
+
+    <!-- 帮助中心 一级菜单-->
+    <select id="helpCenterTypeWX" resultType="java.util.Map">
+        SELECT
+        id AS id,
+        type_code AS typeCode,
+        type_name AS typeName,
+        type_icon_url AS typeIconUrl
+        FROM
+        wj_help_center_type_wx
+        WHERE
+        is_valid = 'yes'
+        ORDER BY
+        ordering_weight_value desc
+    </select>
+
+    <!-- 帮助中心 er级菜单-->
+    <select id="helpCenterTypeSubWX" resultType="java.util.Map">
+        SELECT
+        id AS id,
+        parent_code AS parentCode,
+        type_sub_name AS typeSubName,
+        type_sub_detail AS typeSubDetail,
+        type_sub_img AS typeSubImg
+        FROM
+        wj_help_center_type_sub_wx
+        WHERE
+        is_valid = 'yes'
+        ORDER BY
+        parent_code asc, ordering_weight_value desc
+    </select>
+
+    <!-- 查询客服热线 -->
+	 <select id="queryServiceHotLine" parameterType="java.lang.String" resultType="java.lang.String">
+       SELECT
+			c.variable_value
+		FROM
+			wj_mobile_variable_info c
+		WHERE
+			c.variable_key = 'moblie_app_customer_service_hotline'
+     </select>
+</mapper>

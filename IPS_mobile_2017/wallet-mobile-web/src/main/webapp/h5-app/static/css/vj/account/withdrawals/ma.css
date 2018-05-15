@@ -1,0 +1,62 @@
+@charset "utf-8";
+/*==余额提现==*/
+.tab{border-bottom:1px solid #f9f9f9; }
+.tab .split{width:1px;}
+.tab .border{height:3px;}
+.btn-recharge{ border:1px solid #F5A623;}
+
+.btn-recharge{width:55px; height:25px; overflow:hidden; line-height:25px;  border-radius:4px; display:block; position:absolute; right:20px; top:17px; text-align:center; color:#F5A623; }
+
+
+.b-box{border-top:1px solid #f2f2f2;border-bottom:1px solid #f2f2f2; background:#fff;  }
+.b-box .item-wrap{border-bottom:1px solid #f2f2f2;}
+.b-box .item:last-child .item-wrap{border-bottom:0;}
+.b-box .item2-wrap{border-bottom:1px solid #f2f2f2;}
+.b-box .item2:last-child .item2-wrap{border-bottom:0;}
+
+.b-box .item2  .col-r .safe{border:1px solid #53C3F1;}
+
+.tab{height:53px; }
+.tab li{float:left; font-size:14px; position:relative; color:#9b9b9b;  height:53px; line-height:53px; text-align:center; width:50%; }
+.tab li.current{ color:#4ac0f0; }
+.tab .text{}
+.tab .split{  position:absolute; right:0;top:15px;bottom:15px; background:#f2f2f2; overflow:hidden; }
+.tab .border{ display:none; position:absolute;left:0;right:0;bottom:-1px;  overflow:hidden; background:#4AC0F0; }
+.tab li.current .border{display:block;}
+
+
+.amount-bar{line-height:32px; border-bottom:1px solid #f2f2f2;  padding-top:17px; font-size:14px;color:#5d7a8d; padding-left:20px; }
+.b-box .item{padding-left:20px; display:block; font-size:14px;}
+.b-box .item-wrap{height:59px; overflow:hidden;}
+.b-box .item .col-l{float:left; width:95px;  margin-left:-100%;}
+.b-box .item .col-l .text{  line-height:59px; }
+.b-box .item .col-r{width:100%; float:left; }
+.b-box .item .col-r .con{margin:0 0 0 95px;line-height:59px; height:59px; position:relative;}
+.b-box .item .col-r .inp-text{border:0; width:100%; background:none; font-size:15px; height:20px; line-height:20px; padding:20px 0;}
+.b-box .item .col-r .gray-tip{color:#d8d8d8; }
+.b-box .item .col-r .bank-name{color:#5d7a8d; }
+.b-box .item .col-r .tip{color:#5d7a8d;}
+
+
+.b-box .item2{padding-left:20px; display:block; font-size:14px;}
+.b-box .item2-wrap{height:59px; overflow:hidden;}
+.b-box .item2  .col-l{width:60px;float:left;margin-left:-100%;}
+.b-box .item2  .col-l .money{width:40px; height:45px; background:url(../img/withdraw-money.png) 0 0 no-repeat; background-size:100% 100%; display:block; margin-top:7px;  }
+.b-box .item2  .col-l .bank-logo{display:block; width:40px; height:40px; margin-top:9px; }
+.b-box .item2  .col-l .bank-logo img{width:40px; height:40px; }
+.b-box .item2  .col-r{float:left;width:100%;}
+.b-box .item2  .col-r .con{margin:0 0 0 60px;}
+.b-box .item2  .col-r .bank-info{float:left;}
+.b-box .item2  .col-r .bank-name{ padding-top:8px; line-height:25px; font-size:18px;}
+.b-box .item2  .col-r .bank-number{font-size:12px;color:#5d7a8d;line-height:21px; }
+.b-box .item2  .col-r .safe{float:right; font-size:12px; margin:20px 20px 0 0; line-height:24px; color:#53C3F1; width:55px; height:24px; text-align:center; box-sizing:border-box; border-radius:4px;}
+.b-box .item2  .col-r .inp-text{border:0; width:100%; background:none; font-size:15px; height:20px; line-height:20px; padding:20px 0;}
+
+
+.btn-bar{padding:20px 30px 30px;}
+.ui-button{display:block;width:100%; }
+.code-btn{width:78px;  border-radius:3px;  height:24px; overflow:hidden; text-align:center; line-height:24px; background:#4ac0f0; font-size:12px; color:#fff; position:absolute; right:15px; top:14px; }
+.code-btn.g-act-taped{background:#0879b2;}
+
+.tip-bar{ font-size:12px; color:#9b9b9b; padding:20px 0 20px 37px;  line-height:12px; background:url(../../../img/icon-tips.png) 20px center no-repeat; background-size:12px 12px;}
+.code-btn2{background:url(../img/yuyin.png) 0 center no-repeat; background-size:18px 12px; padding-left:20px; display:inline-block; margin-left:7px; color:#f5a623; }

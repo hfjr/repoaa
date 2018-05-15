@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Mapper接口 -->
+<mapper
+	namespace="com.rqb.ips.depository.platform.mapper.CustomMapper">
+
+	<!-- 参考字段,请不要整段直接引入 -->
+	<sql id="remark">
+		T.id as id,
+		T.phone as phone,<!-- 手机号 -->
+		T.password as password,<!-- 密码 -->
+		T.real_name as realName,<!-- 真实姓名 -->
+		T.indentity_type as indentityType,<!-- 证件类型01身份证,02因私护照,03因公护照,04香港永久性居民身份证,05澳门永久性居民身份证,06港澳居民来往内地通行证,07台湾居民来往大陆通行证,08外国人永久居住证,09其他证件 -->
+		T.indentity_no as indentityNo,<!-- 证件号 -->
+		T.sex as sex,<!-- 性别：M 男； F 女 -->
+		T.user_status as userStatus,<!-- 用户状态(S^00:正常,10:冻结$) -->
+		T.email as email,<!-- 电子邮件 -->
+		T.is_sign as isSign,<!-- 是否签约(S^0:非签约,1:签约,2:转签约$) -->
+		T.wallet_bank_card_no as walletBankCardNo,<!-- 工资钱包卡号 -->
+		T.channel_no as channelNo,<!-- 渠道号(废除字段) -->
+		T.enterprise_no as enterpriseNo,<!-- 企业编号 -->
+		T.head_sculpture_id as headSculptureId,<!-- -->
+		T.login_uuid as loginUuid,<!-- 登录uuid -->
+		DATE_FORMAT( T.last_login_time,'%Y-%m-%d') as lastLoginTime<!-- 上次登录时间 -->
+	</sql>
+	<!-- 参考字段,请不要整段直接引入 -->
+	<sql id="field">
+		T.id as id,
+		T.phone as phone,
+		T.password as password,
+		T.real_name as realName,
+		T.indentity_type as indentityType,
+		T.indentity_no as indentityNo,
+		T.sex as sex,
+		T.user_status as
+		userStatus,
+		T.email as email,
+		T.is_sign as isSign,
+		T.wallet_bank_card_no
+		as walletBankCardNo,
+		T.channel_no as channelNo,
+		T.enterprise_no as
+		enterpriseNo,
+		T.head_sculpture_id as headSculptureId,
+		T.login_uuid as
+		loginUuid,
+		DATE_FORMAT( T.last_login_time,'%Y-%m-%d') as lastLoginTime
+	</sql>
+	<!-- 参考字段,请不要整段直接引入 -->
+	<sql id="queryCondition">
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(phone)">
+			AND T.phone= #{phone}
+		</if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(password)">
+			AND T.password= #{password}
+		</if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(realName)">
+			AND T.real_name= #{realName}
+		</if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(indentityType)">
+			AND T.indentity_type= #{indentityType}
+		</if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(indentityNo)">
+			AND T.indentity_no= #{indentityNo}
+		</if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(sex)">
+			AND T.sex= #{sex}
+		</if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(userStatus)">
+			AND T.user_status= #{userStatus}
+		</if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(email)">
+			AND T.email= #{email}
+		</if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(isSign)">
+			AND T.is_sign= #{isSign}
+		</if>
+		<if
+			test="@org.apache.commons.lang.StringUtils@isNotBlank(walletBankCardNo)">
+			AND T.wallet_bank_card_no= #{walletBankCardNo}
+		</if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(channelNo)">
+			AND T.channel_no= #{channelNo}
+		</if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(enterpriseNo)">
+			AND T.enterprise_no= #{enterpriseNo}
+		</if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(headSculptureId)">
+			AND T.head_sculpture_id= #{headSculptureId}
+		</if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(loginUuid)">
+			AND T.login_uuid= #{loginUuid}
+		</if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(lastLoginTime)">
+			AND T.last_login_time= #{lastLoginTime}
+		</if>
+
+	</sql>
+
+
+
+	<!-- IPS用户查询 -->
+	<select id="IPSUserInfoListByIPSNO"
+		parameterType="com.rqb.ips.depository.platform.beans.IpsUserInfoDTO"
+		resultType="java.util.HashMap" useCache="false">
+		<include refid="common.pre" />
+		
+		SELECT T.real_name AS 'name',
+		i.user_ips_id AS 'useripsid',
+		i.acct_Status AS 'acctStatus',
+		i.uCard_Status AS 'uCardStatus',
+		i.bank_Name AS 'bankName',
+		i.bank_Card AS 'bankCard',
+		i.sign_Status AS 'signStatus',
+		i.cur_Bal AS 'curBal',
+		i.avail_Bal AS 'availBal',
+		i.freeze_Bal AS 'freezeBal',
+		i.margin_Bal AS 'marginBal',
+		i.repayment_Bal AS 'repaymentBal'
+		FROM ips_user_info i,
+		(
+		SELECT z.id AS 'useripsid', a.real_name from
+		(
+		select w.id ,w.real_name FROM wj_user_info w
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(phone)">
+			WHERE w.phone like #{phone}
+		</if>
+		
+		) a ,
+		wj_user_trade_account z
+		where z.user_id=a.id
+		AND z.trade_type='ips'
+		AND z.trade_account_status='1'
+		) T
+		WHERE 1=1
+		AND T.useripsid =i.user_ips_id
+		
+		
+		
+		<include refid="common.suf" />
+	</select>
+	
+	<!-- 根据模糊手机号查询ips号 -->
+	<select id="queryuseripsbyphone"  
+		parameterType="com.rqb.ips.depository.platform.beans.IpsUserInfoDTO"
+		resultType="com.rqb.ips.depository.platform.beans.IpsUserInfoDTO"
+		useCache="false">
+	
+		SELECT z.id AS 'useripsid' from
+		(
+		select w.id FROM wj_user_info w
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(phone)">
+			WHERE w.phone like #{phone}
+		</if>
+		) a ,
+		wj_user_trade_account z
+		where z.user_id=a.id
+		AND z.trade_type='ips'
+		AND z.trade_account_status='1'
+	</select>
+
+	<!-- 根据ips账号查询 ips账户 -->
+	<select id="queryuseripsbyips"  
+		parameterType="com.rqb.ips.depository.platform.beans.IpsUserInfoDTO"
+		resultType="com.rqb.ips.depository.platform.beans.IpsUserInfoDTO"
+		useCache="false">
+	
+		SELECT * FROM ips_user_info i
+		WHERE i.user_ips_id=#{useripsid}
+		
+	</select>
+	
+	<!-- 更新ips账号信息 byips -->
+	<select id="updataipsinfobyips"  
+		parameterType="com.rqb.ips.depository.platform.beans.IpsUserInfoDTO"
+		resultType="com.rqb.ips.depository.platform.beans.IpsUserInfoDTO"
+		useCache="false">
+	
+		UPDATE  ips_user_info i
+ SET 
+				i.acct_Status  =#{acctStatus},
+				i.uCard_Status  =#{uCardStatus},
+				i.bank_Name  =#{bankName},
+				i.bank_Card  =#{bankCard},
+				i.sign_Status  =#{signStatus},
+				i.cur_Bal =#{curBal},
+				i.avail_Bal =#{availBal},
+				i.freeze_Bal =#{freezeBal},
+				i.margin_Bal =#{marginBal},
+				i.repayment_Bal =#{repaymentBal}
+WHERE i.user_ips_id=#{useripsid}
+	</select>
+	
+	
+	<!-- 新增ips账号信息 byips -->
+	<select id="insertipsinfobyips"  
+		parameterType="com.rqb.ips.depository.platform.beans.IpsUserInfoDTO"
+		resultType="com.rqb.ips.depository.platform.beans.IpsUserInfoDTO"
+		useCache="false">
+INSERT INTO ips_user_info
+(
+				user_ips_id,
+				acct_Status,
+				uCard_Status,
+				bank_Name,
+				bank_Card,
+				sign_Status,
+				cur_Bal,
+				avail_Bal,
+				freeze_Bal,
+				margin_Bal,
+				repayment_Bal
+	
+)
+VALUES
+(
+	#{useripsid},
+	#{acctStatus},
+	#{uCardStatus},
+	#{bankName},
+	#{bankCard},
+	#{signStatus},
+	#{curBal},
+	#{availBal},
+	#{freezeBal},
+	#{marginBal},
+	#{repaymentBal}
+)
+		
+	</select>
+	<!--更新ips用户信息查询 -->
+	<select id="updataipsuserinfobyips"  
+		parameterType="com.rqb.ips.depository.platform.beans.IpsUserInfoDTO"
+		resultType="com.rqb.ips.depository.platform.beans.IpsUserInfoDTO"
+		useCache="false">
+		UPDATE wj_user_info u,
+wj_user_certification s,
+wj_trade_account_card c,
+(
+SELECT id, user_id FROM wj_user_trade_account 
+WHERE trade_type='ips'
+AND id=#{useripsid}
+) id	
+SET		u.user_status=#{acctStatus},
+		u.indentity_type='1',
+		s.certification_status=#{uCardStatus},
+		c.bank_name=#{bankName},
+		c.bank_card_no=#{bankCard}
+WHERE id.user_id=u.id
+	</select>
+	
+	
+	<!--更新ips交易查询  -->
+	<select id="updataipsmerbymerBillNo"  
+		parameterType="com.rqb.ips.depository.platform.beans.IpsUserInfoDTO"
+		resultType="com.rqb.ips.depository.platform.beans.IpsUserInfoDTO"
+		useCache="false">
+		UPDATE wj_order w
+SET w.order_status=#{trdStatus},
+		w.channel_trade_id=#{ipsBillNo},
+		w.update_date=#{ipsDoTime}
+WHERE w.order_no=#{merBillNo}
+	</select>
+	<!--更新ips余额查询  -->
+	<select id="updataipsbalancebyips"  
+		parameterType="com.rqb.ips.depository.platform.beans.IpsUserInfoDTO"
+		resultType="com.rqb.ips.depository.platform.beans.IpsUserInfoDTO"
+		useCache="false">
+		UPDATE wj_user_trade_account w
+SET w.available_amount=#{availBal},
+		w.frozen_amount=#{freezeBal}
+WHERE w.id=#{useripsid}
+AND  w.trade_type='ips'
+	</select>
+	
+	
+
+</mapper>
+

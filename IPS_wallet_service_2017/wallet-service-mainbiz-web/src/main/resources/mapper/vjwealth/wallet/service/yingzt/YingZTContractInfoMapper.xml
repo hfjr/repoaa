@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.yingzt.server.integration.mapper.YingZTContractInfoMapper">
+
+    <!-- 新增小赢订单合同 -->
+    <insert id="saveContractInfo"
+            parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.yingzt.server.dto.YingZTContractInfoDTO">
+        INSERT INTO
+        wj_contract_info(
+        user_id,
+        product_id,
+        order_no,
+        contract_no,
+        create_by,
+        create_date
+        )
+        VALUES
+        (
+        #{userId},
+        #{productId},
+        #{orderNo},
+        #{contractNo},
+        #{createBy},
+        now()
+        );
+    </insert>
+
+    <!-- 查询产品类型编号 -->
+    <select id="queryProductTypeByProductId" parameterType="java.lang.String" resultType="java.lang.String">
+
+        SELECT
+        wpf.product_type
+        FROM wj_product_finace wpf
+        where wpf.product_id=#{productId}
+
+    </select>
+
+</mapper>

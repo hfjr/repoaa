@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.account.server.mapper.MAccountQueryMapper">
+     
+     <!-- 获取总资产信息中的基本账户余额 （已废弃）-->
+     <select id="queryMAccountInfo" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT
+	    TRUNCATE (available_amount, 2) as amountAvailable
+		FROM
+			wj_user_trade_account
+		WHERE
+			user_id = #{userId}
+		AND trade_type = "ma"
+     
+     </select>
+	 
+	 <!-- 获取用户总账户资产 （已废弃）-->
+     <select id="queryAccountTotalAmount" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT
+			TRUNCATE (sum(available_amount+frozen_amount), 2) as totalAccountAmount,
+			TRUNCATE (sum(frozen_amount), 2) as amountFrozen
+		FROM
+			wj_user_trade_account
+		WHERE
+			user_id = #{userId}
+			AND trade_type in ('ma','ea','v1','rf','lf')
+     </select>
+	 
+	      
+     <!-- 获取总账户的投资金额 （已废弃）-->
+     <select id="queryMAccountInvestment" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT
+			TRUNCATE (sum(available_amount),2) as investmentAmount
+		FROM
+			wj_user_trade_account 
+		WHERE
+			user_id = #{userId}
+		AND trade_type IN ('ea',"v1",'rf','lf')
+     
+     </select>
+	 
+	 
+	       <!-- 获取总账户的昨日收益 （已废弃）-->
+     <select id="queryMAccountYestodayReceive" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT
+			TRUNCATE (IFNULL(sum(ur.product_receive),0),2) as yesterdayReceive
+		FROM
+			fund_user_receive ur,
+			wj_user_trade_account trade
+		WHERE
+			trade.user_id = #{userId}
+		AND ur.user_id = trade.user_id
+	    AND ur.trade_type = trade.trade_type
+		AND ur.batch_status = 'success'
+		AND ur.receive_date=#{receiveDate}
+		AND trade.trade_type in ('ea','v1','rf','lf')
+     </select>
+	 
+	 
+	   <!-- 获取总账户的累计收益 （已废弃）-->
+     <select id="queryMAccountTotalReceive" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT
+			TRUNCATE (IFNULL(sum(ur.product_receive),0),2) as allAreadyReceive
+		FROM
+			fund_user_receive ur,
+			wj_user_trade_account trade
+		WHERE  
+			trade.user_id = #{userId}
+		AND ur.user_id = trade.user_id
+	    AND ur.trade_type = trade.trade_type
+		AND ur.batch_status = 'success'
+		AND trade.trade_type in ('ea','v1','rf','lf')
+     
+     </select>
+	 
+	      <!-- 获取总账户历史收益明细-->
+     <select id="queryMAccountReciveDetail" parameterType="java.util.Map" resultType="java.util.Map">
+     
+        SELECT
+			TRUNCATE (ur.product_receive, 2) + '' AS 'amount',
+			date_format(ur.receive_date, '%Y-%m-%d') AS 'date',
+			CASE WHEN ur.trade_type = 'ta' then '收益(存钱罐)'
+            WHEN ur.trade_type = 'v1' then '收益(v+)'
+            WHEN ur.trade_type = 'rf' then '收益(定期理财)'
+            WHEN ur.trade_type = 'lf' then '收益(小金鱼)'
+            ELSE ''
+			END AS 'title'
+		FROM
+			fund_user_receive ur,
+			wj_user_trade_account trade
+		WHERE
+			trade.user_id = #{userId}
+		AND ur.trade_type in ('ta','v1','rf','lf')
+		AND ur.user_id = trade.user_id
+		AND ur.trade_type=trade.trade_type
+		AND ur.batch_status = 'success'
+		AND ur.product_receive > 0
+		ORDER BY
+			ur.create_date DESC
+		LIMIT #{page},10
+     
+     </select>
+	 
+	 
+	      <!-- 账单明细  ( 查询所有成功状态的订单记录)  -->
+     <select id="queryAccountBillDetail" parameterType="java.util.Map" resultType="java.util.Map">
+    	SELECT
+				  TRUNCATE (o.total_price, 2) AS 'amount',
+				  date_format(o.create_date,'%Y-%m-%d %H:%i:%S') AS 'date',
+				  o.title AS 'title',
+			      IF(card.bank_name IS NULL,'',CONCAT(card.bank_name,'(尾号',RIGHT(card.bank_card_no,4),')')) AS bank,
+			      IF(card.bank_code IS NULL,'',card.bank_code) AS bankCode,
+			      o.order_type AS orderType,
+			      o.order_status AS orderStatus,
+			      '金额' AS amountTitle,
+			      '类型' AS typeTitle,o.order_no as 'orderNo'
+		FROM
+					wj_order o
+		    LEFT JOIN wj_trade_account_card card on o.trade_account_card_id=card.id
+		WHERE
+					o.user_id = #{userId}
+				AND o.order_type IN ('withdraw_ma','apply_ma_to_ea','apply_ma_to_v1','recharge_ma','transfer_ea_to_ma','transfer_v1_to_ma','batch_apply','withdraw_ea')
+				AND o.order_status IN ('batch_apply_confirm',
+		                           'apply_ma_to_ea_noconfirm','apply_ma_to_ea_failconfirm','apply_ma_to_ea_confirm',
+		                           'apply_ma_to_v1_noconfirm','apply_ma_to_v1_failconfirm','apply_ma_to_v1_confirm',
+		                           'transfer_ea_to_ma_confirm','transfer_ea_to_ma_fail',
+		                           'transfer_v1_to_ma_noconfirm','transfer_v1_to_ma_confirm','transfer_v1_to_ma_fail',
+		                           'recharge_ma_confirm',
+		                           'withdraw_ma_noconfirm','withdraw_ma_confirm','withdraw_ma_rejec','withdraw_ma_fail','withdraw_ma_success',
+		                           'withdraw_ea_process','withdraw_ea_unknown','withdraw_ea_success')
+				ORDER BY o.create_date DESC
+     	        LIMIT #{page},10
+     </select>
+	 
+	 
+	    <!-- 账户冻结金额详细(主,e,v账户)-->
+      <select id="queryAccountFrozenBalanceDetail" parameterType="java.util.Map" resultType="java.util.Map">
+           SELECT
+				TRUNCATE (o.total_price, 2) AS 'amount',
+				date_format(o.create_date,'%Y-%m-%d %H:%i:%S') AS 'date',
+				o.title AS 'title',
+	            IF(card.bank_name IS NULL,'',CONCAT(card.bank_name,'(尾号',RIGHT(card.bank_card_no,4),')')) AS bank,
+				IF(card.bank_code IS NULL,'',card.bank_code) AS bankCode,
+				o.order_type AS orderType,
+				o.order_status AS orderStatus,
+				'金额' AS amountTitle,
+				'类型' AS typeTitle,
+				 o.order_no as 'orderNo'
+			FROM
+				wj_order o
+                LEFT JOIN wj_trade_account_card card on o.trade_account_card_id=card.id
+			WHERE
+				o.user_id = #{userId}
+			AND o.order_type IN ('apply_ma_to_ea','apply_ma_to_v1','transfer_v1_to_ma','withdraw_ma','withdraw_ea')
+			AND o.order_status IN ('apply_ma_to_ea_noconfirm','apply_ma_to_v1_noconfirm','transfer_v1_to_ma_noconfirm','withdraw_ma_noconfirm','withdraw_ma_confirm','withdraw_ea_process','withdraw_ea_unknown')
+			ORDER BY
+			   o.create_date DESC
+			LIMIT #{page},10    
+     </select>
+	 
+	 
+	    <!-- 总账户提现前查询,可用余额-->
+      <select id="queryMAccountCanUseAmount" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT
+			TRUNCATE (wa.available_amount,2) as amountAvailable
+		FROM
+			wj_user_trade_account wa
+		WHERE
+			wa.user_id = #{userId}
+		AND wa.trade_type = 'ma'
+     
+     </select>
+	 
+	  <!-- 总账户提现前查询,可提现次数-->
+      <select id="queryMAccountCanWithdrawTimes" parameterType="java.lang.String" resultType="java.util.Map">
+         select 
+			(select p.param_value from comm_params p where p.param_group = 'withdraw' and p.param_key = 'ma_day_withdraw_times' limit 0 ,1 ) 
+				- 
+				(select 
+						count(*)			
+					from
+						wj_order
+					where
+						user_id = #{userId}
+					and
+						 date_format(create_date,'%Y-%m-%d') =  date_format(now(),'%Y-%m-%d')
+					and
+						order_type = 'withdraw_ma'
+            and order_status in ('withdraw_ma_noconfirm','withdraw_ma_confirm','withdraw_ma_success')
+					) as 'canUseCount'
+			from dual
+     </select>
+     
+      <!-- 总账户提现,提示-->
+      <select id="queryMAccountWithdrawTips" resultType="java.util.Map">
+           SELECT
+				CONCAT(
+					'单笔提现5万'
+				) AS tip
+			FROM
+				comm_params p
+			WHERE
+				p.param_group = 'withdraw'
+			AND p.param_key = 'ma_day_withdraw_times'
+			LIMIT 0,1
+     </select>
+     
+      <!-- 获取主账户余额 -->
+     <select id="queryMAccountInvestmentAmount" parameterType="java.lang.String" resultType="java.math.BigDecimal">
+        SELECT
+			TRUNCATE (wa.available_amount, 2) as investmentAmount
+		FROM
+			wj_user_trade_account wa
+		WHERE
+			wa.user_id = #{userId}
+		AND wa.trade_type = "ma"
+     </select>
+     
+</mapper>

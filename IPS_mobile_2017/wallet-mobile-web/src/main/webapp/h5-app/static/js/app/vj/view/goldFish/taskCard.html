@@ -1,0 +1,82 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	<div class="product-view">
+		<section id="page-data" class="taskCard border-box list-wrap">
+			<# print(self.render("investList", {
+				list : self.investList,
+				init : true
+			})); #>			
+		</section>
+	</div>
+</script>
+
+
+<script type="text/template" data-tpl="investList">
+	<# if(list.length > 0){ #>
+		<# if(init){ #>
+		<ul class="tasklist">
+		<# }; #>
+			
+			<# $.each(list, function(i, o){ #>
+				
+			<li  
+				<# if(o.taskState == "completion" && o.isRepeatTask != "true"){ #> class="turngray"  <# } #> 
+				data-json="<# print(self.htmlspecialchars(self.json_encode(o))); #>"
+			>
+				<div class="inner">
+					<div class="items">
+						<div class="price">
+							<div class="cell">
+								<p class="bigprice text-shadow"><# print(o.taskPrize); #></p>
+								<# if(o.taskCode == "total_investment"){ #>
+								<p class="f12"><# print(o.taskScheduleDescription); #></p>
+								<# } #>
+							</div>
+						</div>
+						<p class="shadowline"></p>
+						<p class="shadowcicle cicle_left"></p>
+						<p class="shadowcicle cicle_right"></p>
+						<div class="words">
+							<# $.each(o.taskDescription.split("|"), function(i, text){  #> 
+							<p><# print(text); #></p>
+							<# }); #>
+						</div>
+						<p class="arrow"></p>
+					</div>
+					<p class="taskStatus  
+						<# if(o.taskState == "completion"){ #>    
+							<# if(o.isRepeatTask != "true"){ #>
+								status_finished
+							<# }else{ #>
+								status_finishedTimes
+							<# } #>
+						<# }else if(o.taskState == "completeMedium"){ #>
+						status_doing
+						<#  }else if(o.taskState == "completeFail"){ #>
+						status_failed
+						<# } #>"
+					>
+						<# if(o.taskState == "completion" && o.isRepeatTask == "true"){ #>
+						<span class="times"><# print(o.taskCompletionTimes); #></span>
+						<span class="unit">次</span>
+						<# } #>
+					</p>
+				</div>
+			</li>			
+			<# }); #>
+		<# if(init){ #>
+		</ul>
+		<# } #>
+		
+	<# }else{ #>
+		<# if(init){ #>
+			<div class="widget-no-data">
+				<div class="img"></div>
+				<p class="text">暂无记录</p>
+			</div>
+		<# }else{ #>
+		<# } #>
+	<# } #>
+</script>
+
+<div class="page"></div>
+

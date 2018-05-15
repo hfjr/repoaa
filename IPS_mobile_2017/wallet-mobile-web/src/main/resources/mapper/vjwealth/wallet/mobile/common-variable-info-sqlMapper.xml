@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.common.server.mapper.ICommonVariableMapper">
+	<!-- 查询最新的公共变量 -->
+	<select id="queryCommonVariableMap" resultType="com.zhuanyi.vjwealth.wallet.mobile.common.dto.VariableModel">
+		select va.variable_key   as 'variableKey',
+			   va.variable_value as 'variableValue'
+ 		from wj_mobile_variable_info va where va.valid = 'YES'
+ 		and va.variable_version > #{variableVersion}
+ 		order by va.update_date, va.id
+	</select>
+	<!-- 查询最新的版本号 -->
+	<select id="queryCommonNewVariableVersion" resultType="java.lang.Long">
+        select va.variable_version as 'variableVersion'
+ 		from wj_mobile_variable_info va where va.valid = 'YES'
+ 		order by va.variable_version desc
+ 		limit 0,1
+	</select>
+</mapper>

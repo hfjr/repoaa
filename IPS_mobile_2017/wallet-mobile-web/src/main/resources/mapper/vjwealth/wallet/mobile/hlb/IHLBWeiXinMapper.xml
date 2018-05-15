@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.hlb.server.mapper.IHLBWeiXinMapper">
+
+    <!-- 帮助中心 一级菜单-->
+    <select id="helpCenterTypeWX" resultType="java.util.Map">
+        SELECT
+        id AS id,
+        type_code AS typeCode,
+        type_name AS typeName,
+        type_icon_url AS typeIconUrl
+        FROM
+        wj_help_center_type_wx_hlb
+        WHERE
+        is_valid = 'yes'
+        ORDER BY
+        ordering_weight_value asc
+    </select>
+
+    <!-- 帮助中心 er级菜单-->
+    <select id="helpCenterTypeSubWX" resultType="java.util.Map">
+        SELECT
+        id AS id,
+        parent_code AS parentCode,
+        type_sub_name AS typeSubName,
+        type_sub_detail AS typeSubDetail,
+        type_sub_img AS typeSubImg
+        FROM
+        wj_help_center_type_sub_wx_hlb
+        WHERE
+        is_valid = 'yes'
+        ORDER BY
+        parent_code asc, ordering_weight_value asc
+    </select>
+
+    <!-- 查询客服热线 -->
+    <select id="queryServiceHotLine" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+        c.variable_value
+        FROM
+        wj_mobile_variable_info c
+        WHERE
+        c.variable_key = 'moblie_app_customer_service_hotline'
+    </select>
+
+    <select id="queryMyAssets" resultType="com.zhuanyi.vjwealth.wallet.mobile.index.server.dto.MyAssetsDTO">
+        SELECT TRUNCATE (IFNULL(available_amount,0), 2) amount,'定期' AS label,'circle_icon_regular' as icon,'circle_color_regular' as color
+        FROM wj_user_trade_account
+        WHERE
+        trade_type = 'rf'
+        AND user_id = #{userId}
+        UNION ALL
+        SELECT TRUNCATE (SUM(IFNULL(available_amount,0)), 2),'余额' AS label,'circle_icon_available' as icon,'circle_color_available' as color
+        FROM wj_user_trade_account
+        WHERE
+        trade_type = 'ma'
+        AND user_id = #{userId}
+        UNION ALL
+        SELECT TRUNCATE (SUM(IFNULL(frozen_amount,0)), 2),'冻结' AS label,'circle_icon_frozen' as icon,'circle_color_frozen' as color
+        FROM wj_user_trade_account
+        WHERE
+        trade_type in ('ma','rf','lf')
+        AND user_id = #{userId}
+    </select>
+
+    <!-- 全部账单，去除存钱罐账单 -->
+    <select id="getAllBillListByUserIdAndType" parameterType="java.util.Map" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.BillListQueryDTO">
+        select * from (
+        SELECT
+        o.order_no AS orderId,
+        case o.order_type WHEN 'apply_la_to_lf' THEN '使用小金鱼'
+        WHEN 'transfer_lf_to_la' THEN '归还小金鱼'
+        else o.title
+        end AS title,
+        TRUNCATE (o.total_price, 2) AS amount,
+        date_format(
+        o.create_date,
+        '%Y-%m-%d %H:%i:%S'
+        ) AS date,
+        DATE_FORMAT(o.create_date,"%Y%m") as groupId,
+        DATE_FORMAT(o.create_date,"%Y年%m月") as groupTitle,
+        o.order_type AS billType,
+        case when order_type In ('transfer_rf_to_ma','transfer_rfFrozen_to_ma','recharge_cashback','recharge_rp','salary_plan_bankcard_withhold')
+        then 'false'
+        else 'true'
+        end AS isViewDetail
+        FROM
+        wj_order o
+        WHERE
+        o.user_id = #{userId}
+        AND o.order_type IN (
+        SELECT DISTINCT
+        w.order_type
+        FROM
+        wj_order_biztype w LEFT JOIN (SELECT * from wj_order_biztype where biz_type in ('ta','bankcardWithhold') AND is_valid = 'Y') w1
+        ON w.order_type = w1.order_type
+        WHERE
+        w.biz_type = 'all'
+        AND w.is_valid = 'Y'
+        AND w1.id is null
+        )
+        AND o.order_status IN (
+        SELECT
+        w.order_status
+        FROM
+        wj_order_biztype w LEFT JOIN (SELECT * from wj_order_biztype where biz_type in ('ta','bankcardWithhold') AND is_valid = 'Y') w1
+        ON  w.order_type = w1.order_type
+        WHERE
+        w.biz_type = 'all'
+        AND w.is_valid='Y'
+        AND w1.id is null
+        )
+
+        UNION ALL
+
+        SELECT
+        '' AS orderId,
+        case when trade_type = 'v1' then 'v+账户收益'
+        when trade_type = 'rf' then '收益(定期理财)'
+        when trade_type = 'lf' then '收益(小金鱼)'
+        when trade_type = 'ta' then '收益(存钱罐)'
+        end AS title,
+        o.product_receive AS amount,
+        o.receive_date AS date,
+        DATE_FORMAT(o.receive_date,"%Y%m") as groupId,
+        DATE_FORMAT(o.receive_date,"%Y年%m月") as groupTitle,
+        '' AS billType,
+        'false' AS isViewDetail
+        FROM
+        fund_user_receive o
+        WHERE
+        o.user_id = #{userId}
+        AND o.trade_type IN ('v1', 'rf','lf')
+        AND o.product_receive > 0
+        ) c
+        ORDER BY c.date desc, c.orderId desc
+        limit #{page},10
+    </select>
+
+    <!-- 收益账单，去除存钱罐收益 -->
+    <select id="getIncomeBillListByUserIdAndType" parameterType="java.util.Map" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.BillListQueryDTO">
+        SELECT
+        '' AS orderId,
+        case
+        when trade_type = 'ta' then '收益(存钱罐)'
+        when trade_type = 'v1' then 'v+账户收益'
+        when trade_type = 'rf' then '收益(定期理财)'
+        when trade_type = 'lf' then '收益(小金鱼)'
+        end AS title,
+        o.product_receive AS amount,
+        o.receive_date AS date,
+        DATE_FORMAT(o.receive_date,"%Y%m") as groupId,
+        DATE_FORMAT(o.receive_date,"%Y年%m月") as groupTitle,
+        '' AS billType,
+        'false' AS isViewDetail
+        FROM
+        fund_user_receive o
+        WHERE
+        o.user_id = #{userId}
+        AND o.trade_type IN ('v1', 'rf','lf')
+        AND o.product_receive > 0
+        ORDER BY
+        o.create_date DESC
+        LIMIT #{page},10
+    </select>
+
+    <!-- 提现账单 -->
+    <select id="getWithdrawBillListByUserIdAndType" parameterType="java.util.Map" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.BillListQueryDTO">
+        SELECT
+        o.order_no AS orderId,
+        o.title AS title,
+        TRUNCATE (o.total_price, 2) AS amount,
+        date_format(
+        o.create_date,
+        '%Y-%m-%d %H:%i:%S'
+        ) AS date,
+        DATE_FORMAT(o.create_date,"%Y%m") as groupId,
+        DATE_FORMAT(o.create_date,"%Y年%m月") as groupTitle,
+        o.order_type AS billType,
+        'true' AS isViewDetail
+        FROM
+        wj_order o
+        WHERE
+        o.user_id = #{userId}
+        AND o.order_type in (
+        SELECT DISTINCT
+        w.order_type
+        FROM
+        wj_order_biztype w
+        WHERE
+        w.biz_type = 'withdraw'
+        AND w.is_valid='Y'
+        AND w.order_type not in ('withdraw_ta','withdraw_ea')
+        )
+        AND o.order_status in (
+        SELECT
+        w.order_status
+        FROM
+        wj_order_biztype w
+        WHERE
+        w.biz_type = 'withdraw'
+        AND w.is_valid = 'Y'
+        )
+        ORDER BY
+        o.create_date DESC
+        LIMIT #{page},10
+    </select>
+
+    <!-- 冻结金额 -->
+    <select id="getFrozenAllBillListByUserIdAndType" parameterType="java.util.Map" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.BillListQueryDTO">
+        select * from (
+        -- 账单冻结
+        SELECT
+        o.order_no AS orderId,
+        o.title AS title,
+        TRUNCATE (o.total_price, 2) AS amount,
+        date_format(
+        o.create_date,
+        '%Y-%m-%d %H:%i:%S'
+        ) AS date,
+        DATE_FORMAT(o.create_date,"%Y%m") as groupId,
+        DATE_FORMAT(o.create_date,"%Y年%m月") as groupTitle,
+        o.order_type AS billType,
+        'true' AS isViewDetail
+        FROM
+        wj_order o
+        WHERE
+        o.user_id = #{userId}
+        AND o.order_type in (
+        SELECT DISTINCT
+        w.order_type
+        FROM
+        wj_order_biztype w LEFT JOIN (SELECT * from wj_order_biztype where biz_type in ('ta','bankcardWithhold') AND is_valid = 'Y') w1
+        ON w.order_type = w1.order_type
+        WHERE
+        w.biz_type = 'frozenAll'
+        AND w.is_valid='Y'
+        AND w1.id is null
+        )
+        AND o.order_status in (
+        SELECT
+        w.order_status
+        FROM
+        wj_order_biztype w LEFT JOIN (SELECT * from wj_order_biztype where biz_type in ('ta','bankcardWithhold') AND is_valid = 'Y') w1
+        ON w.order_type = w1.order_type
+        WHERE
+        w.biz_type = 'frozenAll'
+        AND w.is_valid='Y'
+        AND w1.id is null
+        )
+
+        UNION ALL
+        -- 定期理财本金及收益冻结
+        SELECT
+        o.id AS orderId,
+        '冻结回款(定期理财)' AS title,
+        (o.repay_principal+o.repay_interest+o.greenhorn_interest+o.other_fee) AS amount,
+        o.repayment_time AS date,
+        DATE_FORMAT(o.repayment_time,"%Y%m") as groupId,
+        DATE_FORMAT(o.repayment_time,"%Y年%m月") as groupTitle,
+        'transfer_rf_to_frozen' AS billType,
+        'true' AS isViewDetail
+        FROM
+        wj_repayment_plan o
+        WHERE
+        o.user_id = #{userId}
+        AND o.if_frozen = 'Y'
+        AND o.is_repay = 'yes'
+        and o.is_valid=0
+        AND (o.product_category = 'v_financial' or o.product_category is null)
+        ) c
+        ORDER BY c.date desc
+        limit #{page},10
+    </select>
+
+    <select id="queryAppHomeActivityList" resultType="com.zhuanyi.vjwealth.wallet.mobile.index.server.dto.WjActivityInfoDTO">
+        select
+        `title` title,
+        `sub_title` subTitle,
+        `function_type` functionType,
+        `function_code` functionCode,
+        `params` as paramsStr,
+        `detail_url` detailUrl,date_format(`publish_time`,'%Y-%m-%d %H:%i:%S') publishTime,
+        `small_pic` smallPic,
+        weixin_link_url as weixinLinkUrl,
+        weixin_pic_url as weixinPicUrl
+        from wj_activity_info
+        where `is_valid` = 4
+        order by publish_time desc
+        LIMIT 0,3
+    </select>
+</mapper>

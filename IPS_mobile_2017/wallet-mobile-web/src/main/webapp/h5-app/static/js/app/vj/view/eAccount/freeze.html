@@ -1,0 +1,60 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	<div class="product-view">
+		
+		
+		<div id="page-data" class="list-wrap">
+			
+			<# print(self.render("investList", {
+				list : self.investList,
+				init : true
+			})); #>
+			 
+		</div>
+	</div>
+</script>
+
+<script type="text/template" data-tpl="investList">
+	<# if(list.length > 0){ #>
+		<# if(init){ #>
+		<div class="list">
+		<# }; #>
+			
+			<# $.each(list, function(i, o){ #>
+			<div class="item" 
+				g-act-tap="true"
+				data-order-id="<# print(o.orderNo); #>"
+				data-bill-type="<# print(o.orderType); #>" 
+			>
+				<div class="item-wrap">
+					<div class="col-l">
+						<div class="text">
+							<# print(o.title); #>
+						</div>
+						<div class="date">
+							<# print(o.date); #>
+						</div>
+					</div>
+					<div class="col-r">
+						<span class="amount"><# print(o.amount); #></span>
+						<span class="arrow"></span>
+					</div>
+				</div>
+			</div>		
+			<# }); #>
+			
+			
+		<# if(init){ #>
+		</div>
+		<# } #>
+		
+	<# }else{ #>
+		<# if(init){ #>
+			<div class="widget-no-data">
+				<div class="img"></div>
+				<p class="text">暂无记录</p>
+			</div>
+		<# }else{ #>
+		<# } #>
+	<# } #>
+</script>
+<div class="page"></div>

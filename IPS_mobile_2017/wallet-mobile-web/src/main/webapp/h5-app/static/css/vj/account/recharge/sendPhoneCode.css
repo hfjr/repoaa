@@ -1,0 +1,23 @@
+@charset "utf-8";
+
+/*==账户中心 发送验证码==*/
+.recharge-sendcode{}
+.b-box{border-top:1px solid #f2f2f2;border-bottom:1px solid #f2f2f2; background:#fff;  }
+.b-box .item-wrap{border-bottom:1px solid #f2f2f2;}
+.b-box .item:last-child .item-wrap{border-bottom:0;}
+
+.amount-bar{line-height:40px; padding-left:20px; color:#9b9b9b; font-size:15px; }
+.b-box .item{padding-left:20px; display:block; font-size:15px;}
+.b-box .item-wrap{height:52px; overflow:hidden;}
+.b-box .item .col-l{float:left; width:85px;  margin-left:-100%;}
+.b-box .item .col-l .text{ padding-left:31px; display:block; background:url(../img/recharge-code.png) 0 center no-repeat; background-size:22px 16px;  height:52px; line-height:52px; }
+.b-box .item .col-r{width:100%; float:left; }
+.b-box .item .col-r .con{margin:0 0 0 87px;line-height:52px; height:52px; position:relative;}
+.b-box .item .col-r .inp-text{border:0; width:100%; background:none; font-size:15px; height:20px;  line-height:20px; padding:16px 0;}
+.b-box .item .col-r .gray-tip{color:#d8d8d8; }
+.b-box .item .col-r .bank-name{color:#5d7a8d; }
+.unbind-tip{color:#d8d8d8; padding:10px 0 10px 30px;}
+.btn-bar{padding:20px 20px 30px;}
+.ui-button{display:block;width:100%; }
+.code-btn{width:78px;  border-radius:3px;  height:24px; overflow:hidden; text-align:center; line-height:24px; background:#4ac0f0; font-size:12px; color:#fff; position:absolute; right:20px; top:14px; }
+.code-btn.g-act-taped{background:#0879b2;}

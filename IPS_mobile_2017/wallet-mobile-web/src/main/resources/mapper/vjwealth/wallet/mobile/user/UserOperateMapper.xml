@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.user.server.integration.mapper.UserOperateMapper">
+
+
+    <!-- 保存用户反馈信息 -->
+    <insert id="saveUserFeedback" parameterType="java.lang.String">
+		INSERT INTO
+		wj_user_feedback(
+		user_id,
+		advice,
+		create_date
+		)
+		VALUES(
+	 	#{userId},
+	 	#{advice},
+	 	now()
+		)
+	</insert>
+
+    <!-- 根据用户ID查询用户的手机号-->
+    <select id="queryUserPhoneByUserId" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+			phone
+		FROM
+			wj_user_info
+		WHERE
+			id = #{userId}
+     
+     </select>
+
+    <!-- 用户绑卡时,查询默认信息-->
+    <select id="queryUserDefaultInfo" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT
+			card_ower AS realName,
+			wu.indentity_no as indentityNo
+		FROM
+			wj_trade_account_card wt,
+			wj_user_info wu
+		WHERE
+			wu.id = wt.user_id
+		AND card_type = 'security'
+		AND	wt.user_id = #{userId}
+     </select>
+
+    <!-- 用户绑卡时,查询默认信息-->
+    <select id="countRegisterCard" parameterType="java.lang.String" resultType="java.lang.Integer">
+	   SELECT
+			count(1)
+		FROM
+			wj_trade_account_card wt,
+			wj_user_info wu
+		WHERE
+			wu.id = wt.user_id
+		AND wu.is_sign = 'register'
+		AND wu.id = #{userId}
+      </select>
+
+
+
+    <!-- 用户绑卡校验 开关-->
+    <select id="checkCountRegisterCard" parameterType="java.lang.String" resultType="java.lang.String">
+		select IFNULL(cp.param_value,'close') as paramValue from comm_params cp 
+		where cp.param_group='bank_manage_flag'
+		and cp.param_key='bank_check_switch'
+      </select>
+
+
+    <!-- 查询用户总资产图数据-->
+    <select id="queryUserTotolAccountAmountReportData" parameterType="java.lang.String" resultType="java.util.Map">
+        select 
+        		'e账户'  as 'name',
+		        TRUNCATE ((available_amount + frozen_amount), 2) as 'amount'
+		 from wj_user_trade_account where user_id = #{userId} and trade_type = 'ea'
+		UNION ALL
+		select 
+		        'v+账户'  as 'name',
+		        TRUNCATE ((available_amount + frozen_amount), 2) as 'amount'
+		 from wj_user_trade_account where user_id = #{userId} and trade_type = 'v1'
+		 UNION ALL
+		select 
+		        '余额'  as 'name',
+		        TRUNCATE ((available_amount + frozen_amount), 2) as 'amount'
+		 from wj_user_trade_account where user_id = #{userId} and trade_type = 'ma'
+     </select>
+
+
+    <!-- 判断用户是否用v1理财余额 -->
+    <select id="countUserV1ExitForV30" parameterType="java.lang.String" resultType="java.lang.Integer">
+		SELECT
+			count(1)
+		FROM
+			wj_user_trade_account c
+		WHERE
+			c.user_id = #{userId}
+		AND c.available_amount > 0
+		AND c.trade_type = 'v1'
+     </select>
+    <!-- 查询用户总资产图数据 3.0 版本-->
+    <select id="queryUserTotolAccountAmountReportDataForV30" resultType="java.util.Map">
+        select
+        '存钱罐' as 'name',
+        TRUNCATE ((available_amount + frozen_amount), 2) as 'amount'
+        from wj_user_trade_account where user_id = #{userId} and trade_type = 'ta'
+        UNION ALL
+        select
+        '定期理财' as 'name',
+        sum(TRUNCATE ((available_amount + frozen_amount), 2)) as 'amount'
+        from wj_user_trade_account where user_id = #{userId} and trade_type in ('rf','lf')
+        UNION ALL
+        select
+        '余额' as 'name',
+        TRUNCATE ((available_amount + frozen_amount), 2) as 'amount'
+        from wj_user_trade_account where user_id = #{userId} and trade_type = 'ma'
+        <if test="v1ExitFlag==true">
+            UNION ALL
+            select
+            'v+账户' as 'name',
+            TRUNCATE ((available_amount + frozen_amount), 2) as 'amount'
+            from wj_user_trade_account where user_id = #{userId} and trade_type = 'v1'
+        </if>
+    </select>
+
+    <!-- 未读消息变为已读消息 -->
+    <update id="updateUserMessageHaveRead" parameterType="java.lang.String">
+		UPDATE wj_user_message
+		SET read_type = 'read'
+		WHERE
+			id = #{messageId}
+		and user_id=#{userId}	
+	</update>
+
+    <!-- 查询客服热线 -->
+    <select id="queryServiceHotLine" parameterType="java.lang.String" resultType="java.lang.String">
+       SELECT
+			c.variable_value
+		FROM
+			wj_mobile_variable_info c
+		WHERE
+			c.variable_key = 'moblie_app_customer_service_hotline'
+     </select>
+
+    <!-- 查询用户购买v1协议需要的信息 -->
+    <select id="queryV1AgreementUserInfo" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT
+        	phone AS phone,
+			real_name AS realName,
+			'身份证'	  AS indentityType,
+			indentity_no AS indentityNo
+		FROM
+			wj_user_info
+		WHERE
+			id = #{userId}
+     </select>
+
+
+    <!-- 保持头像图片信息 -->
+    <insert id="saveHeadPicture" parameterType="java.util.Map">
+		INSERT INTO
+		common_attachment(
+		business_no,
+		biz_type,
+		relative_file_path,
+		fille_original_name,
+		file_rename,
+		file_type,
+		create_by
+		)
+		VALUES(
+	 	#{businessNo},
+	 	#{bizType},
+	 	#{relativeFilePath},
+	 	#{filleOriginalName},
+	 	#{fileRename},
+	 	#{fileType},
+		#{createBy}
+		)
+	</insert>
+
+    <!-- 更新用户的headSculptureId -->
+    <update id="updateUserHeadPicture" parameterType="java.lang.String">
+		UPDATE wj_user_info 
+		SET head_sculpture_id=#{headSculptureId}
+	 	WHERE id=#{userId}
+	</update>
+
+    <!-- 获取头像信息-->
+    <select id="queryHeadPicturById" parameterType="java.lang.String" resultType="java.util.Map">
+           SELECT
+				ca.relative_file_path AS relativeFilePath,
+				ca.file_rename AS fileRename,
+				ca.fille_original_name AS filleOriginalName
+			FROM
+				common_attachment ca,
+                wj_user_info wu
+			WHERE
+                ca.business_no=wu.head_sculpture_id
+			AND wu.id=#{userId}
+     </select>
+
+
+    <!-- 更新消息为不显示 -->
+    <update id="deleteUserMessage" parameterType="java.lang.String">
+		UPDATE wj_user_message 
+		SET is_show='no'
+	 	WHERE id=#{messageId}
+	</update>
+
+
+    <!-- 统计用户是否购买v1理财记录 -->
+    <select id="countUserPurchaseV1" parameterType="java.lang.String" resultType="java.lang.Integer">
+		SELECT
+			count(1) 
+		FROM
+			wj_user_action_flag f
+		WHERE
+			f.user_id = #{userId}
+		and f.is_purchase_v1_flag='yes'	
+	</select>
+
+
+    <!-- 保存手机日志信息 -->
+    <insert id="saveUserDeviceLog" parameterType="java.util.Map">
+		INSERT INTO
+		wj_user_device_log(
+		user_id,
+		log_path,
+		file_id,
+		create_date
+		)
+		VALUES(
+	 	#{userId},
+	 	'',
+	 	#{fileId},
+		now()
+		)
+	</insert>
+
+
+    <!-- 查询用户是否预约定期理财 -->
+    <select id="countUserAppiontFinancial" parameterType="java.lang.String" resultType="java.lang.Integer">
+		SELECT
+			count(1)
+		FROM
+			wj_user_action_flag w
+		WHERE
+			w.user_id = #{userId}
+		AND w.is_appoint_financial = 'yes'
+	</select>
+
+
+    <!-- 更新预约标识位为yes -->
+    <update id="updatesAppointFinancialFlag">
+	 	update wj_user_action_flag set wj_user_action_flag.is_appoint_financial = 'yes' 
+		where user_id = #{userId}
+	 </update>
+
+
+
+    <!-- 新增预约定期理财 -->
+    <insert id="addIsAppointFinancialFlag">
+	 	insert into wj_user_action_flag
+		(
+		        user_id,
+		        is_appoint_financial
+		)
+		values
+		(
+		        #{userId},
+		        'yes'
+		)
+	 </insert>
+
+
+
+
+
+    <!-- 获取帮助中心列表信息 -->
+    <resultMap type="com.zhuanyi.vjwealth.wallet.mobile.user.dto.HelpCenterTypeDTO" id="helpCenterTypeList">
+        <result column="typeIconUrl" property="typeIconUrl"/>
+        <result column="typeName" property="typeName"/>
+		<result column="typeCode" property="typeCode"/>
+        <collection property="typeSubList" javaType="java.util.List" ofType="com.zhuanyi.vjwealth.wallet.mobile.user.dto.HelpCenterTypeSubDTO" >
+            <result column="typeSubId" property="typeSubId"/>
+            <result column="typeSubName" property="typeSubName"/>
+        </collection>
+    </resultMap>
+
+
+    <!-- 获取帮助中心列表信息 -->
+    <select id="getHelpCenterType" resultMap="helpCenterTypeList">
+            SELECT
+                whct.type_icon_url AS typeIconUrl,
+                whct.type_name AS typeName,
+                whcts.id AS typeSubId,
+                whcts.type_sub_name AS typeSubName,
+                whct.type_code as typeCode
+            FROM
+                wj_help_center_type whct,
+                wj_help_center_type_sub whcts
+            WHERE
+                whct.type_code = whcts.parent_code
+            AND whct.is_valid = 'yes'
+            AND whcts.is_valid = 'yes'
+            ORDER BY
+                whct.ordering_weight_value DESC,
+                whct.type_code asc,
+                whcts.ordering_weight_value DESC
+	     </select>
+
+
+    <!-- 获取帮助中心详情-->
+    <select id="getHelpCenterTypeSubDetail" parameterType="java.lang.String"
+            resultType="com.zhuanyi.vjwealth.wallet.mobile.user.dto.HelpCenterTypeSubDetailDTO">
+	          SELECT
+				  whct.type_icon_url AS typeIconUrl,
+				  whcts.type_sub_name AS typeSubName,
+				  whcts.type_sub_detail AS typeSubDetail
+				FROM
+					wj_help_center_type whct,
+					wj_help_center_type_sub whcts
+				where
+				  whct.type_code = whcts.parent_code
+				and whcts.id = #{id}
+	     </select>
+
+    <!-- 保存用户设备Id信息 -->
+    <insert id="saveUserAppDevice" parameterType="java.lang.String">
+        INSERT INTO
+        wj_user_app_device(
+        user_id,
+        device_id,
+        device_type,
+        status,
+        other_data,
+        create_date
+        )
+        VALUES(
+        #{userId},
+        #{deviceId},
+        #{deviceType},
+        '00',
+        #{otherData},
+        now()
+        )
+    </insert>
+
+    <!-- 查询用户设备Id状态 -->
+    <select id="getUserAppDeviceStatus" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+        status
+        FROM
+        wj_user_app_device w
+        WHERE
+        w.user_id = #{userId}
+        AND w.device_id = #{deviceId}
+        <if test="deviceType != null">
+            AND w.device_type= #{deviceType}
+        </if>
+    </select>
+
+    <!-- 更新用户设备状态 为有效-->
+    <update id="updateUserAppDeviceEffective" parameterType="java.lang.String">
+        update wj_user_app_device
+        set status = '00'
+        <if test="otherData != null">
+            , other_data= #{otherData}
+        </if>
+        where user_id = #{userId}
+        and device_id = #{deviceId}
+        <if test="deviceType != null">
+            and device_type= #{deviceType}
+        </if>
+    </update>
+
+    <!-- 更新用户设备状态为无效 -->
+    <update id="updateUserAppDeviceInvalid" parameterType="java.lang.String">
+        update wj_user_app_device set status = '01'
+        where user_id = #{userId}
+        and device_id != #{deviceId}
+        <if test="deviceType != null">
+            and device_type= #{deviceType}
+        </if>
+    </update>
+
+    <update id="updateUserChannelNo" parameterType="java.lang.String">
+        UPDATE wj_user_info
+        SET channel_no = #{channelNo}
+        WHERE phone = #{phone}
+    </update>
+
+</mapper>

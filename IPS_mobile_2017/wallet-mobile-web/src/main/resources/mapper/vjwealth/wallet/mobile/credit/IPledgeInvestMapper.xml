@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.credit.server.mapper.IPledgeInvestMapper">
+
+        
+     <select id="queryPledgeInvestIniti" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.credit.server.dto.pledgeInvest.PledgeInvestInitiDTO">
+
+		SELECT
+			(
+				SELECT
+				    CONCAT("¥",FORMAT(IFNULL(sum(amount)*0.9,0), 0))
+				FROM
+					wj_order_product
+				WHERE
+					user_id = #{userId}
+				AND product_category = 'v_financial'
+				AND order_product_status = 'invest_going'
+				AND amount >= 600
+			) AS totalCanBorrowAmount,
+			(
+				SELECT
+				    CONCAT("¥",FORMAT(IFNULL(sum(amount)*0.9,0), 0))
+				FROM
+					wj_order_product
+				WHERE
+					user_id = #{userId}
+				AND product_category = 'v_financial'
+				AND order_product_status = 'invest_going'
+				AND if_frozen = 'N'
+				AND amount >= 600
+			) AS canBorrowAmount,
+			(
+				SELECT
+					count(1)
+				FROM
+					wj_order_product
+				WHERE
+					user_id = #{userId}
+				AND product_category = 'v_financial'
+				AND if_frozen = 'Y'
+				AND amount >= 600
+			) AS isShowRepaymentButton,
+			'可借的钱' as canBorrowAmountTitle,
+			'总额度' as totalCanBorrowAmountLabel,
+			'请选择一笔理财（借款>5万，T+1日到账）' as borrowInvestTipTitle,
+			'帮助中心'  AS helpURLTitle,
+			IFNULL(QUERY_PARAM_VALUE('pledge_invest_help_center','pledge_invest'),'')  AS helpURL,
+			'帮助中心' AS helpURLLabel,
+			'随借随还' as repayDescriptionLabel
+		FROM
+			DUAL
+
+     </select>
+
+
+    <select id="queryPledgeInvestInitiV2" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.credit.server.dto.pledgeInvest.PledgeInvestInitiDTO">
+
+        SELECT
+        (
+        SELECT
+         FORMAT(IFNULL(sum(amount)*0.9,0), 0)
+        FROM
+           wj_order_product
+        WHERE
+        user_id = #{userId}
+        AND product_category = 'v_financial'
+        AND order_product_status = 'invest_going'
+        AND amount >= 600
+        ) AS totalCanBorrowAmount,
+        (
+        SELECT
+           FORMAT(IFNULL(sum(amount)*0.9,0), 0)
+        FROM
+        wj_order_product
+        WHERE
+        user_id = #{userId}
+        AND product_category = 'v_financial'
+        AND order_product_status = 'invest_going'
+        AND if_frozen = 'N'
+        AND amount >= 600
+        AND amount*0.9 >= #{loanAmount}
+        ) AS canBorrowAmount
+        FROM
+        DUAL
+
+    </select>
+
+
+
+
+
+
+	<!-- 查询v理财投资记录信息（没领过奖品） -->
+     <select id="queryPledgeInvestInitiInnerOrderList" parameterType="java.util.Map" resultType="com.zhuanyi.vjwealth.wallet.mobile.credit.server.dto.pledgeInvest.PledgeInvestInitiInnerOrderInfoDTO">
+
+		SELECT
+					wop.order_no as orderId,
+					CONCAT("产品计划：",wpf.product_name,wpf.product_id) as productCode,
+					CONCAT(TRUNCATE((wpf.receive_rate+IFNULL(wpf.greenhorn_receive_rate,0))*100,2),"%") as annualYield,
+					TRUNCATE(wop.amount,0) as investmentAmount,
+					CONCAT('&lt;font color=#4A4A4A>投资金额:&lt;/font>&lt;font color=#FFBD30>',TRUNCATE(wop.amount,0),'&lt;/font>&lt;font color=#4A4A4A>元&lt;/font>') as investmentAmountLabel,
+					'投资期限' as investmentTermLabel,
+					CONCAT(DATE_FORMAT(wop.interest_start_time,"%Y/%m/%d"),'-',DATE_FORMAT(wop.interest_end_time,"%Y/%m/%d")) as investmentTerm,
+					CONCAT('&lt;font color=#4A4A4A>到期剩余天数:&lt;/font>&lt;font color=#4AC0F0>',TIMESTAMPDIFF(DAY,DATE_FORMAT(now(),"%Y/%m/%d"),DATE_FORMAT(wop.interest_end_time,"%Y/%m/%d")),'&lt;/font>&lt;font color=#4A4A4A>天&lt;/font>') as expirationTermLabel,
+					CONCAT(TIMESTAMPDIFF(DAY,DATE_FORMAT(now(),"%Y/%m/%d"),DATE_FORMAT(wop.interest_end_time,"%Y/%m/%d")),"天") as expirationTerm
+				FROM
+					wj_order_product wop,wj_product_finace wpf
+				WHERE
+					wop.user_id = #{userId}
+				AND wop.product_category = 'v_financial'
+				AND wop.order_product_status = 'invest_going'
+				AND wop.if_frozen = 'N'
+        AND wop.amount >= 600
+        AND DATE_FORMAT(wop.interest_end_time,"%Y-%m-%d") > DATE_FORMAT(now(),"%Y-%m-%d")
+        AND wop.product_id = wpf.product_id
+        ORDER BY wop.order_no DESC
+        Limit #{page},10
+
+     </select>
+
+
+
+
+   <!-- 查询v理财投资记录信息（领过奖品） -->
+	<select id="queryPledgeInvestInitiInnerOrderListLimit" parameterType="java.util.Map" resultType="com.zhuanyi.vjwealth.wallet.mobile.credit.server.dto.pledgeInvest.PledgeInvestInitiInnerOrderInfoDTO">
+
+		SELECT
+		wop.order_no as orderId,
+		CONCAT("产品计划：",wpf.product_name,wpf.product_id) as productCode,
+		CONCAT(TRUNCATE((wpf.receive_rate+IFNULL(wpf.greenhorn_receive_rate,0))*100,2),"%") as annualYield,
+		TRUNCATE(wop.amount,0) as investmentAmount,
+		CONCAT('&lt;font color=#4A4A4A>投资金额:&lt;/font>&lt;font color=#FFBD30>',TRUNCATE(wop.amount,0),'&lt;/font>&lt;font color=#4A4A4A>元&lt;/font>') as investmentAmountLabel,
+		'投资期限' as investmentTermLabel,
+		CONCAT(DATE_FORMAT(wop.interest_start_time,"%Y/%m/%d"),'-',DATE_FORMAT(wop.interest_end_time,"%Y/%m/%d")) as investmentTerm,
+		CONCAT('&lt;font color=#4A4A4A>到期剩余天数:&lt;/font>&lt;font color=#4AC0F0>',TIMESTAMPDIFF(DAY,DATE_FORMAT(now(),"%Y/%m/%d"),DATE_FORMAT(wop.interest_end_time,"%Y/%m/%d")),'&lt;/font>&lt;font color=#4A4A4A>天&lt;/font>') as expirationTermLabel,
+		CONCAT(TIMESTAMPDIFF(DAY,DATE_FORMAT(now(),"%Y/%m/%d"),DATE_FORMAT(wop.interest_end_time,"%Y/%m/%d")),"天") as expirationTerm
+		FROM
+		wj_order_product wop,wj_product_finace wpf
+		WHERE
+		wop.user_id = #{userId}
+		AND wop.product_category = 'v_financial'
+		AND wop.order_product_status = 'invest_going'
+		AND wop.if_frozen = 'N'
+		AND wop.amount >= 600
+		AND DATE_FORMAT(wop.interest_start_time,"%Y-%m-%d") > QUERY_PARAM_VALUE('pledge_invest_activity_end_date','pledge_invest')
+		AND DATE_FORMAT(wop.interest_end_time,"%Y-%m-%d") > DATE_FORMAT(now(),"%Y-%m-%d")
+		AND wop.product_id = wpf.product_id
+		ORDER BY wop.order_no DESC
+		Limit #{page},10
+
+	</select>
+
+
+    <!-- 查询v理财投资记录信息（没有领过奖品） -->
+    <select id="queryPledgeInvestInitiInnerOrderListV2" parameterType="java.util.Map" resultType="com.zhuanyi.vjwealth.wallet.mobile.credit.server.dto.loanProduct.InverstOrder">
+
+        SELECT
+        wop.order_no AS orderId,
+        CONCAT("产品计划：",wpf.product_name,wpf.product_id) AS productCode,
+       CONCAT(FORMAT(wop.amount*0.9,0),"|元(可担保金额)") AS guaranteedAmountDesc,
+        CONCAT('到期时间：',DATE_FORMAT(wop.interest_end_time,"%Y-%m-%d"),' 待收本金: ' ,FORMAT(IFNULL(wop.amount,0), 0) ,'元') AS 'desc'
+        FROM
+        wj_order_product wop,wj_product_finace wpf
+        WHERE
+        wop.user_id = #{userId}
+        AND wop.product_category = 'v_financial'
+        AND wop.order_product_status = 'invest_going'
+        AND wop.if_frozen = 'N'
+        AND wop.amount >= 600
+        AND IFNULL(wop.amount*0.9,0)  >= #{borrowAmount}
+        AND DATE_FORMAT(wop.interest_end_time,"%Y-%m-%d") > DATE_FORMAT(now(),"%Y-%m-%d")
+        AND wop.product_id = wpf.product_id
+        ORDER BY wop.amount ASC ,wop.order_no DESC
+
+    </select>
+
+	<!-- 查询v理财投资记录信息（领过奖品） -->
+	<select id="queryPledgeInvestInitiInnerOrderListLimitV2" parameterType="java.util.Map" resultType="com.zhuanyi.vjwealth.wallet.mobile.credit.server.dto.loanProduct.InverstOrder">
+
+		SELECT
+		wop.order_no AS orderId,
+		CONCAT("产品计划：",wpf.product_name,wpf.product_id) AS productCode,
+		CONCAT(FORMAT(wop.amount*0.9,0),"|元(可担保金额)") AS guaranteedAmountDesc,
+		CONCAT('到期时间：',DATE_FORMAT(wop.interest_end_time,"%Y-%m-%d"),' 待收本金: ' ,FORMAT(IFNULL(wop.amount,0), 0) ,'元') AS 'desc'
+		FROM
+		wj_order_product wop,wj_product_finace wpf
+		WHERE
+		wop.user_id = #{userId}
+		AND wop.product_category = 'v_financial'
+		AND wop.order_product_status = 'invest_going'
+		AND wop.if_frozen = 'N'
+		AND wop.amount >= 600
+		AND IFNULL(wop.amount*0.9,0)  >= #{borrowAmount}
+		AND DATE_FORMAT(wop.interest_start_time,"%Y-%m-%d") > QUERY_PARAM_VALUE('pledge_invest_activity_end_date','pledge_invest')
+		AND DATE_FORMAT(wop.interest_end_time,"%Y-%m-%d") > DATE_FORMAT(now(),"%Y-%m-%d")
+		AND wop.product_id = wpf.product_id
+		ORDER BY wop.amount ASC ,wop.order_no DESC
+
+	</select>
+
+
+     <select id="queryUserPhoneByUserId" parameterType="java.lang.String" resultType="java.lang.String">
+			SELECT
+				phone
+			FROM
+				wj_user_info
+			WHERE
+				id = #{userId}
+
+     </select>
+
+
+     <select id="queryPledgeInvestBorrowIniti" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.credit.server.dto.pledgeInvest.PledgeInvestBorrowInitiDTO">
+
+           SELECT
+           	    '帮助中心'  AS helpURLTitle,
+			     IFNULL(QUERY_PARAM_VALUE('pledge_invest_help_center','pledge_invest'),'')  AS helpURL,
+			     '帮助中心' AS helpURLLabel,
+				'关联理财订单号' AS  borrowOrderLabel,
+				'借多少' AS  borrowAmountLabel,
+				IFNULL(QUERY_PARAM_VALUE('pledge_invest_add_amount','pledge_invest'),'1.00')  AS canBorrowAddAmount,
+				IFNULL(QUERY_PARAM_VALUE('pledge_invest_min_amount','pledge_invest'),'500.00')  AS canBorrowMinAmount,
+				CONCAT ('最小借', IFNULL(QUERY_PARAM_VALUE('pledge_invest_min_amount','pledge_invest'),'500')  ,', ','最多可借',TRUNCATE(wop.amount*0.9,0) ) AS  borrowAmountTip,
+				TRUNCATE(wop.amount*0.9,0) AS  canBorrowMaxAmount,
+				'借多久' AS  canBorrowDayLabel,
+				TIMESTAMPDIFF(DAY,DATE_FORMAT(now(),"%Y/%m/%d"),DATE_FORMAT(wop.interest_end_time,"%Y/%m/%d")) as canBorrowMaxDay,
+				CONCAT ('最多可借',TIMESTAMPDIFF(DAY,DATE_FORMAT(now(),"%Y/%m/%d"),DATE_FORMAT(wop.interest_end_time,"%Y/%m/%d"))) AS canBorrowMaxDayTip,
+				'怎么还' AS  borrowModeLabel,
+				'到期还本付息' AS  borrowMode,
+				'总利息' AS  totalInterestLabel,
+				'0.00' AS  totalInterest,
+				'还款日期' AS  repaymentDateLabel,
+				'还款金额（本金+利息）' AS  repaymentPrincipalAndInterestLabel,
+				'0.00' AS  repaymentPrincipalAndInterest,
+				 wui.phone AS phone,
+				'可提前还款，利息按天计算，免手续费' AS  borrowTipDescription,
+				'贷款相关合同' AS  contractLabel,
+				'借款合同' AS  contractTitle,
+				 IFNULL(QUERY_PARAM_VALUE('pledge_invest_contract','pledge_invest'),'')  AS  contractURL,
+				'true' AS   isSendSMS,
+				'收款银行卡' AS  receivableBankCardLabel,
+				CONCAT (wtac.bank_name,'(',RIGHT(wtac.bank_card_no,4),')') AS receivableBankCard
+			FROM
+				wj_order_product wop,
+				wj_user_info wui,
+				wj_trade_account_card wtac
+			WHERE
+			  wop.user_id = #{userId}
+			  AND  wop.order_no = #{orderId}
+			  AND wop.user_id = wui.id
+			  AND wop.user_id = wtac.user_id
+			  AND  wtac.card_type = 'security'
+
+     </select>
+
+	<select id="queryPledgeInvestBorrowOrderInfo" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.credit.server.dto.pledgeInvest.PledgeInvestInitiInnerOrderInfoDTO">
+		SELECT
+					wop.order_no as orderId,
+					CONCAT("产品计划：",wpf.product_name,wpf.product_id) as productCode,
+					CONCAT(TRUNCATE((wpf.receive_rate+IFNULL(wpf.greenhorn_receive_rate,0))*100,2),"%") as annualYield,
+					TRUNCATE(wop.amount,0) as investmentAmount,
+					CONCAT('&lt;font color=#4A4A4A>投资金额:&lt;/font>&lt;font color=#FFBD30>',TRUNCATE(wop.amount,0),'&lt;/font>&lt;font color=#4A4A4A>元&lt;/font>') as investmentAmountLabel,
+					'投资期限' as investmentTermLabel,
+					CONCAT(DATE_FORMAT(wop.interest_start_time,"%Y/%m/%d"),'-',DATE_FORMAT(wop.interest_end_time,"%Y/%m/%d")) as investmentTerm,
+					CONCAT('&lt;font color=#4A4A4A>到期剩余天数:&lt;/font>&lt;font color=#4AC0F0>',TIMESTAMPDIFF(DAY,DATE_FORMAT(now(),"%Y/%m/%d"),DATE_FORMAT(wop.interest_end_time,"%Y/%m/%d")),'&lt;/font>&lt;font color=#4A4A4A>天&lt;/font>') as expirationTermLabel,
+					CONCAT(TIMESTAMPDIFF(DAY,DATE_FORMAT(now(),"%Y/%m/%d"),DATE_FORMAT(wop.interest_end_time,"%Y/%m/%d")),"天") as expirationTerm
+				FROM
+					wj_order_product wop,wj_product_finace wpf
+				WHERE
+					wop.user_id = #{userId}
+				AND  wop.order_no = #{orderId}
+				AND wop.product_category = 'v_financial'
+				AND wop.order_product_status = 'invest_going'
+				AND wop.if_frozen = 'N'
+        AND wop.amount >= 600
+		AND wop.product_id = wpf.product_id
+
+
+	</select>
+
+	<select id="queryIncomeSumByUserIdAndOrderId" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT IFNULL(sum(repay_interest+greenhorn_interest),0) as incomeSum
+		FROM
+		   wj_order_product wop, wj_repayment_plan wp
+		WHERE
+		  wop.user_id = #{userId}
+			AND  wop.order_no = #{orderId}
+			AND wop.product_category = 'v_financial'
+			AND wop.order_product_status = 'invest_going'
+			AND wop.if_frozen = 'N'
+			AND wp.is_repay='no'
+			and wp.is_valid=0
+			AND wp.order_no = wop.order_no
+	</select>
+	
+	<select id="queryUserMaAmountByUserId" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+			TRUNCATE (available_amount, 2)
+		FROM
+			wj_user_trade_account
+		WHERE
+			user_id = #{userId}
+		AND trade_type = 'ma'
+
+	</select>
+
+
+	<select id="queryFinacialRewardSendInfo" parameterType="java.lang.String" resultType="java.lang.Boolean">
+		SELECT
+			count(1)
+		FROM
+			wj_finacial_reward_send_info
+		WHERE
+			user_id = #{userId}
+		AND is_send_out = 'Y'
+
+	</select>
+
+
+
+</mapper>

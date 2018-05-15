@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+	<!-- 注册名 -->
+	<dubbo:application name="wallet-mobile-web" />
+                    
+	<!-- zk服务地址 -->
+	<dubbo:registry address="${zookeeper.address}" />
+
+	<!-- 服务端口 -->
+	<dubbo:protocol name="dubbo" port="${dubbo.port}" />
+
+	<dubbo:consumer check="false" timeout="${dubbo.consumer.timeout}" />
+ 
+	<dubbo:provider timeout="${dubbo.provider.timeout}"
+		retries="${dubbo.provider.retries}" />
+	<!-- 注解dubbo服务 -->
+	<!-- <dubbo:annotation package="com.zhuanyi.vjwealth.wallet.mobile.credit" 
+		/> -->
+
+<!-- 	<dubbo:reference -->
+<!-- 		interface="com.zhuanyi.vjwealth.loan.order.webservice.ILoanApplicationDubboService" -->
+<!-- 		id="loanApplicationDubboService" owner="zf" version="1.0.0" /> -->
+
+<!--     <dubbo:reference -->
+<!--             interface="com.zhuanyi.vjwealth.loan.order.webservice.IApplyForCreditDubboService" -->
+<!--             id="applyForCreditDubboService" version="1.0.0" /> -->
+
+<!-- 	<dubbo:reference -->
+<!-- 			interface="com.zhuanyi.vjwealth.loan.order.webservice.ICanaApplyForCreditDubboService" -->
+<!-- 			id="canaApplyForCreditDubboService" version="1.0.0" /> -->
+
+<!--     <dubbo:reference -->
+<!--             interface="com.zhuanyi.vjwealth.loan.product.webservice.IProductCityInfoDubboService" -->
+<!--             id="productCityInfoDubboService" version="1.0.0" /> -->
+<!--     <dubbo:reference -->
+<!--             interface="com.zhuanyi.vjwealth.loan.order.webservice.ICreditRouteDubboService" -->
+<!--             id="creditRouteDubboService" version="1.0.0" /> -->
+<!--     <dubbo:reference -->
+<!--             interface="com.zhuanyi.vjwealth.loan.order.webservice.IMyBorrowDubboService" -->
+<!--             id="myBorrowDubboService" version="1.0.0" /> -->
+            
+<!--     <dubbo:reference -->
+<!-- 		interface="com.zhuanyi.vjwealth.loan.credit.webservice.ITaskDetailsInfoDubboService" -->
+<!-- 		id="taskDetailsInfoDubboService" version="1.0.0" /> -->
+		
+<!-- 	<dubbo:reference -->
+<!-- 		interface="com.zhuanyi.vjwealth.loan.product.webservice.IProductInfoDubboService" -->
+<!-- 		id="productInfoDubboService" version="1.0.0" /> -->
+		
+<!-- 	<dubbo:reference -->
+<!-- 		interface="com.zhuanyi.vjwealth.loan.client.webservice.IClientInfoDubboService" -->
+<!-- 		id="clientInfoDubboService" version="1.0.0" /> -->
+		
+<!--     <dubbo:reference -->
+<!-- 		interface="com.zhuanyi.vjwealth.loan.order.webservice.IApplyFinancingLoanDubboService" -->
+<!-- 		id="applyFinancingLoanDubboService" version="1.0.0" /> -->
+		
+<!-- 	<dubbo:reference -->
+<!-- 		interface="com.zhuanyi.vjwealth.loan.liutongbao.webservice.IApplyLoanLtbDubboService" -->
+<!-- 		id="applyLoanLtbDubboService" version="1.0.0" /> -->
+
+<!-- 	<dubbo:reference -->
+<!-- 			interface="com.zhuanyi.vjwealth.loan.order.webservice.ICanaLoanApplicationDubboService" -->
+<!-- 			id="canaLoanApplicationDubboService" version="1.0.0" /> -->
+<!-- 	<dubbo:reference -->
+<!-- 			interface="com.zhuanyi.vjwealth.loan.order.webservice.ICanaMyBorrowDubboService" -->
+<!-- 			id="canaMyBorrowDubboService" version="1.0.0" /> -->
+<!-- 	<dubbo:reference -->
+<!-- 			interface="com.zhuanyi.vjwealth.loan.cana.webservice.ICanaLoanInterfaceService" -->
+<!-- 			id="canaLoanInterfaceService" version="1.0.0" /> -->
+<!-- 	<dubbo:reference -->
+<!-- 			interface="com.zhuanyi.vjwealth.loan.wageAdvance.webservice.IApplyWageAdvanceDubboService" -->
+<!-- 			id="applyWageAdvanceDubboService" version="1.0.0" /> -->
+	
+<!-- 	<dubbo:reference -->
+<!-- 			interface="com.zhuanyi.vjwealth.loan.housingFundLoan.webservice.IApplyHousingFundLoanDubboService" -->
+<!-- 			id="applyHousingFundLoanDubboService" version="1.0.0" > -->
+<!-- 		<dubbo:method name="housingInfoSaveV2" timeout="25000"></dubbo:method>   -->
+<!-- 		<dubbo:method name="refreshValidateCode" timeout="25000"></dubbo:method>   -->
+<!-- 	</dubbo:reference> -->
+	
+<!-- 	<dubbo:reference -->
+<!-- 			interface="com.vj.vbus.service.IEventInstanceService" -->
+<!-- 			id="eventInstanceService" version="1.0.0" /> -->
+
+<!-- 	<dubbo:reference interface="com.zhuanyi.vjwealth.loan.jd.webservice.IJDLoanDubboService" id="jDLoanDubboService" version="1.0.0"/> -->
+
+<!-- 	<dubbo:reference interface="com.zhuanyi.vjwealth.loan.oauth.jwt.ITokenGenerate" id="tokenGenerate" version="1.0.0"/> -->
+
+<!-- 	<dubbo:reference interface="com.vjwealth.appwaf.service.IUriWafService" id="uriWafService" version="1.0.0" /> -->
+
+<!-- 	<dubbo:reference interface="com.zhuanyi.vjwealth.loan.sd.webservice.ISDDubboService" id="sdDubboService" version="1.0.0" /> -->
+	
+<!-- 	<dubbo:reference interface="com.zhuanyi.vjwealth.loan.picc.webservice.IAutoInsuranceLoanService" id="AutoInsuranceLoanService" version="1.0.0" > -->
+<!-- 		<dubbo:method name="applyAutoInsuranceLoan" timeout="25000"></dubbo:method>   -->
+<!-- 	</dubbo:reference> -->
+
+     
+		<dubbo:reference interface="com.vjwealth.event.api.service.IExcuteEventService" id="excuteEventService" version="1.0.0" />
+<!-- 开户引入2 -->
+		<dubbo:reference interface="com.rqb.ips.depository.platform.faced.IPSOpenUserService" id="ipsOpenUserService" version="1.0.0" />
+		<!-- 红包冻结回掉引入 -->
+		<dubbo:reference interface="com.rqb.ips.depository.platform.faced.IpsPacketFrozenService" id="packetFrozenService" version="1.0.0" />
+		<!-- jiedong -->
+	<dubbo:reference interface="com.rqb.ips.depository.platform.faced.UnfreezeServices" id="UnfreezeServices" version="1.0.0" />
+
+		
+		<!-- 转账接口 -->
+		<dubbo:reference interface="com.rqb.ips.depository.platform.faced.IpsTransferAccountsService" id="ipsTransferAccountsService" version="1.0.0" />
+		
+		<!-- 平台下用户登录 -->
+		<dubbo:reference interface="com.rqb.ips.depository.platform.faced.IpsPlatformLoginService" id="ipsPlatformLoginService" version="1.0.0" />
+		
+		<!-- 冻结接口 -->
+		<dubbo:reference interface="com.rqb.ips.depository.platform.faced.IPsFreezeService" id="iPsFreezeService" version="1.0.0" />
+		
+		<!-- 转账接口2 -->
+		<!-- <dubbo:reference interface="com.rqb.ips.depository.platform.faced.IpsTransferService" id="ipsTransferService" version="1.0.0" /> -->
+		
+		<!-- 查询用户绑卡信息 -->
+		<dubbo:reference interface="com.rqb.ips.depository.platform.faced.IPSQueryUserInfoService" id="iPSQueryUserInfoService" version="1.0.0" />
+		
+
+
+
+		<!-- 转账回调接口2 -->
+	<!--  <dubbo:reference interface="com.rqb.ips.depository.platform.faced.IpsCallbackService" id="ipsCallbackService" version="1.0.0" /> -->
+		
+</beans>

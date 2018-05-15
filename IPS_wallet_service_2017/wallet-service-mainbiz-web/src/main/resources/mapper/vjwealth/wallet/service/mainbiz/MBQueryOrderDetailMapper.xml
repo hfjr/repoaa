@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Mapper接口 -->
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.server.integration.mapper.IMBQueryOrderDetailMapper">
+
+	<select id="queryConfirmShareModel" resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.ConfirmShareModelDTO">
+	 	select 
+		    (select aa.param_value from comm_params aa where aa.param_group = 'wallet_task' and aa.param_key = #{paramKey}) as 'confirmShareDetailTime' ,
+		    (select ab.working_day_flag from wj_confirm_share_date_info ab where ab.batch_date_int = #{ymdInt}) as 'workingDayFlag'
+		from dual
+	 </select>
+	 
+	 <select id="queryNextTwoWorkdaysByBuyday" resultType="java.lang.String">
+	 	select csd.batch_date_int as 'batch_time_str'
+			 from wj_confirm_share_date_info csd 
+			 where csd.batch_date_int > #{ymdInt}
+			 and csd.working_day_flag = 'Y'
+			 order by csd.batch_date_int  
+		 limit 0,2
+	 </select>
+	 
+	 
+	 
+	 <select id="countOrderAmount" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select count(1) from wj_order w
+		where w.order_no=#{orderNo}
+	 </select>
+	 
+	 
+	 
+ 	 <select id="queryBillDetailByOrderNo" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBOrderDetailDTO">
+	     SELECT
+			TRUNCATE (o.total_price, 2) AS 'amount',
+			date_format(o.create_date,'%Y-%m-%d %H:%i:%S') AS 'date',
+			o.title AS 'title',
+            IF(card.bank_name IS NULL,'',CONCAT(card.bank_name,'(尾号',RIGHT(card.bank_card_no,4),')')) AS bank,
+			IF(card.bank_code IS NULL,'',card.bank_code) AS bankCode,
+			o.order_type AS orderType,
+			o.order_status AS orderStatus,
+			'金额' AS amountTitle,
+			'类型' AS typeTitle
+		FROM
+			wj_order o
+            LEFT JOIN wj_trade_account_card card on o.trade_account_card_id=card.id
+		WHERE
+			o.order_no = #{orderNo}
+		LIMIT 0,1
+	 </select>
+	 
+</mapper>

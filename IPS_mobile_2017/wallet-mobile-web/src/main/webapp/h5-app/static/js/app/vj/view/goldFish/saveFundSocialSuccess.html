@@ -1,0 +1,23 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	<#
+		var formData = self.formData;
+		var tips = formData.feedbackInformation ? formData.feedbackInformation.split("|") : [];
+		
+	#>
+	<div class="inforSubmit-response">
+		<div class="msg-wrap">
+			
+			<# if(formData.iconURL){ #>
+			<div class="state"><img style="width:76px; height:87px;" src="<# print(formData.iconURL); #>"></div>
+			<# } #>
+			<# if(tips.length == 2){ #>
+			<div class="f16 color_black mt20"><# print(tips[0]); #></div>
+			<div class="color_gray mt10"><# print(tips[1]); #></div>
+			<# } #>
+		</div>
+		<div class="btn-bar">
+			<span g-act-tap="true" id="btn-ok" class="btn ui-button">完成</span>
+		</div>
+	</div>
+</script>
+<div class="page"></div>

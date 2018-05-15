@@ -1,0 +1,54 @@
+<script type="text/template" data-tpl="tpl-main-view">
+
+	<div  class="passport-wrap">
+		<div class="box box-1">
+			<div class="logel">
+				<img src="<# print(_g_dir.static_dir); #>img/logo.png">
+			</div>
+			<div class="form-wrap">
+				<form id="regform">
+					<input type="text" style="display:none;">
+					<input type="password" style="display:none;">
+				
+					<div class="text">
+						<div class="tubiao fix">
+							<img  class="phone" src="<# print(_g_dir.static_dir); #>img/passport/phone.png">
+							<div class="inp-wrap">
+								<input  class="intext"  placeholder="请输入手机号码" maxlength="11" value="" type="tel" id="f-phone" name="phone">
+							</div>
+						</div>
+						<div class="tubiao fix">
+							<img class="password" src="<# print(_g_dir.static_dir); #>img/passport/clock.png">
+							<div class="inp-wrap">
+								<input  class="intext" type="password"  id="f-password" name="password" placeholder="请输入登录密码">
+							</div>
+							<span id="eye" class="eye eye-hide"></span>
+						</div>
+						<div class="tubiao fix">
+							<img  class="valid-code" src="<# print(_g_dir.static_dir); #>img/passport/letter.png">
+							<div class="inp-wrap">
+								<input  class="intext" placeholder="请输入验证码"  maxlength="6"  value="" type="tel" id="f-code" name="code" >
+							</div>
+							<span  id="code-btn" g-act-tap="true" class="verification-code">发送验证码</span>
+						</div>
+						<div class="tubiao1 fix">
+							<div class="allvoice">
+								<div class="voice"></div>
+								<span class="voice-detail">如无法收到手机验证码，请选择</span>
+							</div>
+							<div class="all-voice" id="code-btn2">
+								<div class="voice-img"></div>
+								<div class="voice-text" >语&nbsp;音&nbsp;验&nbsp;证&nbsp;码</div>
+							</div>	
+						</div>
+						<input type="submit" id="btn-submit" class="btn" value="下一步">
+					</div>
+				</form>
+			</div>
+			
+		</div>
+	</div>
+	
+
+</script>
+<div class="page"></div>

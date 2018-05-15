@@ -1,0 +1,57 @@
+html,body{height:100%;width:100%;padding:0;margin:0}
+html{font-size:20px;}
+body{background-color:#f9f9f9;font-family:arial,'microsoft yahei',sans-serif;color:#333;}
+a{color:#09c;cursor:pointer;text-decoration:none;}
+a:hover{text-decoration:none;}
+a:focus{text-decoration:none;outline:0;}
+ol,ul{margin:0;padding:0;list-style:none;}
+input:disabled{background:#f9f9f9}
+
+/*字体大小*/
+.ft-size-12{ font-size:0.6rem; }
+.ft-size-14{ font-size:0.7rem; }
+.ft-size-16{ font-size:0.8rem; }
+.ft-size-18{ font-size:0.9rem; }
+.ft-size-20{ font-size:1rem; }
+.ft-size-22{ font-size:1.1rem; }
+.ft-size-24{ font-size:1.2rem; }
+.ft-size-26{ font-size:1.3rem; }
+
+
+
+/****** 通用类{ ******/
+/* 浮动 */
+.fl{float:left;_display:inline;}
+.fr{float:right;_display:inline;}
+.fc{margin:0 auto;}
+.p-static{ position:static;}
+/* 清除浮动 */
+.clearfix{*zoom:1;}
+.clearfix:after{content:'';display:block;clear:both;}
+.clear{ clear:both;}
+/* 行内块元素 */
+.inblock{display:inline-block;*zoom:1;*display:inline;vertical-align:middle;}
+/* 省略号（单行） */
+.ellipsis-single{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* 省略号（多行） */
+.ellipsis-more{overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-box-orient:vertical;/*height:3em;-webkit-line-clamp:2;*/}
+/****** 通用类} ******/
+
+/*insure and v-investment pages*/
+.imgWrap {width:100%}
+img{width:100%;height:auto}
+.wordWrap{padding:15px 4.8%}
+h2{font-size:0.9rem;}
+p{font-size:0.7rem;line-height:23px; text-align:justify}
+
+/*compare page*/
+.compareBox{background:#3f90e8}
+.compare{background:linear-gradient(to bottom,#4ac0f0,#3f90e8);-webkit-background:linear-gradient(to bottom,#4ac0f0,#3f90e8);-moz-background:linear-gradient(to bottom,#4ac0f0,#3f90e8);height:auto;padding:0 4.8% 30px 4.8%}
+.compare h2{text-align:center;color:#fff;font-size:1rem; width:100%;margin-top:0;padding-top:40px;}
+.compare table{color:#fff;border:1px solid #b8def7; border-collapse:collapse;margin:-5px auto;border-top:0;padding-bottom:20px; }
+.compare table tr{border-bottom:1px solid #b8def7}
+.compare table th{font-size:0.8rem;border-right:1px solid #b8def7;height:50px;line-height:50px;padding:0 15px;text-align:left}
+.compare table td{font-size:0.7rem;border-right:1px solid #b8def7;line-height:25px;height:100px;padding:10px 15px;}
+.empty-th{width:10%}
+.bank-th{width:45%}
+.wallet-th{width:45}

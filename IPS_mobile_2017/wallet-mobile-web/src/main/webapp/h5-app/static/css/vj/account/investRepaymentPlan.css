@@ -1,0 +1,34 @@
+@charset "utf-8";
+.page-account-investRepaymentPlan .top  .item .con{border-bottom:1px solid #f2f2f2; }
+.page-account-investRepaymentPlan .top  .item:last-child .con{border-bottom:0;}
+.page-account-investRepaymentPlan .top  .top-wrap{padding-top:10px; background:#fff;}
+.page-account-investRepaymentPlan .top  .item{line-height:40px; }
+.page-account-investRepaymentPlan .top  .item .con{margin:0 20px;  }
+.page-account-investRepaymentPlan .top .attr{float:left; font-size:16px; }
+.page-account-investRepaymentPlan .top .value{float:right;  font-size:14px; }
+.page-account-investRepaymentPlan .top .value .s-1{font-size:24px; color:#ffbd30;float:left;}
+.page-account-investRepaymentPlan .top .value .s-2{float:left;padding-left:8px;}
+.page-account-investRepaymentPlan .top .wen{background:url(../../img/wen.png) 0 0 repeat-x;background-size:36px 18px; height:18px; overflow:hidden;}
+
+.page-account-investRepaymentPlan .repay-list .item{border-top:1px solid #f2f2f2;border-bottom:1px solid #f2f2f2; }
+.page-account-investRepaymentPlan .repay-list .desc .title{border-bottom:1px solid #f2f2f2;}
+.page-account-investRepaymentPlan .repay-list{margin-top:10px; }
+.page-account-investRepaymentPlan .repay-list .item{position:relative; background:#fff; padding-bottom:10px; }
+.page-account-investRepaymentPlan .repay-list .state-bar{position:absolute; left:20px;top:0;height:100%; width:20px;}
+.page-account-investRepaymentPlan .repay-list .state-bar .b-top{width:2px; height:18px; position:absolute; left:50%; top:0; margin-left:-1px;   overflow:hidden; background:#EFF6F9;}
+.page-account-investRepaymentPlan .repay-list .state-bar .b-middle{ background:url(../../img/meiyuan2.png) 0 0 no-repeat; background-size:20px 24px; margin-top:18px; width:20px;  height:24px; overflow:hidden; }
+.page-account-investRepaymentPlan .repay-list .state-bar .b-bottom{width:2px; position:absolute; top:42px; bottom:0; left:50%; margin-left:-1px;  overflow:hidden; background:#EFF6F9;}
+.page-account-investRepaymentPlan .repay-list .desc{margin-left:60px;}
+.page-account-investRepaymentPlan .repay-list .desc .title{line-height:60px;}
+.page-account-investRepaymentPlan .repay-list .desc .title .text{float:left;color:#4ac0f0; font-size:14px;}
+.page-account-investRepaymentPlan .repay-list .desc .title .date{float:right;margin-right:20px;font-size:12px;color:#999;}
+.page-account-investRepaymentPlan .repay-list .desc .text-1{padding-top:7px; line-height:33px; }
+.page-account-investRepaymentPlan .repay-list .desc .text-1 .attr{float:left;color:#5d7a8d; font-size:14px;}
+.page-account-investRepaymentPlan .repay-list .desc .text-1 .value{float:right;margin-right:20px;}
+.page-account-investRepaymentPlan .repay-list .desc .text-1 .value .s-1{float:left; font-size:18px;}
+.page-account-investRepaymentPlan .repay-list .desc .text-1 .value .s-2{float:left; font-size:12px;}
+.page-account-investRepaymentPlan .repay-list .desc .text-2{line-height:28px;text-align:right; }
+.page-account-investRepaymentPlan .repay-list .desc .text-2 .text{padding-right:20px; font-size:14px;}
+.page-account-investRepaymentPlan .repay-list .item-blank{height:8px; position:relative; overflow:hidden; }
+.page-account-investRepaymentPlan .repay-list .item-blank  .con{width:20px; overflow:hidden;position:absolute; left:20px; height:8px; top:0; }
+.page-account-investRepaymentPlan .repay-list .item-blank .split{width:2px; position:absolute; height:8px; top:0;  left:50%; margin-left:-1px;  overflow:hidden; background:#EFF6F9;}

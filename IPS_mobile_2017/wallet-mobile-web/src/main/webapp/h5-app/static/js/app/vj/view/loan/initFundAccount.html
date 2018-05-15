@@ -1,0 +1,112 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	<#
+		var initData = self.initData;
+		
+		
+	#>
+	<section class="completeInfor border-box insurancewrap">
+		<form id="mainForm">
+			<input type="text" style="display:none">
+			<input type="password" style="display:none">
+			<p class="color_blue plr20 pt10"><# print(initData.fundAccountQueryTitle); #></p>
+			<ul class="commonLinkUl insuranceUl smallpadul mt10">
+				<li>
+					<label class="table" for="fundAccount">
+						<div class="cell ul_tt">
+							<p><# print(initData.fundAccountLabel); #></p>
+						</div>
+						<div class="cell ta-r ul_inputwrap">
+							<input type="text" name="fundAccount" id="fundAccount" value="<# print(initData.fundAccount); #>" placeholder="<# print(initData.fundAccountInputTip); #>" />
+						</div>
+					</label>
+				</li>
+				<li>
+					<label class="table" for="fundAccountPassword">
+						<div class="cell ul_tt">
+							<p><# print(initData.fundAccountPasswordLabel); #></p>
+						</div>
+						<div class="cell ta-r ul_inputwrap">
+							<input type="password" name="fundAccountPassword" id="fundAccountPassword" value="<# print(initData.fundAccountPassword); #>" placeholder="<# print(initData.fundAccountPasswordInputTip); #>" />
+						</div>
+					</label>
+				</li>
+			</ul>
+
+		
+			
+			
+			<# if(self.cityCode == self.cityMap.SHANGHAI || self.cityCode == self.cityMap.SHANGHAI_1 || self.cityName == "上海市"){ #>
+			<!--上海-->
+			<ul class="qaul">
+				<li>
+					<p class="qatt turnup">如何获取用户名和密码：</p> <!--关闭状态去掉turnup,打开状态加上turnup-->
+					<div class="answer">
+						<div class="inner">
+							<p>请至上海市公积金官网进行注册，然后使用注册时所填写的账号和密码进行登录。</p>
+						</div>
+						<p class="link">
+							<span class="color_black000">注册网址</span>
+							<a href="https://persons.shgjj.com/usertext.htm" class="color_blue2">https://persons.shgjj.com/usertext.htm</a>
+						</p>
+					</div>
+
+				</li>
+			</ul>
+			<# }else if(self.cityCode == self.cityMap.BEIJING || self.cityCode == self.cityMap.BEIJING_1 || self.cityName == "北京市"){ #>
+			<!--北京-->
+			<ul class="qaul">
+				<li>
+					<p class="qatt turnup">如何获取联名卡、北京联名卡办理：</p> <!--关闭状态去掉turnup,打开状态加上turnup-->
+					<div class="answer">
+						<div class="inner">
+							<p>公积金联名卡是由住房公积金管理中心与商业银行合作发放，方便广大职工存缴住房公积金，具有住房公积金缴存凭证、账户查询和银行借记卡等多种功能，也是职工缴存住房公积金的有效凭证。</p>
+						</div>
+						<p class="innertt">处理方式：</p>
+						<div class="inner">
+							<p>1.自己办理：目前，北京住房公积金管理中心与交通银行、建设银行、工商银行、招商银行、北京银行、中国银行、农业银行、中信银行共八家银行合作发行联名卡。在确定您已缴纳公积金的后，持身份证去上述银行办理，当日即可拿到联名卡。</p>
+							<p>2.向公司人事部门申请办理。</p>
+						</div>
+					</div>
+
+				</li>
+			</ul>
+			<div class="sweetTips">
+				<p class="color_blue3">温馨提示</p>
+				<ul>
+					<li>默认密码为身份证后四位加两位数字0。</li>
+					<li>首次查询需以［联名卡号］登录，如修改过密码，可以使用身份证号登录。</li>
+					<li>账号与密码仅供已申领住房公积金卡的用户查询，如未办理，请联系所在企业公积金经办人。</li>
+				</ul>
+			</div>			
+
+			<# }else if(self.cityCode == self.cityMap.GUANGZHOU || self.cityCode == self.cityMap.GUANGZHOU_1 || self.cityName == "广州市"){ #>
+			<!--广州-->
+			<div class="sweetTips">
+				<p class="color_blue3">温馨提示</p>
+				<ul>
+					<li>当原简易查询密码停止使用，启用6位数字新密码时，尚未获取新密码的职工，请持本人身份证明原件至住房公积金归集业务经办网点办理。</li>
+					<li>个人密码当天连续错误输入累计3次，则系统暂时锁定账户，第二天自动解锁后即可继续验证；累计输错密码超过10次，账户将被锁定，需职工持本人身份证明原件前往住房公积金归集业务经办网点办理解锁后，方可再次申请验证。</li>
+				</ul>
+			</div>
+
+
+
+			<# }else if(self.cityCode == self.cityMap.SHENZHEN || self.cityCode == self.cityMap.SHENZHEN_1 || self.cityName == "深圳市"){ #>
+			<!--深圳-->
+			<div class="sweetTips">
+				<p class="color_blue3">温馨提示</p>
+				<ul>
+					<li>公积金账号为社保公积金卡上的数字，您也可以找企业人事部门询问或凭身份证去当地社保局网点查询。</li>
+					<li>初始密码为身份证号后六位，字母用0代替；由于部分用户在社保局注册登记的是第一代身份证号码，所以如使用第二代身份证登录不成功，请尝试第一代身份证。</li>
+				</ul>
+			</div>
+	
+			<# } #>	
+			<div class="downbtn border-box">
+				<input type="submit" class="ui-button" id="btnSubmit" g-act-tap="true" value="确认提交" disabled="disabled">
+			</div>
+		</form>
+	</section>
+	
+</script>
+<div class="page"></div>

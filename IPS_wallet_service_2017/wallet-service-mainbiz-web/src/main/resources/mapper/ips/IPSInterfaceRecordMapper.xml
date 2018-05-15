@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Mapper接口 -->
+<mapper
+	namespace="com.rqb.ips.depository.platform.mapper.IPSInterfaceRecordMapper">
+	<!-- 请求json记录 -->
+	<insert id="SendJsonRecord" parameterType="com.rqb.ips.depository.platform.beans.InterfaceRecordJSONDTO">
+		INSERT INTO wj_ebatong_trade_history (
+			customer_id,
+			card_no,
+			send_json,
+			create_date,
+			operation_type
+		) VALUES(
+			#{merBillNo},
+			#{ipsAcctNo},
+			#{json},
+			NOW(),
+		 	#{regproject}
+		)
+	</insert>
+
+	<!-- 返回json记录 -->
+	<update id="ReturnJsonRecord" parameterType="com.rqb.ips.depository.platform.beans.InterfaceRecordJSONDTO">
+		update
+		wj_ebatong_trade_history 
+		set
+		return_json=#{json},
+		update_date=NOW()
+		WHERE 1=1
+			AND customer_id=#{merBillNo}
+			AND card_no= #{ipsAcctNo}
+	</update>
+</mapper>

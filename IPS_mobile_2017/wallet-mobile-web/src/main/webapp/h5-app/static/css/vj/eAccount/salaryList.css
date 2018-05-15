@@ -1,0 +1,16 @@
+@charset "utf-8";
+/**
+ * 账单
+*/
+.border-box{-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;}
+.salarylist{font-size: 14px;}
+.salarylistul{background-color: #fff;border-bottom: solid 1px #f2f2f2; border-top:solid 1px #f2f2f2; }
+.salarylistul li{ position:relative; padding-left:20px; }
+.salarylistul li .table{ width:100%; display: table;border-bottom: solid 1px #f2f2f2;padding-right:40px;-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
+.salarylistul li:last-child .table{border-bottom: none;}
+.salarylistul li .cell{ display: table-cell; vertical-align: middle; height:59px; }
+.salarylistul li.hasarrow:after{content: ""; background:url(../../../img/arrow-r.png) 0 0 no-repeat; width:7px; height:15px; background-size:100% 100%;  position: absolute;right:20px; top:50%;margin-top: -8px; }
+.salarylistul li.g-act-taped{background-color:#f6f6f6;}
+.widget-no-data{padding: 40% 48px 48px;}
+.widget-no-data .text{color:#9b9b9b;line-height: 1.5em;margin-top: 15px; }
+.widget-no-data .img{ background-image: url(../../../img/no-open.png);width:48px;height: 44px; }

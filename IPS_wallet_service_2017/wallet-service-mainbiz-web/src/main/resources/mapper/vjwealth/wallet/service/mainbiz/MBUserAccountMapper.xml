@@ -1,0 +1,1554 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Mapper接口 -->
+<mapper
+	namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.server.integration.mapper.IMBUserAccountMapper">
+
+	<!-- 用户提现更新上锁 -->
+	<update id="updateUserWithdrawLock">
+		update wj_biz_lock_info locks
+		set locks.lock_flag =
+		'1'
+		where locks.biz_id = #{userId}
+		and locks.biz_type = 'trans'
+		and
+		locks.lock_flag = '0'
+	</update>
+	<!-- 红包订单号插入 -->
+	<update id="setPacketNo">
+		UPDATE rqb_package_info r
+		SET r.rel_order_no = #{redBillNo}
+		WHERE
+		r.user_id = #{userId}
+		AND r.package_id = #{rpId}
+	</update>
+
+	<!-- 用户提现解锁 -->
+	<update id="updateUserWithdrawUnlock">
+		update wj_biz_lock_info locks
+		set locks.lock_flag =
+		'0'
+		where locks.biz_id = #{userId}
+		and locks.biz_type = 'trans'
+		and
+		locks.lock_flag = '1'
+	</update>
+
+	<select id="queryAccountAvailableAmount" resultType="java.math.BigDecimal">
+		select
+		acc.available_amount from wj_user_trade_account acc where acc.user_id
+		= #{userId} and acc.trade_type = #{tradeType}
+	</select>
+
+	<!-- ea 账户余额减少 -->
+	<update id="updateLessEaAmount">
+		update wj_user_trade_account
+		set available_amount =
+		available_amount - #{amount}
+		where user_id = #{userId}
+		and trade_type =
+		'ea'
+	</update>
+
+	<!-- ta 账户余额减少 -->
+	<update id="updateLessTaAmount">
+		update wj_user_trade_account
+		set available_amount =
+		available_amount - #{amount}
+		where user_id = #{userId}
+		and trade_type =
+		'ta'
+	</update>
+
+	<!-- ma 账户余额增加 -->
+	<update id="updateAddMaAmount">
+		update wj_user_trade_account
+		set available_amount =
+		available_amount + #{amount}
+		where user_id = #{userId}
+		and trade_type =
+		'ma'
+	</update>
+	<!-- ma 锁定冻结资金 -->
+	<update id="updateFreezeMaAmount">
+		update wj_user_trade_account
+		set available_amount =
+		available_amount - #{amount},
+		frozen_amount = frozen_amount + #{amount}
+		where user_id = #{userId}
+		and trade_type =
+		'ma'
+	</update>
+
+	<!-- ma 解冻锁定冻结资金 -->
+	<update id="cancelFreezeMaAmount">
+		update wj_user_trade_account
+		set available_amount =
+		available_amount + #{amount},
+		frozen_amount = frozen_amount - #{amount}
+		where user_id = #{userId}
+		and trade_type =
+		'ma'
+	</update>
+	<!-- ma 锁定冻结资金 ips -->
+	<update id="updateFreezeMaAmountIps">
+		update wj_user_trade_account
+		set available_amount =
+		available_amount - #{frozenAmount},
+		frozen_amount = frozen_amount +
+		#{frozenAmount}
+		where user_id = #{rqbUserId}
+		and
+		trade_type = 'ma'
+	</update>
+	<!-- 从冻结金额中扣除资金 -->
+	<update id="deductionFreezeMaAmount">
+		update wj_user_trade_account
+		set frozen_amount =
+		frozen_amount - #{amount}
+		where user_id = #{userId}
+		and trade_type =
+		'ma'
+	</update>
+
+	<!-- v1 锁定冻结资金 -->
+	<update id="updateFreezeV1Amount">
+		update wj_user_trade_account
+		set available_amount =
+		available_amount - #{amount},
+		frozen_amount = frozen_amount + #{amount}
+		where user_id = #{userId}
+		and trade_type =
+		'v1'
+	</update>
+
+
+
+	<insert id="addtOrderInfo"
+		parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBOrderInfoDTO">
+		insert into wj_order
+		(
+		user_id,
+		order_no,
+		title,
+		total_price,
+		price,
+		trade_account_card_id,
+		product_id,
+		order_type,
+		order_status,
+		order_token,
+		channel_trade_id,
+		time_financial_approval,
+		create_date
+		)
+		values (
+		#{userId},
+		#{orderNo},
+		#{title},
+		#{totalPrice},
+		#{price},
+		#{tradeAccountCardId},
+		#{productId},
+		#{orderType},
+		#{orderStatus},
+		#{orderToken},
+		#{tradeId},
+		#{timeFinancialApproval},
+		now()
+		)
+	</insert>
+	
+	
+	
+	
+	
+	
+	
+	
+	<!--此处添加加息券  -->
+	<insert id="addtOrderInfoIps" parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBOrderInfoDTO">
+		insert into wj_order
+		 (
+		        user_id,
+		        order_no,
+		        title,
+		        total_price,
+		        price,
+		        trade_account_card_id,
+		        product_id,
+		        order_type,
+		        order_status,
+		        order_token,
+		        channel_trade_id,
+		        time_financial_approval,
+		        create_date,
+		        coupons_id
+		)
+		values (
+		        #{userId},
+		        #{orderNo},
+		        #{title},
+		        #{totalPrice},
+		        #{price},
+		        #{tradeAccountCardId},
+		        #{productId},
+		        #{orderType},
+		        #{orderStatus},
+		        #{orderToken},
+		        #{tradeId},
+		        #{timeFinancialApproval},
+		        now(),
+		        #{couponsId}
+		)
+	</insert>
+
+
+
+
+
+	<insert id="addtOrderBidInfoIps"
+		parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.IPSOrderInfoDTO">
+		insert into wj_order
+		(
+		user_id,
+		order_no,
+		title,
+		total_price,
+		price,
+		activity_amount,
+		trade_account_card_id,
+		product_id,
+		order_type,
+		order_status,
+		order_token,
+		time_financial_approval,
+		coupons_id,
+		create_date
+		)
+		values (
+		#{userId},
+		#{bidBillNo},
+		#{title},
+		#{totalPrice},
+		#{frozenAmount},
+		#{rpValue},
+		#{tradeAccountCardId},
+		#{productId},
+		#{orderType},
+		#{orderStatus},
+		#{orderToken},
+		#{timeFinancialApproval},
+		#{couponId},
+		now()
+		)
+	</insert>
+	<insert id="addtOrderPacketInfoIps"
+		parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.IPSOrderInfoDTO">
+		insert into wj_order
+		(
+		user_id,
+		order_no,
+		title,
+		total_price,
+		price,
+		trade_account_card_id,
+		product_id,
+		order_type,
+		order_status,
+		order_token,
+		time_financial_approval,
+		create_date
+		)
+		values (
+		#{userId},
+		#{redBillNo},
+		#{title},
+		#{totalPrice},
+		#{price},
+		#{tradeAccountCardId},
+		#{productId},
+		#{orderType},
+		#{orderStatus},
+		#{orderToken},
+		#{timeFinancialApproval},
+		now()
+		)
+	</insert>
+	<insert id="insertOrder"
+		parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBOrderInfoDTO">
+		insert into wj_order
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="userId != null">
+				user_id,
+			</if>
+			<if test="orderNo != null">
+				order_no,
+			</if>
+			<if test="title != null">
+				title,
+			</if>
+			<if test="totalPrice != null">
+				total_price,
+			</if>
+			<if test="price != null">
+				price,
+			</if>
+			<if test="activityAmount != null">
+				activity_amount,
+			</if>
+			<if test="tradeAccountCardId != null">
+				trade_account_card_id,
+			</if>
+			<if test="productId != null">
+				product_id,
+			</if>
+			<if test="orderType != null">
+				order_type,
+			</if>
+			<if test="orderStatus != null">
+				order_status,
+			</if>
+			<if test="orderToken != null">
+				order_token,
+			</if>
+			<if test="tradeId != null">
+				channel_trade_id,
+			</if>
+			<if test="timeFinancialApproval != null">
+				time_financial_approval,
+			</if>
+			create_date,
+			<if test="createBy != null">
+				create_by,
+			</if>
+			<if test="updateDate != null">
+				update_date,
+			</if>
+			<if test="updateBy != null">
+				update_by,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="userId != null">
+				#{userId},
+			</if>
+			<if test="orderNo != null">
+				#{orderNo},
+			</if>
+			<if test="title != null">
+				#{title},
+			</if>
+			<if test="totalPrice != null">
+				#{totalPrice},
+			</if>
+			<if test="price != null">
+				#{price},
+			</if>
+			<if test="activityAmount != null">
+				#{activityAmount},
+			</if>
+			<if test="tradeAccountCardId != null">
+				#{tradeAccountCardId},
+			</if>
+			<if test="productId != null">
+				#{productId},
+			</if>
+			<if test="orderType != null">
+				#{orderType},
+			</if>
+			<if test="orderStatus != null">
+				#{orderStatus},
+			</if>
+			<if test="orderToken != null">
+				#{orderToken},
+			</if>
+			<if test="tradeId != null">
+				#{tradeId},
+			</if>
+			<if test="timeFinancialApproval != null">
+				#{timeFinancialApproval},
+			</if>
+			now()
+			<if test="createBy != null">
+				#{createBy,jdbcType=VARCHAR},
+			</if>
+			<if test="updateDate != null">
+				#{updateDate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updateBy != null">
+				#{updateBy,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+
+	<!-- 查询ea剩余可提现次数 -->
+	<select id="queryEaAvavilableWithDrawTimes" parameterType="java.lang.String"
+		resultType="java.lang.Integer">
+		select
+		(select p.param_value from comm_params p where p.param_group = 'withdraw' and
+		p.param_key = 'day_withdraw_times' limit 0 ,1 )
+		-
+		(select
+		count(*)
+		from
+		wj_order
+		where
+		user_id = #{userId}
+		and
+		date_format(create_date,'%Y-%m-%d') = date_format(now(),'%Y-%m-%d')
+		and
+		order_type = 'withdraw_ea'
+		and order_status in ('withdraw_ea_process','withdraw_ea_success')
+		) as 'limitCount'
+		from dual
+	</select>
+
+	<!-- 查询ta剩余可提现次数 -->
+	<select id="queryTaAvavilableWithDrawTimes" parameterType="java.lang.String"
+		resultType="java.lang.Integer">
+		select
+		(select p.param_value from comm_params p where
+		p.param_group = 'withdraw' and p.param_key = 'day_withdraw_times'
+		limit 0 ,1 )
+		-
+		(select
+		count(*)
+		from
+		wj_order
+		where
+		user_id = #{userId}
+		and
+		date_format(create_date,'%Y-%m-%d') = date_format(now(),'%Y-%m-%d')
+		and
+		order_type = 'withdraw_ta'
+		and order_status in
+		('withdraw_ta_process','withdraw_ta_success')
+		) as 'limitCount'
+		from
+		dual
+	</select>
+
+	<!-- 查询ma剩余可提现次数 -->
+	<select id="queryMaAvavilableWithDrawTimes" parameterType="java.lang.String"
+		resultType="java.lang.Integer">
+		select
+		(select p.param_value from comm_params p where p.param_group = 'withdraw' and
+		p.param_key = 'ma_day_withdraw_times' limit 0 ,1 )
+		-
+		(select
+		count(*)
+		from
+		wj_order
+		where
+		user_id = #{userId}
+		and
+		date_format(create_date,'%Y-%m-%d') = date_format(now(),'%Y-%m-%d')
+		and
+		order_type = 'withdraw_ma'
+		and order_status in
+		('withdraw_ma_noconfirm','withdraw_ma_confirm','withdraw_ma_success')
+		) as 'limitCount'
+		from dual
+	</select>
+
+	<select id="queryConfirmShareModel"
+		resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.ConfirmShareModelDTO">
+		select
+		(select aa.param_value from comm_params aa where aa.param_group =
+		'wallet_task' and aa.param_key = #{paramKey}) as
+		'confirmShareDetailTime' ,
+		(select ab.working_day_flag from wj_confirm_share_date_info ab where
+		ab.batch_date_int = #{ymdInt}) as 'workingDayFlag'
+		from dual
+	</select>
+
+	<select id="queryNextTwoWorkdaysByBuyday" resultType="java.lang.String">
+		select csd.batch_date_int as 'batch_time_str'
+		from wj_confirm_share_date_info csd
+		where csd.batch_date_int > #{ymdInt}
+		and csd.working_day_flag = 'Y'
+		order by csd.batch_date_int
+		limit 0,2
+	</select>
+
+	<!-- 查询充值卡卡号是否重复绑定 -->
+	<select id="queryBindRepeatCardCountBycardNo" resultType="java.lang.Integer">
+		select
+		count(1)
+		from
+		wj_trade_account_card card
+		where
+		card.user_id = #{userId}
+		and card.is_valid = 'yes'
+		and card.bank_card_no = #{cardNo}
+		and card.card_type = 'recharge'
+	</select>
+
+	<!-- 每个用户只能注册一个账号 -->
+	<select id="queryBindRepeatUser" resultType="java.lang.Integer">
+		SELECT
+		count(1)
+		FROM
+		wj_user_info w
+		WHERE
+		w.indentity_no = #{indentityNo}
+		AND w.id != #{userId}
+	</select>
+
+
+
+	<!-- 查询本人有几张银行卡 -->
+	<select id="queryCardCountByUserId" resultType="java.lang.Integer">
+		select
+		count(1)
+		from
+		wj_trade_account_card card
+		where
+		card.user_id = #{userId}
+		and card.is_valid = 'yes'
+	</select>
+
+	<!-- 增加安全卡 -->
+	<insert id="addUserSecurityCardInfo"
+		parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBRechargeDTO">
+		insert into wj_trade_account_card
+		(
+		id,
+		card_ower,
+		user_id,
+		bank_card_no,
+		aside_bank_phone,
+		bank_name,
+		bank_code,
+		card_type,
+		is_valid,
+		create_date
+		)
+		values (
+		#{cardId},
+		#{realName},
+		#{userId},
+		#{cardNo},
+		#{cardBindMobilePhoneNo},
+		#{bankName},
+		#{bankCode},
+		'security',
+		'yes',
+		now()
+		)
+	</insert>
+
+	<!-- 增加充值卡 -->
+	<insert id="addUserRechargeCardInfo"
+		parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBRechargeDTO">
+		insert into wj_trade_account_card
+		(
+		id,
+		card_ower,
+		user_id,
+		bank_card_no,
+		aside_bank_phone,
+		bank_name,
+		bank_code,
+		card_type,
+		is_valid,
+		create_date
+		)
+		values (
+		#{cardId},
+		#{realName},
+		#{userId},
+		#{cardNo},
+		#{cardBindMobilePhoneNo},
+		#{bankName},
+		#{bankCode},
+		'recharge',
+		'yes',
+		now()
+		)
+	</insert>
+
+	<!-- 更新用户实名信息 -->
+	<update id="updateUserRealNameInfo">
+		update wj_user_info
+		set indentity_type = #{certType},
+		indentity_no = #{certNo},
+		real_name = #{realName},
+		sex = #{sex}
+		where id = #{userId}
+	</update>
+
+	<!-- 查询用户信息 -->
+	<select id="queryRealNameUserInfo"
+		resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBRechargeDTO">
+		select
+		ui.id as userId,
+		ui.indentity_no as certNo,
+		ui.real_name as realName
+		from wj_user_info ui
+		where ui.id = #{userId}
+		and ui.user_status = '00'
+	</select>
+
+
+	<!-- 充值卡一定存在 -->
+	<select id="checkRechargeCardExit" resultType="java.lang.Integer">
+		select
+		count(1)
+		from wj_user_info ui, wj_trade_account_card card
+		where ui.id = #{userId}
+		and card.id = #{cardId}
+		and ui.user_status = '00'
+		and card.user_id =
+		ui.id
+		and card.is_valid = 'yes'
+		<!-- and card.card_type = 'recharge' //TODO 充值类型异常, 数据错误 -->
+	</select>
+
+	<!-- 查询归属银行是否在维护中 -->
+	<select id="checkRechargeCardRunHealth" resultType="java.lang.Integer">
+		select
+		count(1)
+		from wj_trade_account_card card,wj_bank_balance_limit bl
+		WHERE card.id =
+		#{cardId}
+		and card.is_valid = 'yes'
+		<!-- and card.card_type = 'recharge' //TODO 充值类型异常, 数据错误 -->
+		and card.bank_code=bl.bank_code
+		and bl.status='normal'
+	</select>
+
+
+	<!-- 充值金额在维护银行范围内 -->
+	<select id="checkRechargeAmountValid" resultType="java.lang.Integer">
+		SELECT
+		count(1)
+		FROM
+		wj_bank_balance_limit w,
+		wj_trade_account_card card
+		WHERE
+		w.`status` = 'normal'
+		AND #{amount} BETWEEN 0 and w.balance_day_limit
+		AND card.id
+		= #{cardId}
+		AND w.bank_code = card.bank_code
+	</select>
+	<!-- 累积当天充值是否上线 -->
+	<select id="checkSumRechargeBalanceDayLimitValid" resultType="java.lang.String">
+		SELECT
+		if( (sum(w.total_price)- CONVERT(bbl.balance_day_limit,SIGNED))>0
+		,'no','yes') as enoughMoney
+		FROM
+		wj_order w,
+		wj_bank_balance_limit bbl,
+		wj_trade_account_card card
+		WHERE
+		w.order_type = 'recharge_ma'
+		AND w.order_status = 'recharge_ma_confirm'
+		AND
+		w.user_id = #{userId}
+		AND card.bank_code = bbl.bank_code
+		AND card.id =
+		#{cardId}
+		AND card.id=w.trade_account_card_id
+		AND
+		DATE_FORMAT(w.create_date, '%Y%m%d') = DATE_FORMAT(now(), '%Y%m%d')
+	</select>
+
+
+
+	<!-- 查询卡信息 -->
+	<select id="queryBindCardInfoAndUserInfo"
+		resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBRechargeDTO">
+		select
+		ui.id as userId,
+		ui.indentity_no as certNo,
+		ui.real_name as realName,
+		ui.indentity_type as certType,
+		card.id as cardId,
+		card.bank_code as bankCode,
+		card.bank_card_no as cardNo,
+		card.aside_bank_phone as cardBindMobilePhoneNo
+		from wj_user_info ui, wj_trade_account_card card
+		where ui.id = #{userId}
+		and card.id = #{cardId}
+		and ui.user_status = '00'
+		and card.user_id =
+		ui.id
+		and card.is_valid = 'yes'
+		and card.card_type = 'recharge'
+	</select>
+
+	<!-- 查询卡信息 -->
+	<select id="queryBindCardInfoAndUserInfoWithHold"
+		resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBRechargeDTO">
+		select
+		ui.id as userId,
+		ui.indentity_no as certNo,
+		ui.real_name as realName,
+		ui.indentity_type as certType,
+		card.id as cardId,
+		card.bank_code as bankCode,
+		card.bank_card_no as cardNo,
+		card.aside_bank_phone as cardBindMobilePhoneNo,
+		p.plateform_id as payChannelId
+		from wj_user_info ui, wj_trade_account_card
+		card,wj_currently_withhold_bank_for_loan
+		p,wj_currently_withhold_routing_for_loan pr
+		where ui.id = #{userId}
+		and
+		card.id = #{cardId}
+		and ui.user_status = '00'
+		and card.user_id = ui.id
+		and card.bank_code = p.bank_code
+		and card.is_valid = 'yes'
+		and
+		card.card_type = 'recharge'
+		and p.plateform_id = pr.platform_id
+		and
+		pr.biz_type = #{orderType}
+	</select>
+
+
+	<!-- 更新v1购买标志 -->
+	<update id="updatePurchaseV1Flag">
+		update wj_user_action_flag set wj_user_action_flag.is_purchase_v1_flag =
+		'yes'
+		where user_id = #{userId}
+	</update>
+
+	<!-- 更新小赢预约购买标志 -->
+	<update id="updatePurchaseRfFlag">
+		update wj_user_action_flag set wj_user_action_flag.is_appoint_financial =
+		'yes'
+		where user_id = #{userId}
+	</update>
+
+	<!-- 更新小赢是否已经购买标志 -->
+	<update id="updateIfPurchaseRfFlag">
+		update wj_user_action_flag set
+		wj_user_action_flag.is_purchase_v_financial_flag = 'yes'
+		where user_id = #{userId}
+	</update>
+
+	<!-- 增加v1标志 -->
+	<insert id="addPurchaseV1Flag">
+		insert into wj_user_action_flag
+		(
+		user_id,
+		is_purchase_v1_flag
+		)
+		values
+		(
+		#{userId},
+		'yes'
+		)
+	</insert>
+
+	<!-- 增加小赢预约购买标志 -->
+	<insert id="addPurchaseRfFlag">
+		insert into wj_user_action_flag
+		(
+		user_id,
+		is_appoint_financial
+		)
+		values
+		(
+		#{userId},
+		'yes'
+		)
+	</insert>
+
+	<!-- 增加小赢是否已经购买标志 -->
+	<insert id="addIfPurchaseRfFlag">
+		insert into wj_user_action_flag
+		(
+		user_id,
+		is_purchase_v_financial_flag
+		)
+		values
+		(
+		#{userId},
+		'yes'
+		)
+	</insert>
+
+	<!-- v理财剩余总份额减去当前申购份额 -->
+	<update id="updateRemainTotalAmount">
+		UPDATE comm_params
+		SET param_value = param_value - #{amount}
+		WHERE
+		param_group = 'mock_task'
+		AND param_key = 'remainTotalAmount'
+	</update>
+
+	<!-- 根据用户ID,查询安全卡的ID -->
+	<select id="querySecurityCardIdByUserId" parameterType="java.lang.String"
+		resultType="java.lang.String">
+		SELECT
+		card.id
+		FROM
+		wj_user_info ui,
+		wj_trade_account_card card
+		WHERE
+		ui.id = #{userId}
+		AND card.user_id = ui.id
+		AND card.card_type = 'security'
+	</select>
+
+	<!-- 查询安全卡信息 必须是有效的 -->
+	<select id="queryVaildSecurityCardInfoByUserId"
+		resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.TradeAccountCardDTO">
+		select
+		card.id as tradeAccountCardId ,
+		card.bank_code as bankCode,
+		card.card_ower as cardOwer,
+		card.bank_card_no as bankCardNo,
+		ui.phone as phone
+		from
+		wj_trade_account_card card, wj_user_info ui
+		where
+		card.user_id = #{userId}
+		and ui.id = card.user_id
+		and ui.user_status = '00'
+		and card.card_type = 'security'
+		and card.is_valid = 'yes'
+	</select>
+
+	<select id="queryProductAvailableAmount" resultType="java.math.BigDecimal">
+		select
+		acc.remain_balance from wj_product_finace acc where acc.product_id =
+		#{productId}
+	</select>
+
+	<!-- 单笔提现限额 -->
+	<select id="querysingleWithdrawUpperLimit" resultType="java.math.BigDecimal">
+		SELECT
+		CAST(IFNULL(QUERY_PARAM_VALUE('single_withdraw_upper_limit','withdraw'),0)as
+		DECIMAL)
+	</select>
+
+	<!-- 充值补单 -->
+	<select id="queryWjEbatongTradeHistoryToRepair"
+		resultType="com.zhuanyi.vjwealth.wallet.service.balance.common.dto.WjEbatongTradeHistoryDTO"
+		parameterType="com.zhuanyi.vjwealth.wallet.service.balance.common.dto.WjEbatongTradeHistoryDTO">
+		select
+		customer_id as customerId,
+		card_no as cardNo,
+		real_name as realName,
+		cert_no as certNo,
+		cert_type as certType,
+		out_trade_no as outTradeNo,
+		amount as amount,
+		bank_code as bankCode,
+		card_bind_mobile_phone_no as cardBindMobilePhoneNo,
+		result as result,
+		token as token,
+		plateform_id plateformId,
+		recharge_result as rechargeResult,
+		dynamic_code as dynamicCode,
+		user_id as userId,
+		pay_type as payType
+		from wj_ebatong_trade_history
+		where
+		out_trade_no=#{outTradeNo}
+	</select>
+
+	<update id="updateOrderStatus"
+		parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBOrderInfoDTO">
+		update wj_order o
+		set o.order_status =
+		#{orderStatus},o.title = #{title}
+		where o.user_id = #{userId}
+		and
+		o.order_no = #{orderNo}
+		and o.trade_account_card_id =
+		#{tradeAccountCardId}
+		and o.price = #{price}
+		and o.order_status
+		='recharge_ma_confirm_dispose'
+	</update>
+
+	<!-- 查询订单信息 -->
+	<select id="queryOrderInfoByOrderNo"
+		parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBOrderInfoDTO"
+		resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBOrderInfoDTO">
+		select w.price as price,
+		w.user_id as userId,
+		w.order_no as orderNo,
+		w.title as title,
+		w.total_price as totalPrice,
+		w.price as price,
+		w.trade_account_card_id as tradeAccountCardId,
+		w.product_id as productId,
+		w.order_type as orderType,
+		w.order_status as orderStatus,
+		w.batch_no as batchNo,
+		w.channel_trade_id as tradeId,
+		w.order_token as orderToken
+		from wj_order w
+		WHERE w.order_no=#{orderNo}
+	</select>
+
+	<update id="updateWjEbatongTradeHistoryStatus" parameterType="java.lang.String">
+		update wj_ebatong_trade_history e
+		set e.recharge_result = 'E'
+		where
+		e.out_trade_no = #{orderNo}
+		and e.recharge_result = 'T'
+
+	</update>
+
+	<!-- 用于查询银行卡号与银行号是否匹配 -->
+	<select id="findCountWithBankCode" parameterType="java.lang.String"
+		resultType="java.lang.Integer">
+		select
+		count(1)
+		from
+		wj_bank_bin_info
+		where
+		card_bin=left(#{cardNo}, card_bin_length)
+		and bank_code=#{bankCode}
+	</select>
+
+	<!-- 用于查询用户账户是否锁定 -->
+	<select id="findCountWithUserDrawLock" parameterType="java.lang.String"
+		resultType="java.lang.Integer">
+		select
+		count(1)
+		from
+		wj_biz_lock_info locks
+		where
+		locks.biz_id = #{userId}
+		and locks.biz_type = 'trans'
+		and locks.lock_flag = '1'
+	</select>
+
+
+
+	<!-- 查询归属银行是否在维护中V3.2版 -->
+	<select id="checkRechargeCardRunHealthV32" resultType="java.lang.Integer">
+		select
+		count(1)
+		from wj_trade_account_card card
+		INNER JOIN wj_currently_recharge_bank b
+		ON card.bank_code=b.bank_code
+		INNER JOIN common_pay_plateform_bank cp
+		ON cp.bank_code=b.bank_code and cp.plateform_id=b.plateform_id and
+		cp.`status`='normal'
+		INNER JOIN common_pay_plateform c ON
+		c.plateform_id=b.plateform_id and c.`status`='normal'
+		where card.id =
+		#{cardId}
+		and card.is_valid = 'yes'
+	</select>
+
+	<!-- 充值金额在维护银行范围内V3.2版 -->
+	<select id="checkRechargeAmountValidV32" resultType="java.lang.Integer">
+		select
+		count(1)
+		from wj_trade_account_card card
+		INNER JOIN
+		wj_currently_recharge_bank b ON card.bank_code=b.bank_code
+		INNER JOIN
+		common_pay_plateform_bank cp ON cp.bank_code=b.bank_code and
+		cp.plateform_id=b.plateform_id and cp.`status`='normal'
+		AND #{amount} BETWEEN 0 and cp.single_limit
+		INNER JOIN
+		common_pay_plateform c ON c.plateform_id=b.plateform_id and
+		c.`status`='normal'
+		where card.id = #{cardId}
+		and card.is_valid = 'yes'
+	</select>
+
+	<!-- 累积当天充值是否上线V3.2版 -->
+	<select id="checkSumRechargeBalanceDayLimitValidV32" resultType="java.lang.String">
+		select
+		if( (sum(w.total_price)- CONVERT(cp.perday_limit,SIGNED))>0 ,'no','yes')
+		as enoughMoney
+		from wj_order w,
+		wj_trade_account_card card
+		,wj_currently_recharge_bank b
+		,common_pay_plateform_bank cp
+		where card.id = #{cardId}
+		AND card.bank_code=b.bank_code
+		AND cp.bank_code=b.bank_code and cp.plateform_id=b.plateform_id and
+		cp.`status`='normal'
+		AND DATE_FORMAT(w.create_date, '%Y%m%d') = DATE_FORMAT(now(), '%Y%m%d')
+		and w.order_type = 'recharge_ma'
+		AND w.order_status = 'recharge_ma_confirm'
+		AND w.user_id = #{userId}
+		AND w.trade_account_card_id = #{cardId}
+	</select>
+
+	<!-- 查询银行卡bin信息 -->
+	<select id="findBankInfoList" parameterType="java.lang.String"
+		resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.BankInfoDTO">
+		select
+		d.bank_name_show as bankNameShow,
+		d.bank_name as bankName,
+		d.bank_code as bankCode,
+		d.channel as channel
+		from wj_bank_info d
+		where 1=1
+		and d.bank_code=#{bankCode}
+	</select>
+
+	<!-- ln 账户余额增加 -->
+	<update id="updateAddLnAmount">
+		update wj_user_trade_account
+		set available_amount =
+		available_amount + #{amount}
+		where user_id = #{userId}
+		and trade_type =
+		'ln'
+	</update>
+
+	<!-- la 账户余额增加 -->
+	<update id="updateAddLaAmount">
+		update wj_user_trade_account
+		set available_amount =
+		available_amount + #{amount}
+		where user_id = #{userId}
+		and trade_type =
+		'la'
+	</update>
+	<!-- la 锁定冻结资金 -->
+	<update id="updateFreezeLaAmount">
+		update wj_user_trade_account
+		set available_amount =
+		available_amount - #{amount},
+		frozen_amount = frozen_amount + #{amount}
+		where user_id = #{userId}
+		and trade_type =
+		'la'
+	</update>
+
+	<!-- la 解冻锁定冻结资金 -->
+	<update id="cancelFreezeLaAmount">
+		update wj_user_trade_account
+		set available_amount =
+		available_amount + #{amount},
+		frozen_amount = frozen_amount - #{amount}
+		where user_id = #{userId}
+		and trade_type =
+		'la'
+	</update>
+
+	<!-- 用于查询 用户购买标志 -->
+	<select id="selectUserActionFlagByUserId" parameterType="java.lang.String"
+		resultType="java.lang.Integer">
+		select
+		count(1)
+		from
+		wj_user_action_flag
+		where
+		user_id = #{userId}
+	</select>
+
+	<update id="updateTAProductFinace">
+		update wj_product_finace set remain_balance = remain_balance - #{amount}
+		where product_id = 'tfax';
+	</update>
+
+
+	<update id="updateOrderStatusByOrderNos" parameterType="java.util.Map">
+		UPDATE wj_order
+		SET order_status = #{orderStatus}
+		WHERE
+		user_id =
+		#{userId}
+		AND order_no IN
+		<foreach collection="orderNos" item="orderNo" index="index"
+			open="(" close=")" separator=",">
+			#{orderNo}
+		</foreach>
+	</update>
+
+
+
+
+
+
+	<select id="queryOrderNoByTradeChannelIds" parameterType="java.util.Map"
+		resultType="java.lang.String">
+		select
+		wod.rel_order_no
+		from wj_order wod
+		WHERE
+		wod.user_id = #{userId}
+		AND order_type = 'apply_ltb_loan'
+		AND wod.channel_trade_id
+		IN
+		<foreach collection="loanIds" item="loanId" index="index"
+			open="(" close=")" separator=",">
+			#{loanId}
+		</foreach>
+	</select>
+
+	<update id="cancelUserRfFrozenAmount" parameterType="java.util.Map">
+		UPDATE wj_user_trade_account acc,
+		(
+		SELECT
+		user_id AS userId,
+		sum(repay_principal +repay_interest + greenhorn_interest + other_fee) AS real_receive
+		FROM
+		wj_repayment_plan plan
+		WHERE
+		(
+		product_category = 'v_financial'
+		OR product_category IS NULL
+		)
+		AND is_repay = 'yes'
+		AND if_frozen = 'Y'
+		and is_valid=0
+		AND user_id = #{userId}
+		AND order_no IN
+		<foreach collection="orderNos" item="orderNo" index="index"
+			open="(" close=")" separator=",">
+			#{orderNo}
+		</foreach>
+		) plan
+		SET acc.frozen_amount = acc.frozen_amount - plan.real_receive,
+		acc.update_by = 'batch_repaymentplan_receive',
+		acc.update_date = now()
+		WHERE
+		acc.user_id = plan.userId
+		AND acc.trade_type = 'rf'
+
+	</update>
+
+	<update id="updateUserRfAmountToMa" parameterType="java.util.Map">
+		UPDATE wj_user_trade_account acc,
+		(
+		SELECT
+		user_id AS userId,
+		sum(repay_principal +repay_interest + greenhorn_interest + other_fee) AS real_receive
+		FROM
+		wj_repayment_plan plan
+		WHERE
+		(
+		product_category = 'v_financial'
+		OR product_category IS NULL
+		)
+		AND is_repay = 'yes'
+		AND if_frozen = 'Y'
+		and is_valid=0
+		AND user_id = #{userId}
+		AND order_no IN
+		<foreach collection="orderNos" item="orderNo" index="index"
+			open="(" close=")" separator=",">
+			#{orderNo}
+		</foreach>
+		) plan
+		SET acc.available_amount = acc.available_amount + plan.real_receive,
+		acc.update_by = 'batch_repaymentplan_receive',
+		acc.update_date = now()
+		WHERE
+		acc.user_id = plan.userId
+		AND acc.trade_type = 'ma'
+
+	</update>
+
+	<update id="updateOrderCancelForezenByOrderNos" parameterType="java.util.Map">
+		UPDATE wj_order_product wp
+		SET wp.if_frozen = 'N'
+		WHERE
+		wp.order_no IN
+		<foreach collection="orderNos" item="orderNo" index="index"
+			open="(" close=")" separator=",">
+			#{orderNo}
+		</foreach>
+		AND wp.user_id = #{userId}
+
+	</update>
+
+	<update id="updateRepayPlanCancelForezenByOrderNos"
+		parameterType="java.util.Map">
+		UPDATE wj_repayment_plan
+		SET if_frozen = 'N'
+		WHERE
+		user_id = #{userId}
+		AND order_no IN
+		<foreach collection="orderNos" item="orderNo" index="index"
+			open="(" close=")" separator=",">
+			#{orderNo}
+		</foreach>
+
+	</update>
+
+	<!-- rf冻结金额到ma账户的账单 -->
+	<insert id="addRfFrozen2MaOrderInfo" parameterType="java.util.Map">
+		/*master*/
+		insert into wj_order
+		(
+		user_id,
+		order_no,
+		title,
+		total_price,
+		price,
+		product_id,
+		order_type,
+		order_status,
+		create_date,
+		rel_order_no
+		)
+		select
+		temp.user_id,
+		temp.orderno,
+		temp.title,
+		temp.total_price,
+		temp.price,
+		ord.product_id,
+		temp.order_type,
+		temp.order_status,
+		now(),
+		temp.old_order_no
+		from (
+		select
+		user_id,
+		CONCAT('OR', date_format(now(),
+		'%Y%m%d'),LPAD(seq_nextval('vj_order'),10,'0')) as orderno,
+		order_no as
+		old_order_no,
+		'解冻回款本金(定期理财)' as title,
+		sum(repay_principal) as
+		total_price,
+		sum(repay_principal) as price,
+		'transfer_rfFrozen_to_ma' as
+		order_type,
+		'transfer_rfFrozen_to_ma_confirm' as order_status
+		from
+		wj_repayment_plan plan
+		where
+		repayment_time =
+		date_sub(curdate(),interval 0 day)
+		and (product_category =
+		'v_financial' or product_category is null)
+		and is_repay = 'yes'
+		and
+		if_frozen = 'Y'
+		and is_valid=0
+		and order_no IN
+		<foreach collection="orderNos" item="orderNo" index="index"
+			open="(" close=")" separator=",">
+			#{orderNo}
+		</foreach>
+		GROUP BY order_no
+		)temp, wj_order ord where temp.total_price != 0 and
+		temp.old_order_no = ord.order_no
+
+	</insert>
+
+
+	<select id="queryRfPrincipalAndInterest" parameterType="java.util.Map"
+		resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.order.server.dto.RfPrincipalAndInterestDTO">
+
+		SELECT
+		IFNULL(sum(repay_principal) ,0) AS principal,
+		IFNULL(sum(repay_interest + greenhorn_interest + other_fee),0) AS
+		interest
+		FROM
+		wj_repayment_plan plan
+		WHERE
+		(
+		product_category =
+		'v_financial'
+		OR product_category IS NULL
+		)
+		AND is_repay = 'yes'
+		AND
+		if_frozen = 'Y'
+		and is_valid=0
+		AND user_id = #{userId}
+		AND order_no IN
+		<foreach collection="orderNos" item="orderNo" index="index"
+			open="(" close=")" separator=",">
+			#{orderNo}
+		</foreach>
+
+	</select>
+
+
+	<update id="updateSalaryPlanWithholdOrder">
+		UPDATE wj_order
+		SET
+		order_status = #{orderStatus},
+		title = #{title}
+		WHERE
+		order_no = #{orderNo}
+		and order_status=#{oldOrderStatus}
+		and user_id=#{userId}
+	</update>
+
+	<select id="querySecurityCardByUserId"
+		resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.UserTradeAccountCardDTO">
+		SELECT
+		t.`id`,
+		t.`card_ower` as cardOwer,
+		t.`user_id` as userId,
+		t.`bank_card_no` as bankCardNo,
+		t.`aside_bank_phone` as asideBankPhone,
+		t.`bank_name` as bankName,
+		t.`bank_code` as bankCode,
+		t.`create_date` as createDate,
+		t.`create_by` as createBy,
+		t.`update_date` as updateDate,
+		t.`update_by` as updateBy,
+		t.`card_type` as cardType,
+		t.`is_valid` as isValid
+		FROM `wj_trade_account_card` t
+		INNER JOIN `wj_user_info` u ON t.`user_id` = u.`id` AND u.`user_status` =
+		'00'
+		WHERE
+		t.`user_id` = #{userId} AND t.`is_valid` = 'yes' AND t.`card_type` = 'security'
+		LIMIT 1
+	</select>
+
+	<select id="queryWithholdBindRepeatCardNumByChannel" resultType="int">
+		SELECT count(1) FROM wj_pay_bind_card_ref
+		WHERE pay_channel =
+		#{channelNo}
+		AND user_id = #{userId}
+		AND card_no = #{cardNo}
+		AND is_bind
+		= 'yes'
+	</select>
+
+	<select id="queryWithholdBindRepeatCardNumByBizType" resultType="int">
+		SELECT count(1) FROM wj_pay_bind_card_ref
+		WHERE user_id = #{userId}
+		AND
+		card_no = #{cardNo}
+		AND is_bind = 'yes'
+		AND platform_id = (SELECT
+		platform_id FROM wj_currently_withhold_routing_for_loan WHERE biz_type
+		= #{bizType} ORDER BY priority desc LIMIT 0,1)
+	</select>
+
+	<select id="queryWithholdBankStatusByBankCode" resultType="boolean">
+		SELECT case when commBank.status != 'normal' then FALSE ELSE true END
+		from common_withhold_plateform_bank commBank,
+		wj_currently_withhold_bank_for_loan loanBank
+		WHERE commBank.bank_code =
+		loanBank.bank_code
+		AND loanBank.bank_code = #{bankCode}
+		AND
+		loanBank.plateform_id = (SELECT platform_id FROM
+		wj_currently_withhold_routing_for_loan WHERE biz_type = #{bizType}
+		ORDER BY priority desc LIMIT 0,1)
+	</select>
+
+	<select id="queryUserIdAndAvailableAmountList"
+		resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.UserTradeAccountInfoDTO">
+		select user_id as userId,truncate(available_amount,2)
+		availableAmount
+		from wj_user_trade_account
+		where trade_type=#{tradeType}
+		and available_amount>#{amount}
+	</select>
+	
+	
+	
+	<!-- 查询代理人的id -->
+	
+	<select id="queryAgentIpsAcctNo" parameterType="java.lang.String" resultType="java.lang.String">
+
+	SELECT wa.fina_ipsAcct_No FROM wj_product_finace_agent wa LEFT JOIN
+	wj_product_finace wp ON wa.fina_id=wp.fina_id WHERE
+	wp.product_id=#{projectId};
+	
+	
+	</select>
+	
+	<!-- IPS提现 -->
+	<insert id="addtWithOrderInfo"
+		parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBOrderInfoDTO">
+		insert into wj_order
+		(
+		user_id,
+		order_no,
+		title,
+		total_price,
+		price,
+		fee,
+		trade_account_card_id,
+		product_id,
+		order_type,
+		order_status,
+		order_token,
+		channel_trade_id,
+		time_financial_approval,
+		create_date
+		)
+		values (
+		#{userId},
+		#{orderNo},
+		#{title},
+		#{totalPrice},
+		#{price},
+		#{fee},
+		#{tradeAccountCardId},
+		#{productId},
+		#{orderType},
+		#{orderStatus},
+		#{orderToken},
+		#{tradeId},
+		#{timeFinancialApproval},
+		now()
+		)
+	</insert>
+	 
+	<!--根据后管冻结回调成功后,更新订单状态  -->
+	<update id="updateFreezeRepaymentOrderStatus">
+	
+	  UPDATE wj_order wj SET wj.order_status=#{trdStatus},wj.channel_trade_id=#{ipsBillNo} WHERE wj.order_no=#{merBillNo}; 
+	
+	</update>
+	
+	
+	<!-- ma 冻结账户增加（本息） -->
+	<update id="updateUserRepaymentPlanReceive">
+	update
+	wj_user_trade_account acc
+
+	set
+	acc.available_amount = acc.available_amount + #{totalPrice},
+	acc.update_by='ips_repaymentplan_receive',
+	acc.update_date = now()
+	where
+	acc.user_id = #{userId}
+	and acc.trade_type = 'ma'
+	
+	</update>
+	
+	
+	<!-- rf 账户根据还款计划表id和userId扣除相应的金额， -->
+	<update id="updateUserRfAccount">
+	
+	update 
+			wj_user_trade_account acc, 
+			(select 
+				repay_principal as real_receive 
+			from 
+				wj_repayment_plan plan
+			where 
+			    <!--时间注释，防止后台不按实际到期还款时间还款  -->
+				<!-- repayment_time = date_sub(curdate(),interval 0 day) 
+				and  -->
+				is_repay = 'no'
+				and (product_category = 'v_financial' or product_category is null)
+		        and if_frozen = 'N'
+				and plan.is_valid=0
+			    and user_id=#{userId}
+			    and id=#{planId}
+			)plan  
+		set 
+			acc.available_amount = acc.available_amount - plan.real_receive,
+			acc.update_by='ips_repaymentplan_receive',
+			acc.update_date = now()			
+		where 
+			acc.user_id = #{userId} 
+			and acc.trade_type = 'rf'
+	
+	</update>
+	
+	
+	<!-- rf子 账户扣除本金 -->
+	<update id="updateUserRfAccountDetail">
+      update 
+			wj_user_trade_account_rf acc, 
+			(
+				select 
+					user_id, 
+					order_no,
+					repay_principal AS as real_receive,
+					(case when is_pre_expire='yes' then 1 else 0 end) is_pre_expire
+				from 
+					wj_repayment_plan plan
+				where 
+					is_repay = 'no'
+					and (product_category = 'v_financial' or product_category is null)
+		            and if_frozen = 'N'
+					and plan.is_valid=0
+				    and plan.id=#{planId}
+			)planamount  
+		set 
+			acc.trade_account_status = (case when acc.amount>planamount.real_receive then 'invest_going'
+		when acc.amount &lt;=planamount.real_receive and is_pre_expire>0 then 'invest_early_end' else 'invest_end' end),
+			acc.amount = acc.amount - planamount.real_receive,
+			acc.update_by='ips_repaymentplan_receive',
+			acc.update_date = now()			
+		where 
+			acc.user_id=#{userId}
+			and acc.order_no = #{ProductOrderNo}
+			and acc.product_id=#{productId}
+			
+	</update>
+	
+	
+	
+	
+	<!-- 根据后管冻结成功是的订单号，查询理财产品的订单号 -->
+	<select id="queryProductOrderNo" resultType="java.util.Map">
+	
+	SELECT wj.rel_order_no AS ProductOrderNo,rel_wj_repayment_plan_id AS planId FROM wj_order wj WHERE wj.order_no=#{orderNo};
+	
+	</select>
+	
+	
+	
+	<!-- 更新用户product_order状态-->	
+	<select id="updateOrderProduct">
+	update 
+			wj_order_product acc, 
+			wj_user_trade_account_rf rf
+		set 
+			acc.order_product_status = rf.trade_account_status,
+			acc.update_by='ips_repaymentplan_receive',
+			acc.update_date = now()			
+		where 
+			acc.user_id = #{userId}
+		    and acc.if_frozen = 'N'
+			and (acc.product_category = 'v_financial' or acc.product_category is null)
+			and acc.order_no = #{ProductOrderNo}
+	
+	</select>
+	
+	
+	<!-- 冻结下单查看乐观锁版本号 -->
+	<select id="queryProductInfor" resultType="java.lang.Integer">
+	
+	SELECT p.lock_version FROM wj_product_finace p WHERE p.product_id=#{productId}
+	
+	</select>
+	
+	
+	<!--下单 冻结回调更新订单状态 -->
+	<update id="updateIpsOrderStatus">   
+	
+	UPDATE  wj_order wj  SET wj.order_status=#{trdStatus} ,wj.channel_trade_id=#{ipsBillNo}  WHERE  wj.order_no=#{merBillNo};
+	
+	
+	</update>
+	
+	
+		<!--下单 冻结插入表wj_payment_trade_record -->
+	<insert id="saveFreezeInfor">
+	
+	 INSERT INTO  wj_payment_trade_record  (trade_no,trade_stauts,rel_biz_order_no,rel_biz_mesage) VALUES (#{ipsBillNo},#{trdStatus},#{merBillNo},#{title});
+	  
+	
+	</insert>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</mapper>

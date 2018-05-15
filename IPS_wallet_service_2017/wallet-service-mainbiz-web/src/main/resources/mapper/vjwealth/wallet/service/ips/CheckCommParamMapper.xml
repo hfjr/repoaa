@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.rqb.ips.depository.platform.mapper.CheckCommParamMapper">
+
+	<select id="queryWithDrawParam" resultType="java.util.Map">
+
+	SELECT
+	cp1.param_value AS merFee,
+	cp2.param_value AS merFeeType,
+	cp3.param_value AS ipsFeeType,
+	cp4.param_value AS userType
+	FROM
+	comm_params cp1,
+	comm_params cp2,
+	comm_params cp3,
+	comm_params cp4
+	WHERE
+	cp1.param_group = 'trade.withdraw'
+	AND cp1.param_key = 'merFee'
+	AND cp2.param_key = 'merFeeType'
+	AND cp3.param_key = 'ipsFeeType'
+	AND cp4.param_key = 'userType'
+	LIMIT 0,
+	1;
+
+
+	</select>
+
+
+	<select id="queryIpsAccountByUserId" parameterType="java.lang.String"
+		resultType="java.lang.String">
+
+		SELECT
+		<!-- ta.ips_acct_no  -->
+		ta.id 
+		FROM
+		wj_user_trade_account ta
+		WHERE
+		ta.user_id =#{userId}
+		AND trade_type = 'ips'
+		AND trade_account_status = '1'
+
+
+
+
+	</select>
+
+
+
+</mapper>

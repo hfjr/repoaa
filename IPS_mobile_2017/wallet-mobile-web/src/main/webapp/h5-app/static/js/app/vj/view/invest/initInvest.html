@@ -1,0 +1,78 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	<#
+		var product = self.initData.product;
+	#>
+	<div class="box-1">
+		<div class="top fix">
+			<div class="col-l">
+				<h2><# print(product.productName); #></h2>
+				<p><# print(product.productCode); #></p>
+			</div>	
+			<div class="col-r">
+				<h2>剩余可投</h2>
+				<p><# print(product.remainingInvestment); #>元</p>
+			</div>	
+		</div>
+		<ul class="bottom">
+			<li class="fix">
+				<span class="col-l">年化收益</span>
+				<span class="col-r"><# print(Number(( Number(product.annualYield) * 100).toFixed(2)) ); #>%</span>
+			</li>
+			<li class="fix">
+				<span class="col-l">项目期限</span>
+				<span class="col-r"><# print(product.projectTerm); #></span>
+			</li>
+			<li class="fix">
+				<span class="col-l">回款方式</span>
+				<span class="col-r"><# print(product.paymentWay); #></span>
+			</li>
+		</ul>
+	</div>
+	
+	<form id="f-form">
+		<input type="hidden" name="productId" value="<# print(self.id); #>">
+		<input type="hidden" name="token" value="<# print(self.initData.token); #>">
+		<div class="box-2 fix">
+			<div class="col-m">
+				<div class="con">
+					<#
+						var balance = Number(self.initData.availableBalance);
+						var remainingInvestment = Number(product.remainingInvestment);
+						var max = Math.min(balance, remainingInvestment);
+					#>
+					<input id="f-amount" type="number"  min="0.01"  step="0.01" data-min="<# print(self.initData.fromInvestmentAmount); #>" data-mol="<# print(self.initData.incrementAmount); #>" name="investmentAmount" data-max="<# print(max); #>" class="inp-text"  placeholder="<# print(self.initData.availableBalancePlaceholderTip); #>">
+				</div>
+			</div>
+			<label class="col-l" for="f-amount">投资金额：</label>
+			<div class="col-r">
+				<span data-tap-path="<# print(self.createURL("account/recharge", {callbackPath:self.path})); #>" class="btn-recharge">充值</span>
+			</div>
+		</div>
+		<div class="input-tip"><# print(self.initData.inputBottomTipContents); #></div>
+		<div class="btn-bar">
+			<input type="submit" disabled="disabled" g-act-tap="true" value="提交" class="ui-button" id="f-btn">
+		</div>
+		<p class="tip-agreement">
+			<#
+				var router = self.getApiRouter("investmentContractTemplate", {
+					productId : self.id
+				});
+				var url = self.getURL(router.url, router.data);
+				
+			#>
+			<a href="#<# print(self.createURL("invest/contractTemplate", {productId : self.id})); #>">查看投资协议</a>
+		</p>
+		<p class="tip-notice">
+			为了更好的为您提供资金保障，请尽快完成升级实名认证，否则在赔付的时候将受影响
+		</p>
+		<p class="tip-safe">
+			<span>保险公司承保，保障本息到期如约兑付</span>
+		</p>
+	</form>
+	
+</script>
+<div class="page">
+	
+	<div class="main-view"></div>
+</div>
+

@@ -1,0 +1,10 @@
+@charset "utf-8";
+.page-invest-recordList .list .item-wrap{border-bottom:1px solid #F1F1F1;}
+.page-invest-recordList{}
+.page-invest-recordList .list{}
+.page-invest-recordList .list li{}
+.page-invest-recordList .list .item-wrap{padding:15px 0 15px 0px; margin-left:20px; }
+.page-invest-recordList .list .col-l{float:left;}
+.page-invest-recordList .list .phone{color:#9b9b9b;font-size:14px; padding-bottom:4px;}
+.page-invest-recordList .list .time{color:#c3c3c3; font-size:12px; padding-top:4px;}
+.page-invest-recordList .list .col-r{float:right; font-size:18px; padding-right:20px;}

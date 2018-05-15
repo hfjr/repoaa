@@ -1,0 +1,33 @@
+@charset "utf-8";
+/**
+ * 投资
+*/
+.border-box{-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;}
+.flex-box{display:-webkit-box;display:-moz-box;display:-ms-flexbox;display:-webkit-flex;display:flex}
+.plr20{padding:0 20px;}
+.color_blue{ color:#5d7a8d; }
+.color_orange{color:#f5a623;}
+.mt2{margin-top:2px;}
+.mt10{margin-top:10px;}
+.mt15{margin-top:15px;}
+.mt20{margin-top:20px;}
+.f12{font-size: 12px;}
+.f18{font-size:18px;}
+.bg_fff{background-color: #fff;padding:15px 20px 20px;border-top:solid 1px #f2f2f2;border-bottom: solid 1px #f2f2f2;}
+.icon_tips{ width:12px; height:12px; background:url(../../../img/icon-tips.png) no-repeat; background-size:100% 100%; display:inline-block; margin-right:2px;position: relative;top:1px;}
+.invest{padding:10px 0 20px;}
+.commonitems{padding:0 20px;width:100%;-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; background: #fff; border-bottom: solid 1px #f2f2f2;border-top:solid 1px #f2f2f2;height: 60px; position:relative;}
+.commonitems .table{height: 58px;}
+.table{width:100%;display:table;-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
+.cell{display: table-cell;vertical-align: middle;}
+.line_dot{width:100%;height: 3px; background: url(../../../img/line.png) repeat-x;background-size:auto 100%;display: block; margin-bottom: 15px;}
+.downbtn{width:100%; padding:0 20px;}
+.downbtn .ui-button{ width:100%; }
+.inputtxt{font-size:14px;color:#5d7a8d;display: block;width:100%;border:none;background: none;}
+.down_tablewrap .table{margin-top:5px;}
+.down_tips{color:#5d7a8d; font-size:12px;padding:0 20px;margin-top: 10px;}
+.mid_tablewrap .items{position: relative; line-height: 25px;}
+.mid_tablewrap .rightcell{text-align: right; width:100px;position: absolute;right:0;top:0;}
+.mid_tablewrap .leftcell{padding-right:100px;}
+.mid_tablewrap .leftcell p{width:100%;overflow:hidden; text-overflow:ellipsis; -webkit-text-overflow:ellipsis; -o-text-overflow:ellipsis; white-space:nowrap;}
+.contract{padding:10px 0; margin-top:10px; }

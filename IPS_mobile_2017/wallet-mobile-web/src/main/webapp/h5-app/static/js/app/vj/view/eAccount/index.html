@@ -1,0 +1,158 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	<#
+		var data = self.initData.eAccountInfo;
+	#>
+	<section class="eAccounthome border-box">
+
+		<#
+			print(self.licaiTab);
+		#>
+		<div class="topshow">
+			<a class="billlist border-box" data-tap-path="eAccount/billList">账单</a>
+			<div class="bigprice">
+				<p><# print(data.investmentAmountLabel); #></p>
+				<p class="f40 mt5"><# print(data.investmentAmount); #></p>
+			</div>
+			<div class="downprice border-box">
+				<div data-tap-path="<# print(self.createURL("eAccount/yesterdayReceive", {yesterdayReceive : data.yesterdayReceive || "0.00"})); #>" class="cell">
+					<p class="f14"><# print(data.yesterdayReceiveLabel); #></p>
+					<p class="mt5"><# print(data.yesterdayReceive || "0.00"); #></p>
+				</div>
+				<div data-tap-path="<# print(self.createURL("eAccount/allAreadyReceive", {totalReceive : data.allAreadyReceive || "0.00"})); #>" class="cell">
+					<p class="f14"><# print(data.allAreadyReceiveLabel); #></p>
+					<p class="mt5"><# print(data.allAreadyReceive || "0.00"); #></p>
+				</div>
+			</div>
+			<p class="line_col"></p>
+		</div>
+		<# if(data.frozenAmount != "0.00"){ #>
+		<div class="arrowWrap fix" g-act-tap="true" data-tap-path="eAccount/freeze">
+			<span class="color_blue fl">冻结金额</span>
+			<span class="color_gray fr"><# print(data.frozenAmount); #></span>
+			<span class="icon_arrow"></span>
+		</div>
+		<# } #>
+		<div class="commonitems mt10">
+			<div class="cell">
+				<p class="f12 color_blue"><# print(data.remainingInvestmentLabel); #></p>
+				<p class="color_orange f16 mt5"><# print(data.remainingInvestment); #></p>
+			</div>
+			<div class="cell ta-r rightPercent">
+				<span class="f12 mr5"><# print(data.annualYieldLabel); #></span>
+				<#
+					 
+					for(var i = 0, l = data.annualYield.length; i < l; i++){
+						var v = data.annualYield.charAt(i);
+				#>
+				<span <# if(!/\./.test(v)){ #> class="pNum" <# }else{ #> class="f24" <# } #>><# print(v); #></span>
+				<#	
+					}
+				#>	
+				<em class="percent"></em>
+			</div>
+		</div>
+		<ul class="qaul">
+			<li class="about">
+				<p class="qatt cqghomett ">
+					<span>超高收益&nbsp;&nbsp;提现实时到账</span>
+				</p>
+				<div class="answer">
+					<p class="solidline border-box"></p>
+					<div class="company_intro">
+						<# print(data.productIntroduction); #>
+					</div>
+					<div class="midicon border-box fix">
+						<# $.each(data.productFeatures, function(){ #>
+						<div class="block">
+							<p>
+								<img src="<# print(this.value); #>" width="80" height="80">
+							</p>
+							<p>
+								<span><# print(this.label); #></span>
+							</p>
+						</div>
+						<# }); #>
+					</div>
+					
+				</div>
+			</li>
+			<#
+			
+				var annualYieldList = [];
+				var incomeCaseList = [];
+				var presentTimeList = [];
+				$.each(data.productAdvantage, function(){
+					annualYieldList.push(this.annualYield);
+					incomeCaseList.push(this.incomeCase);
+					presentTimeList.push(this.presentTime);
+				});
+				
+			#>
+			<li class="mt10 about">
+				<p class="qatt cqghomett2 turnup">
+					<span>产品优势</span>
+				</p>
+				<div class="answer">
+					<p class="solidline border-box"></p>
+					<div class="inner ouradvwrap">
+						<table class="ouradv_table border-box">
+							<thead>
+								<tr>
+									<th></th>
+									<th class="col1">银行活期储蓄</th>
+									<th class="col2">宝宝类产品</th>
+									<th>工资钱包活期</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td class="tt">年化收益</td>
+									<# $.each(annualYieldList, function(i){ #>
+									<td <# if(i < 2 ){ #> class="color_blue3" <# }else{ #> class="color_blue" <# } #>><# print(this); #></td>
+									<# }); #>
+								</tr>
+								<tr>
+									<td class="tt">10万元存一年</td>
+									<# $.each(incomeCaseList, function(i){ #>
+									<td <# if(i < 2 ){ #> class="color_blue3" <# }else{ #> class="color_blue" <# } #> ><# print(this); #></td>
+									<# }); #>
+								</tr>
+								<tr>
+									<td class="tt">提现时间</td>
+									<# $.each(presentTimeList, function(i){ #>
+									<td <# if(i < 2 ){ #> class="color_blue3" <# }else{ #> class="color_blue" <# } #>><# print(this); #></td>
+									<# }); #>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</li>
+			<li class="mt10">
+				<p class="qatt cqghomett3 turnup" id="viewHandle">
+					<span>产品详情</span>
+				</p>
+				<div class="answer" id="viewContent">
+					<p class="solidline border-box"></p>
+					<div class="inner">
+						<# $.each(data.productDetail, function(){ #>
+						<dl>
+							<dt>
+								<p><# print(this.label); #></p>
+							</dt>
+							<dd>
+								<p><# print(this.value); #></p>
+							</dd>
+						</dl>
+						<# }); #>
+					</div>
+				</div>
+			</li>
+		</ul>
+		<div class="bottom-bar" >
+			<span class="btn transfer-in" id="transferred-into">转入</span>
+			<span class="btn transfer-out" id="transferred-out">转出</span>
+		</div>
+	</section>
+</script>
+<div class="page"></div>

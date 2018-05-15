@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.server.integration.mapper.IProductQueryMapper">
+
+	<select id="queryProductInterestDateStr" parameterType="java.lang.String" resultType="java.lang.String">
+		select case when t.interest_type='today_interest' then DATE_FORMAT(now(),'%Y-%m-%d')
+		when t.interest_type='raise_interest' then DATE_FORMAT(t.interest_date,'%Y-%m-%d') 
+		else DATE_FORMAT(now(),'%Y-%m-%d') end as interestDate
+		 from wj_product_finace t
+		where t.product_id=#{productId}
+	</select>
+
+	
+	
+</mapper>

@@ -1,0 +1,151 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	
+	<section class="completeInfor border-box insurancewrap" id="fund-box">
+		<# 
+			print(self.render("renderFundData")); 
+		#>
+	</section>
+	
+	<# 
+		print(self.render("renderCityData", {
+			cityData : self.initData.cityData
+		})); 
+	#>
+	
+
+</script>
+
+<script type="text/template" data-tpl="renderCityData">
+	<div class="wigetshadow" id="city-choose-alpha" style="display:none;opacity:0;"></div>
+	<div class="downWiget backface-visibility" id="city-choose-main" style="display:none;">
+		<div class="chooseProvince">
+			<div class="chooseProvincett"><# print(cityData.message); #></div>
+			<a class="close"></a>
+			<div class="code-wrap"></div>
+			<div class="rightfix code-bar">
+				<span data-code="hot">热门</span>
+				<# $.each(cityData.allCityList, function(i, item){ #>
+				<span  data-code="<# print(item.code); #>"><# print(item.code); #></span>
+				<# }); #>
+			</div>
+			<div class="proviceulwrap border-box" id="scrollView">
+				<div>
+					<div class="hot" id="handle-code-hot">
+						<p>热门：</p>
+						<div class="hotlinks mt10" id="hotCityList">
+							<# $.each(cityData.hotCityList, function(i, city){ #>
+							<a data-city-id="<# print(city.cityId); #>" data-city-name="<# print(city.cityName); #>"><# print(city.cityName); #></a>
+							<# }); #>
+						</div>
+					</div>
+					<ul class="proviceul" id="allCityList">
+						<# $.each(cityData.allCityList, function(i, item){ #>
+						<li id="handle-code-<# print(item.code); #>">
+							<p class="provicett"><# print(item.code); #></p>
+							<div class="block">
+								<# $.each(item.cityList, function(i, city){ #>
+								<p data-city-id="<# print(city.cityId); #>" data-city-name="<# print(city.cityName); #>" class="blockinner"><# print(city.cityName); #></p>
+								<# }); #>
+							</div>
+						</li>
+						<# }); #>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</script>
+
+<script type="text/template" data-tpl="renderFundData">
+	<#
+		var detailData = self.initData.detailData;
+	#>
+	<form id="mainForm">
+		<input type="text" style="display:none" >
+		<input type="password" style="display:none" >
+		<input type="hidden" name="cityCode" id="f-cityCode" value="<# print(detailData.cityCode); #>">
+		<input type="hidden" name="taskCode"  id="f-taskCode"  value="<# print(self.productTypeCode); #>">
+		<ul class="commonLinkUl insuranceUl smallpadul ">
+			<li class="hasarrow" id="city-choose-handle">
+				<label class="table">
+					<div class="cell ul_tt">
+						<p><# print(detailData.cityLabel); #></p>
+					</div>
+					<div class="cell ta-r " id="cityName-bar">
+						<# print(detailData.cityName || "请选择城市"); #>
+					</div>
+				</label>
+			</li>
+		</ul>
+		<p class="color_blue plr20 pt10"><# print(detailData.fundAccountQueryTitle); #></p>
+		<ul class="commonLinkUl insuranceUl smallpadul mt10">
+			<li>
+				<label class="table" for="insuranceName">
+					<div class="cell ul_tt">
+						<p><# print(detailData.fundAccountLabel); #></p>
+					</div>
+					<div class="cell ta-r ul_inputwrap">
+						<input type="text"  id="f-account" name="fundAccount" value="<# print(detailData.fundAccount); #>" placeholder="<# print(detailData.fundAccountInputTip); #>" />
+					</div>
+				</label>
+			</li>
+			<li>
+				<label class="table" for="insurancePwd">
+					<div class="cell ul_tt">
+						<p><# print(detailData.fundAccountPasswordLabel); #></p>
+					</div>
+					<div class="cell ta-r ul_inputwrap">
+						<input type="password"  id="f-passwd"  name="fundAccountPassword" value="<# print(detailData.fundAccountPassword); #>" placeholder="<# print(detailData.fundAccountPasswordInputTip); #>" />
+					</div>
+				</label>
+			</li>
+		</ul>
+		<# if(detailData.fundAccountHelpInfo && detailData.fundAccountHelpInfo.length > 0){ #>
+		<ul class="qaul">
+			<li>
+				<# $.each(detailData.fundAccountHelpInfo, function(i, item){ #>
+				<div class="qa-item <#  if(i == 0){#> qa-item-noborder <# } #>" <# if(i > 0){ #> style="display:none;" <# } #> >
+					<!--关闭状态去掉turnup,打开状态加上turnup-->
+					<p <#  if(i == 0){#>  id="help-handle" <# } #> class="qatt "  ><# print(item.title); #></p>
+					<div class="answer" style="display:none;">
+						<div class="inner">
+							<# $.each(item.content.split("|"), function(j, contentItem){ #>
+							<p><# print(contentItem); #></p>
+							<# }); #>
+						</div>
+						<# if(item.url){ #>
+						<#
+							var data = item.url.split("|");
+						#>
+						<p class="link">
+							<span class="color_black000"><# print(data[0]); #></span>
+							<a href="<# print(data[1]); #>"  class="color_blue2"><# print(data[1]); #></a>
+						</p>
+						<# } #>
+					</div>
+				</div>
+				<# }); #>
+				
+			</li>
+		</ul>
+		<# } #>
+		<# if(detailData.fundAccountTipInfo && typeof(detailData.fundAccountTipInfo.title) != "undefined" ){ #>
+		<div class="sweetTips">
+			<p class="color_blue3"><# print(detailData.fundAccountTipInfo.title); #></p>
+			<# if(detailData.fundAccountTipInfo.content){ #>
+			<ul>
+				<# $.each(detailData.fundAccountTipInfo.content.split("|"), function(i, text){ #>
+				<li><# print(text); #></li>
+				<# }); #>
+			</ul>
+			<# } #>
+		</div>
+		<# } #>
+		
+
+		<div class="downbtn border-box">
+			<input type="submit" class="ui-button" id="btnSubmit" g-act-tap="true" value="确认提交" disabled="disabled">
+		</div>
+	</form>
+</script>
+<div class="page"></div>

@@ -1,0 +1,111 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	
+	<# if(self.initData.bannerQueryList.length > 0){ #>
+	<div class="focus-container" id="focus-container">
+		<div class="wrap">
+			<div class="swiper-container" >
+				<div class="swiper-wrapper">
+					<# $.each(self.initData.bannerQueryList, function(i, o){ #>
+					<div class="swiper-slide" 
+						<# if(o.isClick == "yes" && o.linkUrl !== ""){ #>
+						data-url="<# print(o.linkUrl); #>"
+						<# }; #>
+					>
+						<div class="banner">
+							<img src="<# print(o.imgUrl); #>">
+						</div>
+					</div>
+					<# }); #>
+				</div>
+			</div>
+			<div class="pagination"></div>
+		</div>
+	</div>	
+	<div class="focus-container-blank"></div>
+	<# } #>
+	<# $.each(self.initData.productRecommendList || [], function(i, o){ #>
+	<div class="recommend" <# if(o.isClick == "yes"){ #> data-recommend-url="<# print(o.linkUrl); #>" <# } #> >
+		<div class="handle">
+			<div class="title"><span class="split"></span>推荐产品</div>
+			<span class="more" style="background-image:url('<# print(_g_dir.static_dir); #>img/arrow-r.png');">立即投资</span>
+		</div>
+		<div class="content">
+			<div class="con-1">
+				<img src="<# print(o.imgUrl); #>">
+			</div>
+		</div>
+	</div>
+	<# }); #>
+	<# if(self.initData.finacalRecommendList.length > 0){ #>
+	<div class="focus-container recommend-container" id="recommend-container">
+		<div class="wrap">
+			<div class="swiper-container" >
+				<div class="swiper-wrapper">
+					<# $.each(self.initData.finacalRecommendList, function(i, o){ #>
+					<#
+						var clsName = "";
+						if(o.schedule == "1" || o.isSoldOut == "yes" ){
+							clsName = "gray";
+						}else{
+							if(o.newPersonMark == "true"){
+								clsName = "red";
+							}else{
+								clsName = "orange";
+							}
+						}
+					#>
+			
+					
+					<div class="swiper-slide" data-id="<# print(o.productId); #>">
+						<div class="recommend" >
+							<div class="handle">
+								<div class="title"><span class="split"></span><# print(o.title); #></div>
+								<span class="more" style="background-image:url('<# print(_g_dir.static_dir); #>img/arrow-r.png');">立即投资</span>
+							</div>
+							<div class="con">
+								<div class="c-handle c-handle-<# print(clsName); #>"><# print(o.productName); #>&nbsp;<# print(o.productId); #></div>
+								<div class="row fix">
+									<div class="col col-l">
+										<p class="attr">年化收益</p>
+										<p class="value percent"><# print(Number(( Number(o.annualYield) * 100).toFixed(2)) ); #>%</p>
+									</div>									
+									<div class="col col-m">
+										<p class="attr">项目期限</p>
+										<p class="value "><# print(o.projectTerm); #></p>
+									</div>									
+									<div class="col col-r">
+										<p class="attr">剩余可投</p>
+										<p class="value "><# print(o.remainBalance); #></p>
+									</div>									
+								</div>
+							</div>
+						</div>
+					</div>
+					<# }); #>
+				
+				</div>
+			</div>
+			<div class="pagination"></div>
+		</div>
+	</div>
+	<# } #>
+	<div class="platform-intro">
+		<ul>
+			<# $.each(self.initData.platformDescribeList || [], function(i, o){ #>
+			<li class="fix">
+				<div class="desc">
+					<div class="con">
+						<div class="title"><# print(o.linkTitle); #></div>
+						<div class="text"><# print(o.content); #></div>
+					</div>
+				</div>
+				<div class="thumb">
+					<img width="80" height="70" src="<# print(o.imgUrl); #>">
+				</div>
+			</li>
+			<# }); #>
+		</ul>
+	</div>
+	<div class="blank">&nbsp;</div>	
+</script>
+<div class="page"></div>

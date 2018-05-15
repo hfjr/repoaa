@@ -1,0 +1,44 @@
+@charset "utf-8";
+
+/*==账户中心 绑卡==*/
+.recharge-bind{}
+
+.b-box{border-top:1px solid #f2f2f2;border-bottom:1px solid #f2f2f2; background:#fff;  }
+.b-box .item-wrap{border-bottom:1px solid #f2f2f2;}
+.b-box .item:last-child .item-wrap{border-bottom:0;}
+
+.amount-bar{line-height:2.5rem; padding-left:1.875rem; color:#9b9b9b; font-size:0.9375rem; }
+.b-box .item{padding-left:0.9375rem; display:block; font-size:0.9375rem;}
+.b-box .item-wrap{height:3.25rem; overflow:hidden;}
+.b-box .item .col-l{float:left; width:7.0625rem;  margin-left:-100%;}
+.b-box .item .col-l .text{ padding-left:0.9375rem; line-height:3.25rem; }
+.b-box .item .col-r{width:100%; float:left; }
+.b-box .item .col-r .con{margin:0 0 0 7.0625rem;line-height:3.25rem; height:3.25rem; position:relative;}
+.b-box .item .col-r .con-wrap{padding-right:2.5rem;}
+.b-box .item .col-r  .icon-wrap{width:2.5rem; height:3.25rem; overflow:hidden; position:absolute; right:0;top:0;}
+.b-box .item .col-r  .icon{width:0.75rem; height:0.75rem; overflow:hidden; position:absolute; left:0.875rem; top:1.25rem; background:url(../img/notice.png) center center no-repeat; background-size:100% 100%; }
+
+.b-box .item .col-r .inp-text{border:0; width:100%; background:none; font-size:0.9375rem; height:1.25rem; line-height:1.25rem; padding:1rem 0;}
+.b-box .item .col-r .gray-tip{color:#d8d8d8; }
+.b-box .item .col-r .bank-name{color:#5d7a8d; }
+.unbind-tip{color:#d8d8d8; padding:0.625rem 0 0.625rem 1.875rem;}
+.btn-bar{padding:1.25rem 1.875rem 0;}
+.ui-button{display:block;width:100%; }
+.code-btn{width:4.875rem;  border-radius:0.1875rem;  height:1.5rem; overflow:hidden; text-align:center; line-height:1.5rem; background:#4ac0f0; font-size:0.75rem; color:#fff; position:absolute; right:0.9375rem; top:0.875rem; }
+.code-btn.g-act-taped{background:#0879b2;}
+.tip{line-height:2.4375rem; text-align:center; font-size:0.75rem;}
+.tip a{color:#4ac0f0; }
+
+.dialog-phoneNumberTip-wrap .imgWraper img{display:block; width:100%}
+.dialog-phoneNumberTip-wrap  .c .text-wrap{padding:0;}
+.dialog-phoneNumberTip-wrap  .fix-dialog-wrap{background:none; border-radius:0; }
+.dialog-phoneNumberTip{padding: 0 1.25rem;}
+.dialog-phoneNumberTip .mt10{margin-top: 0.625rem;}
+.dialog-phoneNumberTip .color_blue{ color:#5d7a8d; }
+.dialog-phoneNumberTip .color_gray{color: #a7a7a7;}
+.dialog-phoneNumberTip .topblock{border:solid 1px #f2f2f2; background-color: #fafafa;}
+.dialog-phoneNumberTip .topblock:after{content: ""; background: url(../../../img/tip_shadow.png) no-repeat; background-size: 100% 3px; width:100%;height: 3px;position: relative;top:3px; display:block;}
+.dialog-phoneNumberTip .topblock .tt{padding: 0.3125rem; border-bottom: solid 1px #f2f2f2; padding: 0.3125rem 0; text-align: center;font-size: 0.75rem;}
+.dialog-phoneNumberTip .topblock .words{padding:0.3125rem 0.9375rem 0;}
+.dialog-phoneNumberTip .topblock .words p:nth-child(2){margin:0 0 0.1875rem;}
+.dialog-phoneNumberTip .downblock{padding: 0.9375rem 0;}

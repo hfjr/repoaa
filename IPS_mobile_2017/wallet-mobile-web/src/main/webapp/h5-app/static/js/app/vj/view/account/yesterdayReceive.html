@@ -1,0 +1,52 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	<div class="product-view">
+		<div class="preview">
+			<div class="con">
+				<p class="tip">昨日收益</p> 		
+				<p class="text"><# print(self.yesterdayReceive); #></p>
+			</div>
+			
+		</div>
+		
+		
+		<div id="page-data" class="list-wrap">
+			
+			<# print(self.render("investList", {
+				list : self.investList,
+				init : true
+			})); #>
+			 
+		</div>
+	</div>
+</script>
+<script type="text/template" data-tpl="investList">
+	<# if(list.length > 0){ #>
+		<# if(init){ #>
+		<div class="list">
+		<# }; #>
+			<# $.each(list, function(i, o){  #> 
+			<div class="item">
+				<div class="item-wrap fix">
+					<div class="col-l">
+						<span class="attr"><# print(o.title); #></span>
+						<span class="date"><# print(o.date); #></span>
+					</div>
+					<span class="money"><# print(o.amount); #></span>
+				</div>
+			</div>
+			<# }); #>
+		<# if(init){ #>
+		</div>
+		<# } #>
+		
+	<# }else{ #>
+		<# if(init){ #>
+			<div class="widget-no-data">
+				<div class="img"></div>
+				<p class="text">暂无记录</p>
+			</div>
+		<# }else{ #>
+		<# } #>
+	<# } #>
+</script>
+<div class="page"></div>

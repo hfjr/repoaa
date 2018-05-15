@@ -1,0 +1,29 @@
+@charset "utf-8";
+/**
+ * 账单
+*/
+*, *:before,*:after { -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;}/* 盒子模式 */
+em{ font-style:normal; }
+hr {display: block;height: 1px;border: 0;border-top: 1px solid #f2f2f2;padding: 0;}
+.tabnav{ width:100%;border-bottom: solid 1px #f2f2f2;background-color: #fff;position: fixed;top:0; left: 0; z-index:2;}
+.tabnav a{ display: block;float: left; width:50%; text-align: center;padding: 10px 0; position: relative;color:#9b9b9b; font-size: 14px; }
+.tabnav a em{ display: block; }
+/*
+.tabnav a:first-child em{ border-right: solid 1px #f2f2f2; }
+*/
+.tabnav a hr{ display: none;border-top:solid 2px #4ac0f0; position: absolute; bottom: 0; left: 0;width:100%; }
+.tabnav a.active{color: #4ac0f0; }
+.tabnav a.active hr{ display: block; }
+.billlist{ z-index:1; position:relative; font-size: 14px;padding-top:40px; }
+.billul{background-color: #fff;border-bottom: solid 1px #f2f2f2; }
+.billul li{ position:relative; padding-left:20px; }
+.billul li:active{background:#f6f6f6;}
+.billul li .table{ width:100%; display: table;border-bottom: solid 1px #f2f2f2;}
+.billul li:last-child .table{border-bottom: none;}
+.billul li .cell{ display: table-cell; vertical-align: middle; height: 71px; color:#9b9b9b; }
+.billul li .time{font-size:10px;color:#9b9b9b; }
+.billul li .price{font-size:24px; text-align: right; color:#4a4a4a;}
+.billul li.hasarrow:after{content: ""; background:url(../../../img/arrow-r.png) 0 0 no-repeat; width:7px; height:15px; background-size:100% 100%; position: absolute;right:20px; top:50%;margin-top: -8px; }
+.billul li.hasarrow .table{padding-right:40px; }
+.billul2 li{padding-right: 20px;}
+.billul2 li .time{ font-size:14px; }

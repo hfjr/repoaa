@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rqb.ips.depository.platform.mapper.IpsTransferCallBackMapper">
+
+<!-- 查询是否存在该订单 -->
+<select  id="queryTransferByOrderBatchNoProjectNo"  parameterType="java.lang.String"  resultType="java.lang.Integer">
+
+select  count(1)  
+from  wj_order
+where order_no = #{merBillNo}
+and  batch_no = #{batchNo}
+and  product_id = #{projectNo}
+
+
+</select>
+
+<!--查询userId  -->
+<select id="queryUserIdByIpsAcctNo"   parameterType="java.lang.String" resultType="java.lang.String">
+
+Select  user_id  as  userId  
+from  wj_user_trade_account
+where id = #{outIpsAcctNo}
+
+
+</select>
+
+<!--查询金额  -->
+<select id="queryAmountByOrderBatchNoProjectNo"  parameterType="java.lang.String" resultType="java.util.Map">
+
+select  total_price as totalprice,price,actitvity_amount as actitvityAmt
+from wj_order
+where  order_no = #{merBillNo}
+and  batch_no = #{batchNo}
+and  product_id = #{projectNo}
+
+
+</select>
+
+
+
+<!--更新订单   -->
+
+<select id="updateOrderTransferRfToIps"  parameterType="java.lang.String" resultType="java.lang.Integer">
+
+update wj.order 
+set  user_id = #{userId},
+	channel_trade_id = #{ipsBillNo},
+	batch_no = #{batchNo},
+	order_no = #{merBillNo}
+
+
+</select>
+
+
+<select id="queryOrderNo"  parameterType="java.lang.String" resultType="java.lang.Integer">
+
+select  order_no  
+from  wj_order
+where product_id={productNo}
+and  user_id=#{userId}
+and  channel_trade_id = #{ipsBillNo}
+
+
+</select>
+
+<select id="queryCouponId"  parameterType="java.lang.String" resultType="java.lang.Integer">
+
+select  coupons_id  
+from  wj_order 
+where  user_id=#{userId}
+
+</select>
+
+
+
+<!--ma -rf  -->
+<select id="FromMatoRf"   parameterType="java.lang.String"  resultType="java.lang.Integer">
+
+update wj_user_trade_account
+		set available_amount = available_amount - #{amount},
+			frozen_amount = frozen_amount + #{amount}
+		where user_id = #{userId}
+		and trade_type = 'ma'
+
+</select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

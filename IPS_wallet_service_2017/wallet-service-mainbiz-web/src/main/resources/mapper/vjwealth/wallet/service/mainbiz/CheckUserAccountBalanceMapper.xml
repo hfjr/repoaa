@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.account.server.integration.mapper.ICheckUserAccountBalanceMapper">
+
+		<!-- 查询账户余额和流水是否匹配  -->
+		<select id="calculateUserAccountbalanceable"   resultType="java.math.BigDecimal">
+				SELECT
+			
+			(
+			SELECT
+			IFNULL(sum(total_price), 0)
+			FROM
+			wj_order
+			WHERE
+			user_id = #{userId}
+			AND (
+			(
+			order_type = 'recharge_ma'
+			AND order_status = 'recharge_ma_confirm'
+			)
+			OR (
+			order_type = 'pc_recharge_ma_confirm'
+			AND order_status = 'pc_recharge_ma_confirm'
+			)
+			OR (
+			order_type = 'batch_apply'
+			AND order_status = 'batch_apply_confirm'
+			)
+			OR (
+			order_type = 'recharge_rp'
+			AND order_status = 'recharge_rp_confirm'
+			)
+			OR (
+			order_type = 'recharge_cashback'
+			AND order_status = 'recharge_cashback_confirm'
+			)
+			OR (
+			order_type = 'subsidy_to_ln'
+			AND order_status = 'subsidy_to_ln_confirm'
+			)
+
+			OR (
+			order_type = 'salary_plan_bankcard_withhold'
+			AND order_status = 'salary_plan_bankcard_withhold_confirm'
+			)
+
+			OR (
+			order_type = 'early_repay_wage_loan_withhold'
+			AND order_status = 'early_repay_wage_loan_withhold_confirm'
+			)
+			
+			OR (
+			order_type = 'due_repay_wage_loan_withhold'
+			AND order_status = 'due_repay_wage_loan_withhold_confirm'
+			)
+
+			)
+			)
+
+			
+			+ (
+			SELECT
+			IFNULL(sum(product_receive), 0)
+			FROM
+			fund_user_receive
+			WHERE
+			user_id = #{userId}
+			)
+			
+			
+
+			- (
+			SELECT
+			IFNULL(sum(total_price), 0)
+			FROM
+			wj_order
+			WHERE
+			user_id = #{userId}
+			AND (
+			(
+			order_type = 'apply_ltb_loan'
+			AND order_status IN (
+			'apply_ltb_loan_confirm'
+			)
+			)
+			OR (
+			order_type = 'apply_cana_loan'
+			AND order_status IN (
+			'apply_cana_loan_confirm'
+			)
+			)
+			
+			OR (
+			order_type = 'apply_wage_loan'
+			AND order_status IN (
+			'apply_wage_loan_confirm'
+			)
+			)
+
+			)
+			)
+
+
+			-(
+			SELECT
+			IFNULL(sum(receivable_interest_fee+other_fee), 0)
+			FROM
+			wj_loan_user_interest w
+			WHERE
+			user_id = #{userId}
+			)
+
+
+			- (
+			SELECT
+			IFNULL(sum(total_price), 0)
+			FROM
+			wj_order
+			WHERE
+			user_id = #{userId}
+			AND (
+			(
+			order_type = 'withdraw_ea'
+			AND order_status IN (
+			'withdraw_ea_success',
+			'withdraw_ea_process'
+			)
+			)
+			OR (
+			order_type = 'withdraw_ta'
+			AND order_status IN (
+			'withdraw_ta_success',
+			'withdraw_ta_process'
+			)
+			)
+			OR (
+			order_type = 'withdraw_ma'
+			AND order_status IN (
+			'withdraw_ma_success',
+			'withdraw_ma_process'
+			)
+			)
+			)
+			)
+			
+			
+			
+			- (
+			SELECT
+			IFNULL(
+			sum(
+			available_amount + frozen_amount
+			),
+			0
+			)
+			FROM
+			wj_user_trade_account
+			WHERE
+			user_id = #{userId}
+			)
+			FROM
+			DUAL	
+		</select>
+		
+		
+		<!-- 查询用户状态 -->
+		<select id="queryCalculateBalanceSwitch"   resultType="java.lang.String">
+			select IFNULL(cp.param_value,'close') as paramValue from comm_params cp 
+				where cp.param_group='common_user_flag'
+				and cp.param_key='check_user_account_balance_switch'
+		</select>
+		
+		<!-- 冻结账户 -->		
+		<update id="updateUserStautsToException" parameterType="java.lang.String">
+			update wj_user_info  
+			set login_uuid='',
+				user_status='10'
+			where id=#{userId}
+		</update>
+		
+		
+</mapper>

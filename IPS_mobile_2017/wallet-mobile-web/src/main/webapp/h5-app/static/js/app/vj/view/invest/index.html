@@ -1,0 +1,105 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	<div class="page-index">
+		<section class="investIndex">
+			<!--
+			<div class="topNoticePlace"></div>
+			<div class="topNotice border-box">
+				<div class="inner">
+					<a class="icon_close"></a>
+					<p class="words"> 您有n条价值5000元的小金鱼您有n条价值5000元的小金鱼您有n条价值5000元的小金鱼您有n条价值5000元的小金鱼您有n条价值5000元的小金鱼 </p>
+					<span class="icon_arrowWhite"></span>
+				</div>
+			</div>
+			-->
+			<#
+				print(self.licaiTab);
+			#>
+			
+			<div class="product-view">
+			 
+				<div id="page-data">
+					 
+					<# print(self.render("investList", {
+						list : self.investList,
+						init : true
+					})) #>
+					 
+				</div>
+			</div>
+		</section>
+	</div>		
+	
+</script>
+<div class="page">
+	<div class="main-view"></div>
+</div>
+<script type="text/template" data-tpl="investList">
+	
+	<# if(list.length > 0){ #>
+		<# if(init){ #>
+		<ul class="newInvestList list">
+		<# } #>
+	
+			<# $.each(list, function(i, o){ 
+				var id = o.productId;
+			#>
+			<#
+				var clsName = "";
+				if(o.schedule == "1" || o.isSoldOut == "yes" ){
+					clsName = "gray";
+				}else{
+					if(o.newPersonMark == "true"){
+						clsName = "red";
+					}else{
+						clsName = "orange";
+					}
+				}
+			#>
+			<li  data-invest-id="<# print(id); #>">
+				<div class="tt tt_<# print(clsName); #>">
+					<span class="leftBar"></span>
+					<div class="inner">
+						<span class="bigwords"><# print(o.productName); #></span>
+						<span ><# print(id) #></span>
+					</div>
+					<p class="rightBar"></p>
+				</div>
+				<div class="inforItem">
+					<div class="col">
+						<p class="tt_s">年化收益</p>
+						<p class="percent"><# print(Number(( Number(o.annualYield) * 100).toFixed(2)) ); #>%</p>
+						<p class="icon-3"><# print(o.interestDate); #></p>
+					</div>
+					<div class="col">
+						<p class="tt_s">项目期限</p>
+						<p class="gray2"><# print(o.projectTerm); #></p>
+						<p class="icon-2"><# print(o.repayment); #></p>
+					</div>
+					<div class="col">
+						<p class="tt_s">剩余可投</p>
+						<p class="gray2"><# print(o.remainBalance); #></p>
+						<p class="icon-1"><# print(o.insuranceCompany); #></p>
+					</div>
+				</div>
+				<div class="progress-bar">
+					<div class="progress">
+						<div style="width:<# print(Number(( Number(o.schedule) * 100).toFixed(2)) ); #>%;" class="percent"></div>
+					</div>
+					<span class="text"><# print(Number(( Number(o.schedule) * 100).toFixed(2)) ); #>%</span>
+				</div>
+			</li>			
+			
+			<#  });  #>
+		<# if(init){ #>
+		</ul>
+		<# } #>
+	<# }else{ #>
+		<# if(init){ #>
+		<div class="widget-no-data">
+			<div class="img"></div>
+			<p class="text">暂无投资项目</p>
+		</div>
+		<# } #>
+	<# } #>
+</script>
+

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.credit.server.mapper.ApplyForCreditMapper">
+
+	<!-- 充值绑定银行卡初始化 -->
+	<select id="rechargeIniti"  resultType="com.zhuanyi.vjwealth.wallet.mobile.credit.server.dto.RechargeInitiDTO">
+
+		select "银行卡" as bankCardLabel, "请选择银行卡" as bankCard ,
+       "充值金额" as rechargeAmountLabel,
+        QUERY_PARAM_VALUE('rechargeIniti_rechargeAmount','wallet_vcredit_yingzt')  as rechargeAmount,
+       "＊绑卡所需的3元仅为验证账户使用，您可在绑卡成功后直接从余额提现，我们不会收取您任何费用，请放心！" as tipInformation,
+       "确认充值" as buttonTextMessage
+
+	</select>
+
+
+	<!-- 充值绑定银行卡初始化 -->
+	<select id="rechargeBindBankCardIniti" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.credit.server.dto.RechargeBindBankCardInitiDTO">
+         select
+      QUERY_PARAM_VALUE('rechargeIniti_rechargeAmount','wallet_vcredit_yingzt')  as amount, real_name as realName,
+       indentity_no as identityNo, (select bank_name from wj_bank_info where bank_code =  #{bankCode}) as bankName,
+       QUERY_PARAM_VALUE('cardBindMobilePhoneNoHelpURL','wallet_vcredit_yingzt')  as cardBindMobilePhoneNoHelpURL,
+        "我同意并已仔细阅读&lt;融桥金服移动支付协议&gt;" as protocolName, "融桥金服移动支付协议" as protocolDetailURLTitle,
+        QUERY_PARAM_VALUE('rechargeBindBankCardIniti_protocolDetailURL','wallet_vcredit_yingzt') as protocolDetailURL
+        from wj_user_info WHERE
+		id = #{userId}
+	</select>
+
+
+	<!-- 查询银行卡限额列表 yingzt-loan -->
+	 <select id="queryAllSupportBankList" 	 resultType="com.zhuanyi.vjwealth.wallet.service.balance.common.dto.BankBalanceLimitDTO">
+			select 
+				tem.bank_code AS bankCode,
+				tem.bank_name AS bankName,
+				TRUNCATE(tem.single_limit,0)AS remainAmount,
+
+				case 
+				WHEN IFNULL(tem.single_min_limit,0)&lt;1
+					THEN  '1'
+				ELSE TRUNCATE(tem.single_min_limit,1)
+				END as minBalance,
+
+				tem.`status` as status,
+				CASE 
+				WHEN tem.`STATUS` != 'normal' 
+					THEN tem.status_desc
+				ELSE
+					CONCAT('单笔限额:',	TRUNCATE(tem.single_limit,0),'元',',每日限额:',	TRUNCATE(tem.perday_limit,0)	,'元') 
+			    END AS 'bank_tipContent',
+				CONCAT('充值金额至少',tem.singleMinLimit,'元,单笔限额:',	TRUNCATE(tem.single_limit,0),'元,每日限额:',	TRUNCATE(tem.perday_limit,0),'元'	)  as  'tipContent',
+				CONCAT('本次最多可充值:',	TRUNCATE(tem.single_limit,0),'元')  as 'tipInput'
+			FROM
+			(
+			SELECT
+							t.bank_code ,
+							t.bank_name ,
+							t.single_limit,
+							t.single_min_limit,
+							t.`status` ,
+							t.status_desc,
+							t.perday_limit,
+							case 
+							WHEN IFNULL(t.single_min_limit,0)&lt;1
+								THEN  '1'
+							ELSE TRUNCATE(t.single_min_limit,1)
+							END as singleMinLimit   
+						FROM
+							wj_currently_recharge_bank_for_yingzt_loan crb
+						INNER JOIN
+							common_pay_plateform_bank t 
+						ON crb.bank_code=t.bank_code AND crb.plateform_id=t.plateform_id and t.`STATUS` != 'disable'
+						INNER JOIN	
+							common_pay_plateform b 
+						ON b.`STATUS`='normal' AND b.plateform_id=t.plateform_id
+			)tem
+	 </select>
+
+    <!-- 查询认证状态 -->
+    <select id="queryCertificationStatus" resultType="java.lang.String">
+          select (case when certification_status='audit_success' then '1' ELSE '0' end) as certificationStatus from wj_user_certification
+          where user_id=#{userId}
+    </select>
+
+    <!-- 查询绑卡状态 for cana -->
+    <select id="queryBindCardStatusV2" resultType="com.zhuanyi.vjwealth.wallet.mobile.credit.server.dto.WjTradeAccountCardDTO">
+        select (case when ISNULL(bank_card_no) || LENGTH(trim(bank_card_no)) &lt; 1 then false ELSE true end) as bindCardStatus,
+        aside_bank_phone as asideBankPhone,
+        wtac.bank_code as bankCode,
+		bank_code_yingzt as loanBankCode,
+		t.bank_name as bankName
+        from wj_trade_account_card wtac left join wj_currently_recharge_bank_for_yingzt_loan t on wtac.bank_code=t.bank_code
+        where card_type='security' and is_valid='yes'
+        and user_id=#{userId} and bank_card_no=#{bankCardNo}
+        limit 1
+    </select>
+
+
+	<!-- 查询绑卡状态 公积金贷-->
+	<select id="queryBindCardStatus" resultType="com.zhuanyi.vjwealth.wallet.mobile.credit.server.dto.WjTradeAccountCardDTO">
+		select (case when ISNULL(bank_card_no) || LENGTH(trim(bank_card_no)) &lt; 1 then false ELSE true end) as bindCardStatus,
+		aside_bank_phone as asideBankPhone,
+		wtac.bank_code as bankCode,
+		bank_code_yingzt as loanBankCode,
+		t.bank_name as bankName
+		from wj_trade_account_card wtac left join wj_currently_recharge_bank_for_yingzt_loan t on wtac.bank_code=t.bank_code
+		where card_type='recharge' and is_valid='yes'
+		and user_id=#{userId} and bank_card_no=#{bankCardNo}
+		limit 1
+	</select>
+
+    <!-- 判断是否绑卡 -->
+    <select id="queryIsTieBankCardById" resultType="java.lang.Integer">
+        select count(1) as bindCardStatus
+        from wj_trade_account_card wtac
+        where user_id=#{userId}
+    </select>
+
+    <!-- 查询绑卡列表 cana-->
+    <select id="queryBindCardListV2" resultType="com.zhuanyi.vjwealth.loan.order.vo.BankCardsVo">
+          select DISTINCT wtac.bank_code as bankCode,wtac.bank_name as bankName,bank_card_no as bankCardNumber,'normal' as 'status'
+          from wj_trade_account_card wtac inner join wj_currently_recharge_bank_for_yingzt_loan t
+			on wtac.bank_code=t.bank_code
+          where is_valid='yes' and card_type='security'
+		  and user_id=#{userId}
+    </select>
+
+	<!-- 查询绑卡列表-白领专享 -->
+    <select id="queryBindCardList" resultType="com.zhuanyi.vjwealth.loan.order.vo.BankCardsVo">
+          select DISTINCT wtac.bank_code as bankCode,wtac.bank_name as bankName,bank_card_no as bankCardNumber,'normal' as 'status'
+          from wj_trade_account_card wtac inner join wj_currently_recharge_bank_for_yingzt_loan t
+			on wtac.bank_code=t.bank_code
+		where is_valid='yes' and card_type='recharge'
+		  and user_id=#{userId}
+    </select>
+
+	<insert id="insertFundLoanShareInfo" parameterType="com.zhuanyi.vjwealth.wallet.mobile.credit.server.dto.FundLoanShareStatisticsDTO">
+		insert into wj_fundloan_share_statistics(
+		p1,
+		p2,
+		invite_code,
+		memo,
+		ip,
+		activity_code,
+		create_date,
+		update_date
+		)
+		VALUES (
+		#{p1, jdbcType = VARCHAR},
+		#{p2, jdbcType = VARCHAR},
+		#{inviteCode, jdbcType = VARCHAR},
+		#{s, jdbcType = VARCHAR},
+		#{ip, jdbcType = VARCHAR},
+		#{activityCode, jdbcType = VARCHAR},
+		now(),
+		now()
+		)
+	</insert>
+</mapper>

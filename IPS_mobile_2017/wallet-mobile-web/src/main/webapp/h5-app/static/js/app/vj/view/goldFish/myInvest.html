@@ -1,0 +1,130 @@
+<script type="text/template" data-tpl="tpl-main-view">
+
+	<!--V信贷还款详情-->
+	<section class="completeInfor border-box">
+		<div class="topinforwrap">
+			<p class="line-dot2" style="display:none;"></p>
+			<div class="flex-box topinfor">
+				<# $.each(self.investmentRecordSummary, function(i, o){ #>
+				<div class="ta-c">
+					<p><# print(o.label); #></p>
+					<p class="f20"><# print(o.value); #></p>
+				</div>
+				<# }); #>
+				<p class="midline"></p>
+			</div>
+		</div>
+		<div class="tabnav">
+			<!--选中加class active-->
+			<div <# if(self.investmentStatus == "investment"){ #> class="active" <# } #> data-status="investment">
+				<p class="inner">
+					<span>投资记录</span>
+				</p>
+				<div class="solidLine"></div>
+			</div>
+			<div <# if(self.investmentStatus == "borrow"){ #> class="active" <# } #> data-status="borrow">
+				<p class="inner">
+					<span>借款记录 <em class="redround" style="display:none;"> </em></span>
+				</p>
+				<div class="solidLine"></div>
+			</div>
+		</div>
+		<div class="tabshow">
+			<div class="product-view">
+				<div id="page-data" class="list-wrap">
+					<# print(self.render("investList", {
+						list : self.investList,
+						init : true
+					})); #>
+				</div>
+			</div> 		
+		</div>
+	</section>
+</script>
+
+<script type="text/template" data-tpl="investList">
+	<# if(list.length > 0){ #>
+		<# if(init){ #>
+		<ul class="investList list">
+		<# } #>
+			<# $.each(list, function(i, o){  #> 
+			<li data-order-id="<# print(o.orderId); #>" data-product-id="<# print(o.productId); #>" data-borrow-code="<# print(o.borrowCode); #>" data-order-type="<# print(self.investmentStatus); #>">
+				<# if(self.investmentStatus =="investment"){ #>
+				<div class="table toptt">
+					<div class="cell">
+						<P>
+							投资
+							<span class="color_blue2"><# print(o.investmentAmount); #>元</span>
+						</P>
+					</div>
+					<div class="cell ta-r">
+						<p class="sign_state"> <img src="<# print(o.investmentStatusMarkURL); #>"> </p>
+					</div>
+				</div>
+				<div class="investRowWrap">
+					<p class="color_blue"><# print(o.productCode); #></p>
+					<div class="table table_loanInfor">
+						<div class="cell cell1">
+							<P class="color_gray2">起息时间 <# print(o.fromInterestTime); #></P>
+							<P class="color_gray2">到期时间 <# print(o.expirationDate); #></P>
+						</div>
+						<div class="cell">
+							<p>已回 <span class="color_blue2"> <# print(o.amountReceived); #>元</span></p>
+							<p>应回 <span class="color_blue2"> <# print(o.amountReceivable); #>元</span></p>
+						</div>
+						<div class="cell ta-r">
+							<p class="bigPersent">
+								<# 
+									var annualYield = Number(o.annualYield) * 100;
+									var rs = isNaN(annualYield) ? "0" : Number(annualYield.toFixed(2));
+									print(rs);
+								#>%
+							</p>
+						</div>
+					</div>
+				</div>			
+				<# }else if(self.investmentStatus == "borrow"){ #>	
+				<div class="table toptt">
+					<div class="cell">
+						<P>
+							<# print(o.borrowAmountDescription); #>
+							<span class="color_blue2"><# print(o.borrowAmount); #></span>
+						</P>
+					</div>
+					<div class="cell ta-r">
+						<p class="sign_state"> <img src="<# print(o.repaymentStatusMarkURL); #>">  </p>
+					</div>
+				</div>
+				<div class="investRowWrap">
+					<p class="color_blue"><# print(o.investProjectDescription); #></p>
+					<div class="table table_loanInfor">
+						<div class="cell">
+							<P class="color_gray2"><# print(o.borrowDateLabel); #> <# print(o.borrowDate); #></P>
+							<P class="color_gray2"><# print(o.allCompleteRepaymentDateLabel); #> <# print(o.allCompleteRepaymentDate); #></P>
+						</div>
+						<# if( o.repaymentStatus == "F" ){ #>
+						<div class="cell ta-r">
+							<p><# print(o.paidAmountLabel); #> <span class="color_blue2"> <# print(o.paidAmount); #>元</span></p>
+							<p><# print(o.repaymentStateDescription); #></p>
+						</div>
+						<# } #>
+					</div>
+				</div>				
+				<# } #>
+			</li>			
+			<# }); #>
+		<# if(init){ #>
+		</ul>
+		<# } #>
+	<# }else{ #>
+		<# if(init){ #>
+		<div class="widget-no-data">
+			<div class="img"></div>
+			<p class="text">暂无记录</p>
+		</div>
+		<# } #>
+	<# } #>
+</script>
+
+
+<div class="page"></div>

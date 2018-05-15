@@ -1,0 +1,197 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	<#
+		var o = self.productData;
+	#>
+	<# if(!o){ #>
+	<div class="no-data">系统繁忙</div>
+	<# }else{ #>
+	<div class="page-invest-show">
+		
+		<div class="num-bar fix">
+			<div class="bg">
+				<div class="tip">剩余可投资金额(元)</div>
+				<div class="list-wrap">
+					<#
+						var v = !o.remainingInvestment ? 0 : Number(o.remainingInvestment);
+						
+					#>
+					<ul>
+						<# if(v == 0){ #>
+						<li>&nbsp;</li>
+						<li>&nbsp;</li>
+						<li>&nbsp;</li>
+						<li>&nbsp;</li>
+						<li>&nbsp;</li>
+						<li>&nbsp;</li>
+						<li>0</li>
+						<# }else{ #>
+							<#
+								v = v + "";
+							#>
+							<# for(var i = 0; i < 7 - v.length; i++){ #>
+								<li>&nbsp;</li>
+							<# } #>
+							
+							<# for(var i = 0; i < v.length; i++){ #>
+								<li><# print(v.charAt(i)) #></li>
+							<# } #>
+						<# } #>
+					</ul>
+				</div>
+			</div>
+			<div class="wen">&nbsp;</div>
+		</div>
+		<div class="num-bar-blank"></div>
+		<div class="base">
+			<# if(o.newPersonMark == true ||  o.newPersonMark == "true"){ #>
+			<div class="title title-new">
+				<div class="text"><# print(o.productCode); #></div>
+				<span class="newmark">&nbsp;</span>
+			</div>
+			<# }else{ #>
+			<div class="title"><div class="text"><# print(o.productCode); #></div></div>
+			<# } #>
+			<div class="row fix">
+				<div class="left">
+					<span class="attr">年化收益</span>
+					<span class="value"><# print(Number(( Number(o.annualYield) * 100).toFixed(2)) ); #>%</span>
+				</div>
+				<div class="right">
+					<span class="attr">融资金额</span>
+					<span class="value"><# print(o.totalFinancing); #></span>
+				
+				</div>
+			</div>
+			
+			<div class="row fix">
+				<div class="left">
+					<span class="attr">项目期限</span>
+					<span class="value">
+						<# 
+							print(o.projectTerm); 
+						#>
+					</span>
+				</div>
+				<div class="right">
+					<span class="attr">到期时间</span>
+					<span class="value"><# print(o.expirationDate); #></span>
+				
+				</div>
+			</div>
+			
+			<div class="row fix">
+				<div class="left">
+					<div class="icon-1"><# print(o.interestDate); #></div>
+				</div>
+				<div class="right">
+					<div class="icon-2"><# print(o.repayment); #></div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<# if(o.newPersonMark == "true" || o.newPersonMark == true){ #>
+			<# if(o.newPersonExclusiveContent){ #>
+			<div class="box box-newPerson">
+				<div class="title">新手专享</div>
+				<div class="c">
+					
+					<#
+						print(o.newPersonExclusiveContent.replace(/\r\n/g, "<br />").replace(/\|/g, "<br />"));
+					#>
+				</div>
+			</div>
+			<# } #>
+		<# } #>
+		
+		<div class="box box-insurance">
+			<div class="title">
+				众安保险本息保障
+				<a href="javascript:;" data-tap-path="invest/insuranceTemplate" class="link">保单示例</a>
+			</div>
+			<div class="c">
+				<#
+					print(o.guaranteeContents.replace(/\r\n/g, "<br />").replace(/\|/g, "<br />"));
+				#>
+				
+			</div>
+			
+		</div>
+		
+		<div class="box box-intro">
+			<div class="title">项目介绍</div>
+			<div class="c">
+				
+
+				<#
+					print(o.projectIntroduction.replace(/\r\n/g, "<br />").replace(/\|/g, "<br />"));
+				#>
+			</div>
+		</div>
+		<div class="box box-man">
+			<div class="title">借款人</div>
+			<div class="c">
+				<# if(typeof(o.borrower.enterpriseName) !== "undefined"){ #>
+				<div class="row-1 fix">
+					<span class="sp attr">公司名称 : </span>
+					<span class="sp value"><# print(o.borrower.enterpriseName); #></span>
+				</div>
+				<div class="row-1 fix">
+					<span class="sp attr">注册地址 : </span>
+					<span class="sp value"><# print(o.borrower.address); #></span>
+				</div>
+				<# }else{ #>
+				<div class="row-1 fix">
+					<div class="col">
+						<span class="sp attr">姓名</span>
+						<span class="sp value"><# print(o.borrower.realName); #></span>
+					</div>
+					<div class="col">
+						<span class="sp attr">性别</span>
+						<span class="sp value"><# print(o.borrower.sex); #></span>
+					</div>
+					<div class="col">
+						<span class="sp attr">年龄</span>
+						<span class="sp value"><# print(o.borrower.age); #></span>
+					</div>
+				</div>
+				<# } #>
+				<div class="row-1 fix">
+					<# $.each(o.borrower.certificationInformation, function(i, v){ #>  
+					<div class="col">
+						<div class="icon-wrap"><# print(v); #></div>
+					</div>
+					<# }); #>
+				</div>
+				
+			</div>
+		</div>
+		<# 
+			var count = parseInt(o.investmentRecord); 
+			if(isNaN(count)){
+				count = 0;
+			}
+		#>
+		<# if(count){ #>
+		<div class="box box-history" >
+			<div class="c fix">
+				<div class="text">投资记录</div>
+				<div class="more">&nbsp;</div>
+				<div class="msg"><# print(count); #></div>
+			</div>
+		</div>
+		<# } #>
+		
+		<div <# if(o.whetherInvestment == "true"){ #> data-tap-path="<# print( self.createURL("invest/initInvest", {id : self.productId})); #>" g-act-tap="true" <# } #> class="download-bar <# if(o.whetherInvestment == "false"){ #> s-gray <# } #> ">
+			<# print(o.investmentInformation); #>
+		</div>
+		<div class="download-bar-blank"></div>
+	</div>
+	<# }; #> 
+	
+</script>
+<div class="page">
+	
+	<div class="main-view"></div>
+</div>
+

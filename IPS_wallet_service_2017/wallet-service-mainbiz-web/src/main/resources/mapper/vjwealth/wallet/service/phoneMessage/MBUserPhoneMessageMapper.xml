@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.phoneMessage.server.integration.mapper.IMBUserPhoneMessageMapper">
+	
+	<!-- 查询短信业务对应模板信息 -->
+	 <select id="queryMessageServiceByServiceType" parameterType="java.lang.String" 
+	 	resultType="java.lang.String">
+			SELECT
+				p.plateform_id
+			FROM
+				common_message_server s
+			INNER JOIN common_message_template t on t.biz_type=s.template_type
+			INNER JOIN common_message_plateform p on p.plateform_id=t.message_plateform_id
+			where 
+				s.status='normal'
+				and s.template_type=#{serviceType}
+				and p.type='text'
+			order by p.priority desc
+			limit 0,1
+	 </select>
+	 
+	 <!-- 新增短信接口调用日志-->
+	 <insert id="insertMessageInterfaceLog" parameterType="com.zhuanyi.vjwealth.wallet.service.mainbiz.phoneMessage.dto.MessageServerLogDTO" 
+		useGeneratedKeys="true" keyProperty="id" >
+		insert into common_message_server_log (
+			type  , 
+			phone  , 
+			send_data , 
+			request_system  , 
+			message_plateform_id,
+			error_code,
+			error_message,
+			create_date		
+		)values(
+			#{type},
+			#{phone},
+			#{sendData},
+			#{requestSystem},
+			#{messagePlateformId},	
+			#{errorCode},
+			#{errorMessage},		
+			now() 
+	    )
+	</insert>
+</mapper>

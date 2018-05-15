@@ -1,0 +1,19 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	<iframe id="safeIframe" name="safeIframe" width="100%" class="safeIframe" height="100%"  frameborder="0" style="position:absolute;left:0;top:0;"></iframe>
+	<#
+		var router = self.getApiRouter(self.formUrl, {
+			borrowCode : self.borrowCode,
+			contractCode : self.contractCode
+		});
+		
+	#>
+	<div style="height:100px;width:100px; position:absolute; left:-100px; top:-100px;  overflow:hidden;">
+		<form action="<# print(router.url); #>" target="safeIframe" method="post" id="safeFrom">
+			<# $.each(router.data, function(key, value){ #>
+			<input type="hidden" name="<# print(key); #>" value="<# print(value); #>" >
+			<# }); #>
+			<input type="submit" value="sub">
+		</form>
+	</div>
+</script>
+<div class="page"></div>

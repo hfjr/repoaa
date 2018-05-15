@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Mapper接口 -->
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.plan.server.mapper.IWjSalaryPlanMapper">
+
+    <resultMap type="com.zhuanyi.vjwealth.wallet.service.mainbiz.plan.server.dto.WjSalaryPlanDTO" id="wjSalaryPlanQuery">
+        <result column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="phone" property="phone" />
+        <result column="amount" property="amount" />
+        <result column="bank_card_no" property="bankCardNo" />
+        <result column="card_id" property="cardId" />
+        <result column="plan_date" property="planDate" />
+        <result column="is_valid" property="isValid" />
+        <result column="plan_status" property="planStatus" />
+        <result column="next_execute_time" property="nextExecuteTime" />
+        <result column="execute_status" property="executeStatus" />
+        <result column="bank_name" property="bankName" />
+        <result column="card_ower" property="cardOwer" />
+        <result column="indentity_no" property="indentityNo" />
+        <result column="aside_bank_phone" property="asideBankPhone" />
+        <result column="bank_code" property="bankCode" />
+        <result column="limit_amount" property="limitAmount" />
+        <result column="limit_amount_tips" property="limitAmountTips" />
+        <result column="create_by" property="createBy" />
+        <result column="create_date" property="createDate" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_date" property="updateDate" />
+    </resultMap>
+
+    <select id="queryWjSalaryPlan" resultMap="wjSalaryPlanQuery">
+        SELECT id,
+            user_id,
+            '' as phone,
+            round(amount) amount,
+            bank_card_no,
+            card_id,
+            plan_date,
+            is_valid,
+            plan_status,
+            next_execute_time,
+            execute_status,
+            create_by,
+            create_date,
+            update_by,
+            update_date
+        FROM wj_salary_plan
+        where is_valid=0
+        and user_id=#{userId}
+        and plan_status=#{planStatus}
+        limit 1
+    </select>
+
+    <select id="queryWjSalaryPlanById" resultMap="wjSalaryPlanQuery">
+         SELECT p.id,
+            user_id,
+            u.phone,
+            round(amount) amount,
+            bank_card_no,
+            card_id,
+            plan_date,
+            is_valid,
+            plan_status,
+            next_execute_time,
+            execute_status,
+            p.create_by,
+            p.create_date,
+            p.update_by,
+            p.update_date
+        FROM wj_salary_plan p,wj_user_info u
+        where p.user_id=u.id
+        and p.is_valid=0
+        and p.id=#{id}
+    </select>
+
+
+    <select id="queryWjSalaryPlanSummaryInfo"
+            resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.plan.server.dto.PlanSummaryInfoDTO">
+         SELECT plan.id as planId,
+                plan_date as depositDate,
+                round(amount) as depositAmount,
+				plan.bank_card_no as bankCard,
+				plan.bank_name as bankName,
+				IFNULL(datediff(now(),planRecordDate),0) consecutiveDays,
+				IFNULL(transferTimes,0) transferTimes,
+			    round(IFNULL(transferSumAmount,0)) transferSumAmount
+        FROM (
+                select plan.id,plan_date,amount,card.bank_card_no,card.bank_name,plan.create_date
+                from wj_salary_plan plan,wj_trade_account_card card
+                where card_id=card.id
+                and plan.is_valid=0
+                and plan.plan_status='plan_complete'
+                and plan.user_id=#{userId}
+                limit 1
+        ) plan left join(
+               select plan_id,count(1) transferTimes,sum(amount) transferSumAmount,min(record_date) planRecordDate
+                from wj_salary_plan_record r
+                where user_id=#{userId}
+                and r.record_status='plan_execute_complete'
+                group by r.plan_id
+        ) r on plan.id=r.plan_id
+    </select>
+
+    <select id="queryWjSalaryPlanByUserId" resultMap="wjSalaryPlanQuery">
+        SELECT 
+            plan.id,
+            plan.user_id,
+            '' as phone,
+            round(plan.amount) amount,
+            plan.bank_card_no,
+            plan.card_id,
+            plan.plan_date,
+            plan.is_valid,
+            plan.plan_status,
+            plan.next_execute_time,
+            plan.execute_status,
+            card.bank_name,
+            card.bank_code,
+            plan.create_by,
+            plan.create_date,
+            plan.update_by,
+            plan.update_date
+        FROM wj_salary_plan plan
+        left join wj_trade_account_card card
+        on  plan.card_id = card.id 
+	        and card.is_valid = 'yes'
+	        and plan.user_id = card.user_id
+        where plan.user_id = #{userId}
+        and plan.is_valid=0
+        limit 0,1
+    </select>
+    
+    <select id="queryRechargeCardByUserId" resultMap="wjSalaryPlanQuery">
+        SELECT 
+            card.bank_card_no,
+            card.bank_code,
+            card.id card_id,
+            card.bank_name
+        FROM
+		wj_trade_account_card card
+		inner join wj_currently_withhold_bank_for_loan wcwbfl
+		on card.bank_code = wcwbfl.bank_code
+		inner join common_withhold_plateform_bank com_bank
+		on card.bank_code = com_bank.bank_code and com_bank.plateform_id = wcwbfl.plateform_id
+		and com_bank.status = 'normal'
+		INNER JOIN
+		(SELECT * FROM wj_pay_bind_card_ref WHERE platform_id = (SELECT platform_id FROM wj_currently_withhold_routing_for_loan WHERE biz_type = 'salary_plan_bankcard_withhold' ORDER BY priority desc LIMIT 0,1)) bindCard
+		ON card.bank_card_no = bindCard.card_no and bindCard.is_bind = 'yes'
+		WHERE
+		    card.user_id = #{userId}
+		AND card.is_valid = 'yes'
+		AND card.card_type = 'recharge'
+        limit 0,1
+    </select>
+    
+    <select id="queryRechargeCardByCardId" resultMap="wjSalaryPlanQuery">
+       SELECT 
+            card.bank_card_no,
+            card.bank_code,
+            card.id card_id,
+            card.bank_name
+        FROM
+		wj_trade_account_card card
+		inner join wj_currently_withhold_bank_for_loan wcwbfl
+		on card.bank_code = wcwbfl.bank_code
+		inner join common_withhold_plateform_bank com_bank
+		on card.bank_code = com_bank.bank_code and com_bank.plateform_id = wcwbfl.plateform_id
+		and com_bank.status = 'normal'
+		INNER JOIN
+		(SELECT * FROM wj_pay_bind_card_ref WHERE platform_id = (SELECT platform_id FROM wj_currently_withhold_routing_for_loan WHERE biz_type = 'salary_plan_bankcard_withhold' ORDER BY priority desc LIMIT 0,1)) bindCard
+		ON card.bank_card_no = bindCard.card_no and bindCard.is_bind = 'yes'
+		WHERE
+		     card.id = #{cardId}
+		AND card.is_valid = 'yes'
+		AND card.card_type = 'recharge'
+		AND wcwbfl.plateform_id = bindCard.platform_id
+    </select>
+
+    <insert id="createWjSalaryPlan" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="id" >
+        insert into wj_salary_plan
+        (
+          user_id,
+          amount,
+          bank_card_no,
+          card_id,
+          plan_date,
+          is_valid,
+          plan_status,
+          create_by,
+          create_date
+        )
+        values
+        (
+          #{userId},
+          0,
+          '',
+          '',
+          '',
+          '0',
+          'plan_init',
+          #{userId},
+          now()
+        )
+    </insert>
+
+    <update id="updateMySalaryPlan">
+        update wj_salary_plan
+        set
+            plan_status ='plan_complete',
+            update_by = #{userId},
+            next_execute_time=#{nextExecuteTime},
+            update_date =now()
+        where id = #{id} and is_valid=0 and  plan_status ='plan_init'
+    </update>
+    <select id="queryUserCardInfo" parameterType="java.lang.String" resultMap="wjSalaryPlanQuery">
+        SELECT
+          card.bank_card_no,
+          card.card_ower,
+          u.indentity_no,
+          u.phone
+        FROM
+            wj_trade_account_card card,wj_user_info u
+        WHERE
+            card.user_id = #{userId}
+        and card.id = #{cardId}
+        and card.is_valid = 'yes'
+        LIMIT 0,1
+     </select>
+     
+     <select id="queryUserCardInfoByPlanCode" parameterType="java.lang.String" resultMap="wjSalaryPlanQuery">
+        SELECT
+          card.bank_card_no,
+          card.card_ower,
+          u.indentity_no,
+          u.phone,
+          card.aside_bank_phone 
+        FROM
+             wj_salary_plan plan,wj_trade_account_card card,wj_user_info u
+        WHERE
+            plan.card_id = card.id
+        and plan.user_id = card.user_id
+        and u.id = card.user_id
+        and plan.is_valid = 0
+        and card.is_valid = 'yes'
+        and plan.user_id = #{userId}
+        and plan.id = #{planCode}
+        LIMIT 0,1
+     </select>
+     
+    <update id="updateMySalaryPlanInit">
+        update wj_salary_plan
+        set
+            amount = #{depositAmount},
+            card_id = #{cardId},
+            <if test="bankCardNo != null">
+                bank_card_no = #{bankCardNo},
+            </if>
+            plan_date = #{depositDate},
+            is_valid = 0,
+            update_by = #{userId},
+            update_date = now()
+        where id = #{planCode} 
+        and user_id = #{userId}
+        and plan_status != 'plan_complete'
+    </update>
+    
+    <update id="cancelMySalaryPlan">
+        update wj_salary_plan
+        set
+            is_valid = '1',
+            update_date =now()
+        where id = #{planCode} 
+        and user_id = #{userId}
+        and is_valid = '0'
+    </update>
+
+	<select id="queryLimitAmountByBankCode" resultMap="wjSalaryPlanQuery">
+	    select 
+			tem.bank_code ,
+			tem.bank_name ,
+			TRUNCATE(tem.single_limit,0) AS limit_amount,
+			CASE 
+			WHEN tem.`STATUS` != 'normal' 
+				THEN tem.status_desc
+			ELSE
+				CONCAT('单笔限额:',	TRUNCATE(tem.single_limit,0),'元',',每日限额:',	TRUNCATE(tem.perday_limit,0)	,'元') 
+		    END AS limit_amount_tips
+		FROM
+		(
+			SELECT
+				t.bank_code ,
+				t.bank_name ,
+				t.single_limit,
+				t.single_min_limit,
+				t.`status` ,
+				t.status_desc,
+				t.perday_limit,
+				case 
+				WHEN IFNULL(t.single_min_limit,0) &lt; 1
+					THEN  '1'
+				ELSE TRUNCATE(t.single_min_limit,1)
+				END as singleMinLimit   
+			FROM
+				wj_currently_withhold_bank_for_loan crb
+			INNER JOIN
+				common_withhold_plateform_bank t
+			ON crb.bank_code=t.bank_code AND crb.plateform_id=t.plateform_id and t.`STATUS` != 'disable'
+			INNER JOIN	
+				common_pay_plateform b 
+			ON b.`STATUS`='normal' 
+			AND b.plateform_id=t.plateform_id
+			INNER JOIN (SELECT platform_id FROM wj_currently_withhold_routing_for_loan WHERE biz_type = 'salary_plan_bankcard_withhold' ORDER BY priority desc LIMIT 0,1) route on crb.plateform_id = route.platform_id
+			where t.bank_code = #{bankCode}
+		)tem
+	    limit 0,1
+    </select>
+</mapper>

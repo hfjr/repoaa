@@ -1,0 +1,130 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	<#
+		self.initData.amountAvailable = self.initData.amountAvailable || "0.00";
+		self.initData.investmentAmount = self.initData.investmentAmount || "0.00";
+		self.initData.yesterdayReceive = self.initData.yesterdayReceive || "0.00";
+		self.initData.allAreadyReceive = self.initData.allAreadyReceive || "0.00";
+	#>
+	<div class="account-top">
+			<h4>总资产</h4>
+			<p>
+				<strong id="money-totalAccountAmount" data-money="<# print(self.initData.totalAccountAmount || "0.00"); #>">
+					<# print(self.showMoney ? self.initData.totalAccountAmount || "0.00" : "****"); #>
+				</strong>
+				<span data-tap-path="account/billList">交易记录</span>
+			</p>
+		</div>
+		<div id="account-info" class="account-info">
+			<span>账户详情</span>
+			<em></em>
+		</div>
+		<div class="account-more">
+			<div class="account-balance">
+				<p>
+					<span class="account-t">可用余额（元）</span>
+					<span id="money-amountAvailable" data-money="<# print(self.initData.amountAvailable || "0.00"); #>"><# print(self.showMoney ? self.initData.amountAvailable || "0.00" : "****"); #></span>
+				</p>
+				<div class="account-btn">
+					<span class="btn-wi btn-withdraw" data-url="account/withdrawals">提现</span>
+					<span class="btn-re" data-tap-path="account/recharge">充值</span>
+				</div>
+			</div>
+			<div class="b-box preview account-m">
+				<ul class="fix">
+					<li>
+						<div class="item-wrap">
+							<p class="attr">账户余额（元）</p>
+							<p class="value" data-money="<# print((parseFloat(self.initData.amountAvailable) + parseFloat(self.initData.amountFrozen)) || "0.00"); #>"><# print(self.showMoney ? (parseFloat(self.initData.amountAvailable) + parseFloat(self.initData.amountFrozen)) || "0.00" : "****"); #></p>
+						</div>
+						<span class="blank blank-top"></span>
+					</li>
+					<li>
+						<div class="item-wrap">
+							<p class="attr">投资金额（元）</p>
+							<p id="money-investmentAmount" class="value" data-money="<# print(self.initData.investmentAmount || "0.00"); #>"><# print(self.showMoney ? self.initData.investmentAmount || "0.00" : "****"); #></p>
+						</div>
+						
+					</li>
+					<li class="no-border">
+						<div class="item-wrap">
+							<p class="attr">累计收益（元）</p>
+							<p id="money-allAreadyReceive"  class="value" data-money="<# print(self.initData.allAreadyReceive || "0.00"); #>"><# print(self.showMoney ? self.initData.allAreadyReceive || "0.00" : "****"); #></p>
+						</div>
+						<span class="blank blank-bottom"></span>
+					</li>
+					<li class="no-border">
+						<div class="item-wrap">
+							<p class="attr">借款金额（元）</p>
+							<p class="value">----</p>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="account-mask"></div>
+		
+		<div class="box">
+			<div class="item" data-tap-path="account/invest">
+				<div class="item-wrap fix">
+					<span class="text icon-financial">我的理财</span>
+					<span class="arrow-r"></span>
+					<span class="text2"></span>
+				</div>
+			</div>
+			<div id="credit-link" class="item">
+				<div class="item-wrap fix">
+					<span class="text icon-credit">我的信贷</span>
+					<span class="arrow-r"></span>
+					<span class="text2"></span>
+				</div>
+			</div>
+			<!--<div id="auto-link" class="item">
+				<div class="item-wrap fix">
+					<span class="text icon-auto-revise">自动投资</span>
+					<span class="arrow-r"></span>
+					<span class="text2">未开启</span>
+				</div>
+			</div>-->
+		</div>
+		
+		<div class="b-box preview">
+			<ul class="fix">
+				<li>
+					<div class="item-wrap icon-invited" onclick="javascript:window.location.href='/wallet-h5-client/wxInvite/invite.html'
+">
+						<p class="attr">邀请有奖</p>
+						<p class="value">邀请好友</p>
+					</div>
+					<span class="blank blank-top"></span>
+				</li>
+				<li>
+					<div class="item-wrap icon-help" g-act-tap="true" data-tap-path="account/help">
+						<p class="attr">帮助中心</p>
+						<p class="value">客服解答</p>
+					</div>
+					
+				</li>
+				<li class="no-border">
+					<div id="cards-link" class="item-wrap icon-cards">
+						<p class="attr">我的卡券</p>
+						<p class="value">红包、加息券、小金鱼</p>
+					</div>
+					<span class="blank blank-bottom"></span>
+				</li>
+				<li class="no-border">
+					<div class="item-wrap icon-setting" data-tap-path="account/home">
+						<p class="attr">安全设置</p>
+						<p class="value">查看我的保险</p>
+					</div>
+				</li>
+			</ul>
+		</div>
+		
+		<div class="account-tip">
+			<span class="text">账户资金安全由中国人保财险全额担保</span>
+		</div>
+		
+	</div>
+	
+</script>
+<div class="page page-index-index"></div>

@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.rqjf.server.mapper.IPayMapper">
+
+	
+	<insert id="saveRechargeHistory" parameterType="java.lang.String">
+		INSERT INTO wj_ebatong_trade_history (
+				customer_id,
+				card_no,
+				real_name,
+				cert_no,
+				cert_type,
+				out_trade_no,
+				amount,
+				bank_code,
+				card_bind_mobile_phone_no,
+				result,
+				error_message,
+				send_json,
+				return_json,
+				token,
+				dynamic_code,
+				create_by,
+				create_date,
+				update_by,
+				update_date,
+				recharge_result,
+				recharge_send_json,
+				recharge_return_json,
+				recharge_error_message,
+				user_id,
+				notice_send_json,
+				contrast_flag,
+				mer_date,
+				pay_type,
+				plateform_id,
+				bind_pay_type,
+				notice_error_message
+			)
+			VALUES
+			(
+				#{cardId},
+				#{cardNo},
+				#{realName},
+				#{certNo},
+				'ID',
+				#{tradeNo},
+				#{amount},
+				#{bankCode},
+				#{asidePhone},
+				#{result},
+				#{message},
+				#{requestJson},
+				#{responseJson},
+				NULL,
+				NULL,
+				NULL,
+				now(),
+				NULL,
+				NULL,
+				'F',
+				NULL,
+				NULL,
+				NULL,
+				#{userId},
+				'',
+				'N',
+				DATE_FORMAT(now(),'%Y%m%d'),
+				'70',
+				'paychannel007',
+				'Y',
+				NULL
+			)
+
+
+	</insert>
+	
+	<insert id="saveTradeRecord" parameterType="java.lang.String">
+		INSERT INTO wj_payment_trade_record (
+			trade_no,
+			total_price,
+			price,
+			fee,
+			trade_stauts,
+			rel_biz_order_no,
+			rel_biz_order_status,
+			rel_biz_mesage,
+			bank_card_no,
+			plateform_id,
+			confrim_balance_flag,
+			create_date,
+			create_by
+		)
+		VALUES
+		(
+			#{tradeNo},
+			#{totalPrice},
+			#{totalPrice},
+			'0.0000',
+			'trade_process',
+			#{orderNo},
+			NULL,
+			NULL,
+			#{bankCardNo},
+			'paychannel007',
+			'N',
+			now(),
+			'SYSTEM'
+		)
+	</insert>
+	
+	
+	<insert id="saveRechargeOrder" parameterType="java.lang.String">
+		INSERT INTO wj_order (
+			user_id,
+			order_no,
+			title,
+			total_price,
+			price,
+			fee,
+			virtual_amount,
+			activity_amount,
+			order_status,
+			product_id,
+			trade_account_id,
+			trade_account_card_id,
+			order_type,
+			order_token,
+			channel_trade_id,
+			create_date,
+			create_by,
+			time_financial_approval,
+			time_confirm,
+			contrast_flag,
+			rel_order_no,
+			is_redeem,
+			is_apply
+		)
+		VALUES
+			(
+			#{userId},
+			#{orderNo},
+			'充值中',
+			#{totalPrice},
+			#{totalPrice},
+			'0.0000',
+			'0.0000',
+			'0.0000',
+			'recharge_ma_confirm_dispose',
+			NULL,
+			NULL,
+			#{cardId},
+			'recharge_ma',
+			NULL,
+			NULL,
+			now(),
+			'SYSTEM',
+			NULL,
+			NULL,
+			'N',
+			NULL,
+			'N',
+			'N'
+		)
+	</insert>
+	
+	 <select id="queryUserBankCardList" parameterType="java.lang.String"  resultType="java.lang.String" >
+		 SELECT
+			tt.bank_card_no as bankCardNo
+		FROM
+			wj_trade_account_card tt
+		WHERE
+			tt.user_id = #{userId}
+		AND tt.is_valid = 'yes'
+	  </select>
+	  
+	  
+ 	 <select id="queryUserBankCardId" parameterType="java.lang.String"  resultType="java.lang.String" >
+			 SELECT
+				tt.id as bankCardNo
+			FROM
+				wj_trade_account_card tt
+			WHERE
+				tt.user_id = #{userId}
+			AND tt.is_valid = 'yes'
+			and tt.bank_card_no=#{bankCardNo}
+			limit 0,1
+	  </select>
+	  
+	  <!-- 查询用户支付需要的信息 -->
+ 	 <select id="queryUserPayInfo" parameterType="java.lang.String"  resultType="java.util.HashMap" >
+			SELECT
+				w.indentity_no AS idNo,
+				mm.card_ower AS name,
+				mm.bank_card_no AS bankCard,
+				mm.bank_code AS bankCode,
+				mm.aside_bank_phone AS asidePhone
+			FROM
+				wj_trade_account_card mm,
+				wj_user_info w
+			WHERE
+				mm.id = #{cardId}
+			and mm.user_id=#{userId}
+			AND w.id = mm.user_id
+	  </select>
+	  
+	  
+	  
+	  <insert id="saveUserCards" parameterType="java.lang.String">
+			INSERT INTO 
+				wj_trade_account_card (
+					id,
+					card_ower,
+					user_id,
+					bank_card_no,
+					aside_bank_phone,
+					bank_name,
+					bank_code,
+					create_date,
+					create_by,
+					update_date,
+					update_by,
+					card_type,
+					is_valid
+				)
+				VALUES
+				(
+					get_full_seq_nextval('CA','vj_user_card'),
+					#{cardOwer},
+					#{userId},
+					#{bankCardNo},
+					#{asideBankPhone},
+					(select w.bank_name_show from wj_bank_info w where w.bank_code=#{bankCode}),
+					#{bankCode},
+					now(),
+					'SYSTEM',
+					now(),
+					NULL,
+					#{cardType},
+					'yes'
+				)
+	</insert>
+	
+	
+	  <update id="completeUserInfo" parameterType="java.lang.String">
+			update wj_user_info 
+			set real_name=#{realName},
+			indentity_type='01',
+			indentity_no=#{indentityNo}
+			where id=#{userId}
+	</update>
+
+	
+</mapper>

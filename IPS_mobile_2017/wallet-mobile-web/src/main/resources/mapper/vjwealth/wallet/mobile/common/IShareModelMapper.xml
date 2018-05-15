@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Mapper接口 -->
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.common.server.mapper.IShareModelMapper">
+
+	<select id="queryConfirmShareModel" resultType="com.zhuanyi.vjwealth.wallet.mobile.account.server.dto.ConfirmShareModelDTO">
+	 	select 
+		    (select aa.param_value from comm_params aa where aa.param_group = 'wallet_task' and aa.param_key = #{paramKey}) as 'confirmShareDetailTime' ,
+		    (select ab.working_day_flag from wj_confirm_share_date_info ab where ab.batch_date_int = #{ymdInt}) as 'workingDayFlag'
+		from dual
+	 </select>
+	 
+	 <select id="queryNextTwoWorkdaysByBuyday" resultType="java.lang.String">
+	 	select csd.batch_date_int as 'batch_time_str'
+			 from wj_confirm_share_date_info csd 
+			 where csd.batch_date_int > #{ymdInt}
+			 and csd.working_day_flag = 'Y'
+			 order by csd.batch_date_int  
+		 limit 0,2
+	 </select>
+	 
+	 
+</mapper>

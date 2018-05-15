@@ -1,0 +1,18 @@
+@charset "utf-8";
+/**
+ * ����ͬ����������
+*/
+
+.contract{padding:20px;}
+.contract h1{width:100%;heigth:50px;line-height:50px;text-align:center;font-weight:bold;}
+.loan-number{height:40px;width:100%;position:relative;}
+.right{position:absolute;top:0;right:20px;}
+.loan-date{width:100%;margin-bottom:10px;padding: 10px 0;}
+.loan-person{}
+.loan-person span{font-weight:bold;}
+.loan-margin{margin-bottom:20px;}
+.loan-bold{font-weight:bold;}
+.loan-left{padding-left:30px;}
+.left{padding-left:8px;}
+.left-out{padding-left:25px;}
+u{text-decoration:underline;width:100px;}

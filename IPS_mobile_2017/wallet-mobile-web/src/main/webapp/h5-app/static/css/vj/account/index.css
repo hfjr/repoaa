@@ -1,0 +1,29 @@
+@charset "utf-8";
+/**
+ * 个人中心
+*/
+
+
+.logo{height:107px; background:url(../img/logo.png) center center no-repeat; background-size:80px 80px;}
+.box{border-top:1px solid #f2f2f2; border-bottom:1px solid #f2f2f2;}
+.box .item{background:#fff; padding-left:14px;font-size:14px; }
+.box .item.g-act-taped{background:#f2f2f2;}
+.box .item .item-wrap{border-bottom:1px solid #f2f2f2; padding-right:15px;}
+.box .item:last-child .item-wrap{border-bottom:0;}
+.box .item .text{padding-left:40px; line-height:58px;float:left; }
+.box .item  .t-phone{background:url(../img/phone.png) 4px center no-repeat; background-size:19px 29px;}
+.box .item  .t-bank{background:url(../img/recharge-bank.png) 0 center no-repeat; background-size:22px 16px;}
+.box .item  .t-invest{background:url(../img/money2.png) 0 center no-repeat; background-size:22px 22px;}
+.box .item  .t-paypasswd{background:url(../img/paypasswd.png) 4px center no-repeat; background-size:20px 28px;}
+.box .item  .t-help{background:url(../img/help.png) 0 center no-repeat; background-size:24px 24px;}
+.box .item  .t-packets{background:url(../img/icon_packets.png) 4px center no-repeat; background-size:20px 24px;}
+.box .item  .t-invite{background:url(../img/icon_invite.png?2) 2px center no-repeat; background-size:22px 22px;}
+.box .item  .i-redhot{ float:right; margin-top: 10px; margin-right: -24px; width: 8px; height: 8px; background:url(../../../img/icon_redhot.png) center center no-repeat; background-size:100% 100%;}
+
+.box .item .arrow-r{ float:right;  margin:22px 0 0 10px; width:7px; height:15px; overflow:hidden; background:url(../img/arrow-r.png) 0 0 no-repeat;  background-size:100% 100%;}
+.box .item .text2{float:right;line-height:58px;color:#9b9b9b;}
+.box .item .rect{float:right; color:#FFBD30; text-align:center;  margin:18px 0 0 0; width:61px; height:23px; line-height:23px; overflow:hidden; background:url(../img/lbx.png) 0 0 no-repeat;  background-size:100% 100%;}
+
+.exit-bar{position:fixed; background:#fff; font-size:16px; left:0;right:0;bottom:0; height:48px;line-height:48px; text-align:center; color:#4ac0f0; border-top:1px solid #f2f2f2; box-sizing:border-box;}
+.exit-bar.g-act-taped{background:#f2f2f2;}
+.exit-bar-blank{height:48px;}

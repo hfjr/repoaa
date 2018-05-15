@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd">
+	<!-- 两小时 缓存配置 -->
+	<cache name="twoHourCache" 
+			maxElementsInMemory="1000"
+			overflowToDisk="false" 
+			diskPersistent="false" 
+			eternal="false" 
+			timeToIdleSeconds="0"
+			timeToLiveSeconds="7200" 
+			memoryStoreEvictionPolicy="LRU" />
+			
+</ehcache> 
+<!-- 
+		 timeToLiveSeconds=x：缓存自创建日期起至失效时的间隔时间x；
+		 timeToIdleSeconds=y：缓存创建以后，最后一次访问缓存的日期至失效之时的时间间隔y； 
+-->

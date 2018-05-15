@@ -1,0 +1,105 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	<#
+		var initData = self.initData;
+	#>
+
+	<section class="completeInfor border-box insurancewrap">
+		<form id="mainForm">
+			<input type="text" style="display:none">
+			<input type="password" style="display:none">
+			<p class="color_blue plr20 pt10"><# print(initData.socialSecurityAccountQueryTitle); #></p>
+			<ul class="commonLinkUl insuranceUl smallpadul mt10">
+				<li>
+					<label class="table" for="socialSecurityAccount">
+						<div class="cell ul_tt">
+							<p><# print(initData.socialSecurityAccountLabel); #></p>
+						</div>
+						<div class="cell ta-r ul_inputwrap">
+							<input type="text" id="socialSecurityAccount" name="socialSecurityAccount" value="<# print(initData.socialSecurityAccount); #>" placeholder="<# print(initData.socialSecurityAccountInputTip); #>" />
+						</div>
+					</label>
+				</li>
+				<li>
+					<label class="table" for="socialSecurityAccountPassword">
+						<div class="cell ul_tt">
+							<p><# print(initData.socialSecurityAccountPasswordLabel); #></p>
+						</div>
+						<div class="cell ta-r ul_inputwrap">
+							<input type="password" id="socialSecurityAccountPassword" name="socialSecurityAccountPassword" value="<# print(initData.socialSecurityAccountPassword); #> placeholder="<# print(initData.socialSecurityAccountPasswordInputTip); #>" />
+						</div>
+					</label>
+				</li>
+			</ul>
+			
+			<# if(self.cityCode == self.cityMap.SHANGHAI || self.cityCode == self.cityMap.SHANGHAI_1 || self.cityName == "上海市"){ #>
+			
+			<!--上海-->
+			<div class="sweetTips">
+				<p class="color_blue3">温馨提示</p>
+				<ul>
+					<li>用户首次设置密码时，需携带本人有效身份证件到区县职介所或区县社保中心服务窗口进行办理。</li>
+					<li>遗忘或丢失密码的用户请携本人有效身份证件，到区县职介所或区县社保中心服务窗口办理查询、变更密码操作。</li>
+				</ul>
+			</div>
+			<# }else if(self.cityCode == self.cityMap.BEIJING || self.cityCode == self.cityMap.BEIJING_1 || self.cityName == "北京市"){ #>
+			<!--北京-->
+			<ul class="qaul">
+				<li>
+					<p class="qatt turnup">如何获取联名卡、北京联名卡办理：</p> <!--关闭状态去掉turnup,打开状态加上turnup-->
+					<div class="answer">
+						<div class="inner">
+							<p>在北京市社会保险网上服务平台使用身份证和社保卡注册，然后设定密码即可。</p>
+						</div>
+						<p class="link">
+							<span class="color_black000">注册网址</span>
+							<a href="http://www.bjrbj.gov.cn/csibiz/indinfo/gerenreg1.jsp" class="color_blue2">http://www.bjrbj.gov.cn/csibiz/indinfo/gerenreg1.jsp</a>
+						</p>
+					</div>
+
+				</li>
+			</ul>
+			<# }else if(self.cityCode == self.cityMap.GUANGZHOU || self.cityCode == self.cityMap.GUANGZHOU_1 || self.cityName == "广州市"){ #>
+			<!--广州-->
+			<div class="sweetTips">
+				<p class="color_blue3">温馨提示</p>
+				<ul>
+					<li>对于修改过原初始密码8888的，请在新密码前加88。若未修改则初始密码为个人社保编号（八位，不足八位在前面用0补足），登陆后请修改密码。</li>
+					<li>如果忘记个人密码，请携有效身份证件到所在地社保经办机构业务前台进行密码初始化。</li>
+				</ul>
+			</div>
+
+			<# }else if(self.cityCode == self.cityMap.SHENZHEN || self.cityCode == self.cityMap.SHENZHEN_1 || self.cityName == "深圳市"){ #>
+			<!--深圳-->
+			<ul class="qaul">
+				<li>
+					<p class="qatt turnup">如何获取用户名和密码：</p> <!--关闭状态去掉turnup,打开状态加上turnup-->
+					<div class="answer">
+						<div class="inner">
+							<p>请到深圳市人力资源和社会保障局的社保统一用户基础平台，使用身份信息进行个人用户注册，并设置用户名与密码。</p>
+						</div>
+						<p class="link">
+							<span class="color_black000">注册网址</span>
+							<a href="https://suum.szsi.gov.cn/suum/goRegister.do?method=goRegister" class="color_blue2">https://suum.szsi.gov.cn/suum/goRegister.do?method=goRegister</a>
+						</p>
+					</div>
+
+				</li>
+			</ul>
+			<# } #>				
+
+			
+
+			<input type="hidden" name="cityCode" value="<# print(initData.cityCode); #>">	
+			
+			<div class="downbtn border-box">
+				<input type="submit" class="ui-button" id="btnSubmit" g-act-tap="true" value="确认提交" disabled="disabled">
+			</div>
+		</form>
+	</section>
+
+
+	
+	
+	
+</script>
+<div class="page"></div>

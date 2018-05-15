@@ -1,0 +1,25 @@
+<script type="text/template" data-tpl="tpl-main-view">
+	<div class="inforSubmit-response">
+		<div class="msg-wrap hasDownWen">
+			<div class="state"><img src="<# print(self.getParam("iconURL")); #>" style="width:100%; height:100%; ">  </div>
+			<div class="bigwords"><# print(self.getParam("message")); #></div>
+			<div class="smallwords">
+				<# $.each(self.getParam("feedbackInformation").split("|"), function(i, v){ #>
+				<p><# print(v); #></p>
+				<# }); #>
+			</div>
+		</div>
+		<div class="btn-bar">
+			<span g-act-tap="true" data-tap-path="goldFish/myInvest" class="btn ui-button">查看投资</span>
+		</div>
+		<div class="btn-bar mt10">
+			<span g-act-tap="true" data-tap-path="<# print(self.createURL("goldFish/index", { productTypeCode : self.productTypeCode }) ) #>" class="btn ui-button-bdBlue">继续投资</span>
+		</div>
+	</div>
+
+</script>
+<div class="page">
+	
+	<div class="main-view"></div>
+</div>
+

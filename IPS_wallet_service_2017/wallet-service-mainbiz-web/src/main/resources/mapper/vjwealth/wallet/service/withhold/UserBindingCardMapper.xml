@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.payment.server.withhold.integration.mapper.IUserBindingCardMapper">
+
+    <!-- 查询银行卡限额列表V3.2 -->
+	<select id="queryUserbindingCardList" parameterType="java.util.HashMap" resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.payment.server.withhold.dto.BindingCardDTO">
+			SELECT
+				crds.*, CASE
+			WHEN ref.is_bind = 'yes' THEN
+				'Y'
+			ELSE
+				'N'
+			END 'isBindingThird'
+			FROM
+				(
+					SELECT
+            			ucard.id 'cardId',
+						ucard.bank_card_no 'cardNo',
+						ucard.bank_code 'bankCode',
+						ucard.bank_name 'bankName',
+						ucard.`status` 'status',
+						ucard.aside_bank_phone 'phone',
+						ucard.single_limit 'balancePerLimit',
+						ucard.perday_limit 'balanceDayLimit',
+						ucard.single_min_limit 'minBalance',
+						IFNULL(tr.totalAmount, 0) usedAmount,
+						ucard.isSupportCard 'isSupportCard',
+						CASE
+					WHEN (
+						ucard.perday_limit - IFNULL(tr.totalAmount, 0)
+					) &gt; ucard.single_limit THEN
+						ucard.single_limit
+					ELSE
+						(
+							ucard.perday_limit - IFNULL(tr.totalAmount, 0)
+						)
+					END 'remainAmount' 
+					FROM
+						(
+							SELECT
+								userCards.*, com_bank.plateform_name,
+								com_bank.single_limit,
+								com_bank.single_min_limit,
+								com_bank.perday_limit,
+								com_bank.`status`
+							FROM
+								(
+									SELECT
+                    w.id,
+										w.bank_code,
+										w.bank_card_no,
+										w.user_id,
+										w.bank_name,
+										w.aside_bank_phone,
+										CASE
+									WHEN loan.bank_code IS NULL THEN
+										'N'
+									ELSE
+										'Y'
+									END 'isSupportCard',
+									loan.plateform_id
+								FROM
+									wj_trade_account_card w
+								LEFT JOIN wj_currently_withhold_bank_for_loan loan ON w.bank_code = loan.bank_code
+								WHERE
+									w.user_id = #{userId}
+								AND w.card_type = 'recharge'
+								AND w.is_valid = 'yes'
+								AND loan.plateform_id = (
+									SELECT
+										r.platform_id
+									FROM
+										wj_currently_withhold_routing_for_loan r
+									WHERE
+										r.biz_type = #{bizType}
+									ORDER BY
+										r.priority DESC
+									LIMIT 1
+								)
+								) userCards
+							LEFT JOIN common_withhold_plateform_bank com_bank ON (
+								userCards.bank_code = com_bank.bank_code
+								AND com_bank.plateform_id = userCards.plateform_id
+							)
+						) ucard
+					LEFT JOIN (
+						SELECT
+							SUM(IFNULL(mm.total_price, 0)) totalAmount,
+							mm.bank_card_no,
+             				mm.plateform_id platfId
+						FROM
+							wj_payment_trade_record mm
+						INNER JOIN wj_order ord ON ord.order_no = mm.rel_biz_order_no
+						WHERE
+							mm.trade_stauts = 'trade_success'
+						AND DATE_FORMAT(mm.create_date, '%Y%m%d') = DATE_FORMAT(now(), '%Y%m%d')
+						AND ord.order_type IN (
+							SELECT
+								rou.biz_type
+							FROM
+								wj_currently_withhold_routing_for_loan rou
+						GROUP BY
+								rou.biz_type
+						)
+						GROUP BY
+							mm.bank_card_no,
+							mm.plateform_id
+					) tr ON (
+						tr.bank_card_no = ucard.bank_card_no
+						AND tr.platfId = ucard.plateform_id
+					)
+				) crds
+			LEFT JOIN wj_pay_bind_card_ref ref ON (
+				ref.card_no = crds.cardNo
+				AND ref.pay_channel = 'jingdong'
+			)
+	 </select>
+
+	 <select id="queryWithholdBankList" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.payment.server.withhold.dto.BindingCardDTO">
+	 		<![CDATA[
+	 		SELECT
+				withcards.bank_code 'bankCode',
+				withcards.bank_name 'bankName',
+				withcards.isSupportCard 'isSupportCard',
+				com_bank.plateform_name,
+				com_bank.single_limit 'balancePerLimit',
+				com_bank.single_min_limit 'minBalance',
+				com_bank.perday_limit 'balanceDayLimit',
+				com_bank.status 'status'
+			FROM
+				(
+					SELECT
+						loan.bank_code,
+						loan.bank_name,
+						CASE
+					WHEN loan.bank_code <> '' THEN
+						'Y'
+					ELSE
+						'N'
+					END 'isSupportCard',
+					loan.plateform_id
+				FROM
+					wj_currently_withhold_bank_for_loan loan
+				WHERE
+				 loan.plateform_id = (
+					SELECT
+						r.platform_id
+					FROM
+						wj_currently_withhold_routing_for_loan r
+					WHERE
+						r.biz_type = #{bizType}
+					ORDER BY
+						r.priority DESC
+					LIMIT 1
+				)
+				) withcards
+			LEFT JOIN common_pay_plateform_bank com_bank ON (
+				withcards.bank_code = com_bank.bank_code
+				AND com_bank.plateform_id = withcards.plateform_id
+				AND com_bank.status = 'normal'
+			)
+			 ]]>
+	 </select>
+
+	<select id="querySecurityWithholdCard" parameterType="java.util.HashMap" resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.payment.server.withhold.dto.BindingCardDTO">
+		SELECT
+		crds.*, CASE
+		WHEN ref.is_bind = 'yes' THEN
+		'Y'
+		ELSE
+		'N'
+		END 'isBindingThird'
+		FROM
+		(
+		SELECT
+		ucard.id 'cardId',
+		ucard.bank_card_no 'cardNo',
+		ucard.bank_code 'bankCode',
+		ucard.bank_name 'bankName',
+		ucard.`status` 'status',
+		ucard.aside_bank_phone 'phone',
+		ucard.single_limit 'balancePerLimit',
+		ucard.perday_limit 'balanceDayLimit',
+		ucard.single_min_limit 'minBalance',
+		IFNULL(tr.totalAmount, 0) usedAmount,
+		ucard.isSupportCard 'isSupportCard',
+		CASE
+		WHEN (
+		ucard.perday_limit - IFNULL(tr.totalAmount, 0)
+		) &gt; ucard.single_limit THEN
+		ucard.single_limit
+		ELSE
+		(
+		ucard.perday_limit - IFNULL(tr.totalAmount, 0)
+		)
+		END 'remainAmount'
+		FROM
+		(
+		SELECT
+		userCards.*, com_bank.plateform_name,
+		com_bank.single_limit,
+		com_bank.single_min_limit,
+		com_bank.perday_limit,
+		com_bank.`status`
+		FROM
+		(
+		SELECT
+		w.id,
+		w.bank_code,
+		w.bank_card_no,
+		w.user_id,
+		w.bank_name,
+		w.aside_bank_phone,
+		CASE
+		WHEN loan.bank_code IS NULL THEN
+		'N'
+		ELSE
+		'Y'
+		END 'isSupportCard',
+		loan.plateform_id
+		FROM
+		wj_trade_account_card w
+		LEFT JOIN wj_currently_withhold_bank_for_loan loan ON w.bank_code = loan.bank_code
+		WHERE
+		w.user_id = #{userId}
+		AND w.card_type = 'recharge'
+		AND w.is_valid = 'yes'
+		AND loan.plateform_id = (
+		SELECT
+		r.platform_id
+		FROM
+		wj_currently_withhold_routing_for_loan r
+		WHERE
+		r.biz_type = #{bizType}
+		ORDER BY
+		r.priority DESC
+		LIMIT 1
+		)
+		) userCards
+		LEFT JOIN common_withhold_plateform_bank com_bank ON (
+		userCards.bank_code = com_bank.bank_code
+		AND com_bank.plateform_id = userCards.plateform_id
+		)
+		) ucard
+		LEFT JOIN (
+		SELECT
+		SUM(IFNULL(mm.total_price, 0)) totalAmount,
+		mm.bank_card_no,
+		mm.plateform_id platfId
+		FROM
+		wj_payment_trade_record mm
+		INNER JOIN wj_order ord ON ord.order_no = mm.rel_biz_order_no
+		WHERE
+		mm.trade_stauts = 'trade_success'
+		AND DATE_FORMAT(mm.create_date, '%Y%m%d') = DATE_FORMAT(now(), '%Y%m%d')
+		AND ord.order_type IN (
+		SELECT
+		rou.biz_type
+		FROM
+		wj_currently_withhold_routing_for_loan rou
+		GROUP BY
+		rou.biz_type
+		)
+		GROUP BY
+		mm.bank_card_no,
+		mm.plateform_id
+		) tr ON (
+		tr.bank_card_no = ucard.bank_card_no
+		AND tr.platfId = ucard.plateform_id
+		)
+		) crds
+		LEFT JOIN wj_pay_bind_card_ref ref ON (
+		ref.card_no = crds.cardNo
+		AND ref.pay_channel = 'jingdong'
+		)
+	</select>
+	
+	<select id="queryWithholdCard" parameterType="java.util.HashMap" resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.payment.server.withhold.dto.BindingCardDTO">
+		SELECT
+		crds.*, CASE
+		WHEN ref.is_bind = 'yes' THEN
+		'Y'
+		ELSE
+		'N'
+		END 'isBindingThird'
+		FROM
+		(
+		SELECT
+		ucard.id 'cardId',
+		ucard.bank_card_no 'cardNo',
+		ucard.bank_code 'bankCode',
+		ucard.bank_name 'bankName',
+		ucard.`status` 'status',
+		ucard.aside_bank_phone 'phone',
+		ucard.single_limit 'balancePerLimit',
+		ucard.perday_limit 'balanceDayLimit',
+		ucard.single_min_limit 'minBalance',
+		IFNULL(tr.totalAmount, 0) usedAmount,
+		ucard.isSupportCard 'isSupportCard',
+		CASE
+		WHEN (
+		ucard.perday_limit - IFNULL(tr.totalAmount, 0)
+		) &gt; ucard.single_limit THEN
+		ucard.single_limit
+		ELSE
+		(
+		ucard.perday_limit - IFNULL(tr.totalAmount, 0)
+		)
+		END 'remainAmount'
+		FROM
+		(
+		SELECT
+		userCards.*, com_bank.plateform_name,
+		com_bank.single_limit,
+		com_bank.single_min_limit,
+		com_bank.perday_limit,
+		com_bank.`status`
+		FROM
+		(
+		SELECT
+		w.id,
+		w.bank_code,
+		w.bank_card_no,
+		w.user_id,
+		w.bank_name,
+		w.aside_bank_phone,
+		CASE
+		WHEN loan.bank_code IS NULL THEN
+		'N'
+		ELSE
+		'Y'
+		END 'isSupportCard',
+		loan.plateform_id
+		FROM
+		wj_trade_account_card w
+		LEFT JOIN wj_currently_withhold_bank_for_loan loan ON w.bank_code = loan.bank_code
+		WHERE
+		w.user_id = #{userId}
+		AND w.card_type = 'recharge'
+		AND w.is_valid = 'yes'
+		AND loan.plateform_id = (
+		SELECT
+		r.platform_id
+		FROM
+		wj_currently_withhold_routing_for_loan r
+		WHERE
+		r.biz_type = #{bizType}
+		ORDER BY
+		r.priority DESC
+		LIMIT 1
+		)
+		) userCards
+		LEFT JOIN common_withhold_plateform_bank com_bank ON (
+		userCards.bank_code = com_bank.bank_code
+		AND com_bank.plateform_id = userCards.plateform_id
+		)
+		) ucard
+		LEFT JOIN (
+		SELECT
+		SUM(IFNULL(mm.total_price, 0)) totalAmount,
+		mm.bank_card_no,
+		mm.plateform_id platfId
+		FROM
+		wj_payment_trade_record mm
+		INNER JOIN wj_order ord ON ord.order_no = mm.rel_biz_order_no
+		WHERE
+		mm.trade_stauts = 'trade_success'
+		AND DATE_FORMAT(mm.create_date, '%Y%m%d') = DATE_FORMAT(now(), '%Y%m%d')
+		AND ord.order_type IN (
+		SELECT
+		rou.biz_type
+		FROM
+		wj_currently_withhold_routing_for_loan rou
+		GROUP BY
+		rou.biz_type
+		)
+		GROUP BY
+		mm.bank_card_no,
+		mm.plateform_id
+		) tr ON (
+		tr.bank_card_no = ucard.bank_card_no
+		AND tr.platfId = ucard.plateform_id
+		)
+		) crds
+		LEFT JOIN wj_pay_bind_card_ref ref ON (
+		ref.card_no = crds.cardNo
+		AND ref.pay_channel = 'jingdong'
+		)
+		where crds.cardNo = #{bankCardNo}
+	</select>
+
+
+	<select id="querySecurityWithholdCardV2" parameterType="java.util.HashMap" resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.payment.server.withhold.dto.BindingCardDTO">
+		SELECT
+		crds.*, CASE
+		WHEN ref.is_bind = 'yes' THEN
+		'Y'
+		ELSE
+		'N'
+		END 'isBindingThird'
+		FROM
+		(
+		SELECT
+		ucard.id 'cardId',
+		ucard.bank_card_no 'cardNo',
+		ucard.bank_code 'bankCode',
+		ucard.bank_name 'bankName',
+		ucard.`status` 'status',
+		ucard.aside_bank_phone 'phone',
+		ucard.single_limit 'balancePerLimit',
+		ucard.perday_limit 'balanceDayLimit',
+		ucard.single_min_limit 'minBalance',
+		IFNULL(tr.totalAmount, 0) usedAmount,
+		ucard.isSupportCard 'isSupportCard',
+		CASE
+		WHEN (
+		ucard.perday_limit - IFNULL(tr.totalAmount, 0)
+		) &gt; ucard.single_limit THEN
+		ucard.single_limit
+		ELSE
+		(
+		ucard.perday_limit - IFNULL(tr.totalAmount, 0)
+		)
+		END 'remainAmount'
+		FROM
+		(
+		SELECT
+		userCards.*, com_bank.plateform_name,
+		com_bank.single_limit,
+		com_bank.single_min_limit,
+		com_bank.perday_limit,
+		com_bank.`status`
+		FROM
+		(
+		SELECT
+		w.id,
+		w.bank_code,
+		w.bank_card_no,
+		w.user_id,
+		w.bank_name,
+		w.aside_bank_phone,
+		CASE
+		WHEN loan.bank_code IS NULL THEN
+		'N'
+		ELSE
+		'Y'
+		END 'isSupportCard',
+		loan.plateform_id
+		FROM
+		wj_trade_account_card w
+		LEFT JOIN wj_currently_withhold_bank_for_loan loan ON w.bank_code = loan.bank_code
+		WHERE
+		w.user_id = #{userId}
+		AND w.card_type = 'security'
+		AND w.is_valid = 'yes'
+		AND loan.plateform_id = (
+		SELECT
+		r.platform_id
+		FROM
+		wj_currently_withhold_routing_for_loan r
+		WHERE
+		r.biz_type = #{bizType}
+		ORDER BY
+		r.priority DESC
+		LIMIT 1
+		)
+		) userCards
+		LEFT JOIN common_withhold_plateform_bank com_bank ON (
+		userCards.bank_code = com_bank.bank_code
+		AND com_bank.plateform_id = userCards.plateform_id
+		)
+		) ucard
+		LEFT JOIN (
+		SELECT
+		SUM(IFNULL(mm.total_price, 0)) totalAmount,
+		mm.bank_card_no,
+		mm.plateform_id platfId
+		FROM
+		wj_payment_trade_record mm
+		INNER JOIN wj_order ord ON ord.order_no = mm.rel_biz_order_no
+		WHERE
+		mm.trade_stauts = 'trade_success'
+		AND DATE_FORMAT(mm.create_date, '%Y%m%d') = DATE_FORMAT(now(), '%Y%m%d')
+		AND ord.order_type IN (
+		SELECT
+		rou.biz_type
+		FROM
+		wj_currently_withhold_routing_for_loan rou
+		GROUP BY
+		rou.biz_type
+		)
+		GROUP BY
+		mm.bank_card_no,
+		mm.plateform_id
+		) tr ON (
+		tr.bank_card_no = ucard.bank_card_no
+		AND tr.platfId = ucard.plateform_id
+		)
+		) crds
+		LEFT JOIN wj_pay_bind_card_ref ref ON (
+		ref.card_no = crds.cardNo
+		AND ref.pay_channel = 'jingdong'
+		)
+	</select>
+</mapper>

@@ -1,0 +1,93 @@
+<script type="text/template" data-tpl="tpl-main-view">
+		<#
+			var detailData = self.initData.detailData;
+			var formData = self.initData.formData;
+			console.log(formData);
+		#>
+		
+		<!--小金鱼社保-->
+		<section class="completeInfor border-box insurancewrap">
+			<form id="mainForm">
+				<input type="text" style="display:none" >
+				<input type="password" style="display:none" >
+				<# $.each(formData, function(key, value){ #>
+					<input id="f-<# print(key); #>" type="hidden" name="<# print(key); #>" value="<# print(value); #>">
+				<# }); #>
+				<p class="color_blue plr20 pt10"><# print(detailData.socialSecurityAccountQueryTitle); #></p>
+				<ul class="commonLinkUl insuranceUl smallpadul mt10">
+					<li>
+						<label class="table" for="houseFundName">
+							<div class="cell ul_tt">
+								<p><# print(detailData.socialSecurityAccountLabel); #></p>
+							</div>
+							<div class="cell ta-r ul_inputwrap">
+								<input type="text"  id="f-account" name="socialSecurityAccount" value="<# print(detailData.socialSecurityAccount); #>" placeholder="<# print(detailData.socialSecurityAccountInputTip); #>" />
+							</div>
+						</label>
+					</li>
+					<li>
+						<label class="table" for="houseFundPwd">
+							<div class="cell ul_tt">
+								<p><# print(detailData.socialSecurityAccountPasswordLabel); #></p>
+							</div>
+							<div class="cell ta-r ul_inputwrap">
+								<input type="password"  id="f-passwd" name="socialSecurityAccountPassword"  value="<# print(detailData.socialSecurityAccountPassword); #>" placeholder="<# print(detailData.socialSecurityAccountPasswordInputTip); #>" />
+							</div>
+						</label>
+					</li>
+				</ul>
+				
+				<# if(detailData.socialSecurityAccountHelpInfo && detailData.socialSecurityAccountHelpInfo.length > 0){ #>
+				<ul class="qaul">
+					<li>
+						<# $.each(detailData.socialSecurityAccountHelpInfo, function(i, item){ #>
+						<div class="qa-item <#  if(i == 0){#> qa-item-noborder <# } #>" <# if(i > 0){ #> style="display:none;" <# } #> >
+							<!--关闭状态去掉turnup,打开状态加上turnup-->
+							<p <#  if(i == 0){#>  id="help-handle" <# } #> class="qatt "  ><# print(item.title); #></p>
+							<div class="answer" style="display:none;">
+								<div class="inner">
+									<# $.each(item.content.split("|"), function(j, contentItem){ #>
+									<p><# print(contentItem); #></p>
+									<# }); #>
+								</div>
+								<# if(item.url){ #>
+								<#
+									var data = item.url.split("|");
+								#>
+								<p class="link">
+									<span class="color_black000"><# print(data[0]); #></span>
+									<a href="<# print(data[1]); #>"  class="color_blue2"><# print(data[1]); #></a>
+								</p>
+								<# } #>
+							</div>
+						</div>
+						<# }); #>
+						
+					</li>
+				</ul>
+				<# } #>
+				<# if(detailData.socialSecurityAccountTipInfo && typeof(detailData.socialSecurityAccountTipInfo.title) != "undefined" ){ #>
+				<div class="sweetTips">
+					<p class="color_blue3"><# print(detailData.socialSecurityAccountTipInfo.title); #></p>
+					<# if(detailData.socialSecurityAccountTipInfo.content){ #>
+					<ul>
+						<# $.each(detailData.socialSecurityAccountTipInfo.content.split("|"), function(i, text){ #>
+						<li><# print(text); #></li>
+						<# }); #>
+					</ul>
+					<# } #>
+				</div>
+				<# } #>				
+
+				
+
+				<div class="downbtn border-box">
+					<input type="submit" class="ui-button" id="btnSubmit" g-act-tap="true" value="确认提交" disabled="disabled">
+				</div>
+			</form>
+		</section>
+
+
+</script>
+
+<div class="page"></div>

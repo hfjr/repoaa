@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.bill.server.mapper.IBillDetailQueryMapper">
+
+        <!-- 充值 -->
+		<select id="getRechargeBillDetail" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.RechargeDetailDTO">
+			SELECT
+		      '金额' as billAmountLabel,
+			  TRUNCATE (o.total_price, 2) AS billAmount,
+		      '类型' as billTypeLabel,
+		      case when o.order_type = 'recharge_ma' then '充值'
+				   else o.title
+			  end AS billType,
+		      '充值卡' as rechargeCardLabel,
+		      IF(card.bank_name IS NULL,'',CONCAT(card.bank_name,'(尾号',RIGHT(card.bank_card_no,4),')')) AS rechargeCard,
+					IF(card.bank_code IS NULL,'',CONCAT(QUERY_PARAM_VALUE('app_pic_bank',"xy_image"),card.bank_code,'.png')) AS bankLogoURL,
+		      '充值时间' as rechargeTimeLabel,
+		      date_format(o.create_date,'%Y-%m-%d %H:%i:%S') AS rechargeTime,
+			  '处理结果' as rechargeResultLabel,
+			  o.title as rechargeResult
+			FROM
+					wj_order o ,wj_trade_account_card card 
+		    WHERE
+		       o.order_no = #{orderId}
+		    AND o.trade_account_card_id = card.id
+
+		</select>
+		
+		<!-- e账户提现 -->
+		<select id="getWithdrawEaBillDetail" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.WithdrawDetailDTO">
+			 SELECT
+			      '金额' as billAmountLabel,
+				  TRUNCATE (o.total_price, 2) AS billAmount,
+			      '类型' as billTypeLabel,
+			      o.title as billType,
+			      '提现到' as withdrawLabel,
+			      IF(card.bank_name IS NULL,'',CONCAT(card.bank_name,'(尾号',RIGHT(card.bank_card_no,4),')')) AS withdrawCard,
+				  IF(card.bank_code IS NULL,'',CONCAT(QUERY_PARAM_VALUE('app_pic_bank',"xy_image"),card.bank_code,'.png')) AS bankLogoURL,
+			      date_format(o.create_date,'%Y-%m-%d %H:%i:%S') as createDate,
+			      o.order_status as orderStatus
+			
+			 FROM
+					wj_order o ,wj_trade_account_card card 
+		    WHERE
+		        o.order_no = #{orderId}
+		    AND o.trade_account_card_id = card.id
+
+		</select>
+
+        <!-- ta账户提现 -->
+        <select id="getWithdrawTaBillDetail" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.WithdrawDetailDTO">
+            SELECT
+            '金额' as billAmountLabel,
+            TRUNCATE (o.total_price, 2) AS billAmount,
+            '类型' as billTypeLabel,
+            o.title as billType,
+            '提现到' as withdrawLabel,
+            IF(card.bank_name IS NULL,'',CONCAT(card.bank_name,'(尾号',RIGHT(card.bank_card_no,4),')')) AS withdrawCard,
+            IF(card.bank_code IS NULL,'',CONCAT(QUERY_PARAM_VALUE('app_pic_bank',"xy_image"),card.bank_code,'.png')) AS bankLogoURL,
+            date_format(o.create_date,'%Y-%m-%d %H:%i:%S') as createDate,
+            o.order_status as orderStatus
+
+            FROM
+            wj_order o ,wj_trade_account_card card
+            WHERE
+            o.order_no = #{orderId}
+            AND o.trade_account_card_id = card.id
+
+        </select>
+		
+		<!-- 余额提现 -->
+		<select id="getWithdrawMaBillDetail" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.WithdrawDetailDTO">
+			SELECT
+			      '金额' as billAmountLabel,
+				  TRUNCATE (o.total_price, 2) AS billAmount,
+			      '类型' as billTypeLabel,
+			      o.title as billType,
+			      '提现到' as withdrawLabel,
+			      IF(card.bank_name IS NULL,'',CONCAT(card.bank_name,'(尾号',RIGHT(card.bank_card_no,4),')')) AS withdrawCard,
+				  IF(card.bank_code IS NULL,'',CONCAT(QUERY_PARAM_VALUE('app_pic_bank',"xy_image"),card.bank_code,'.png')) AS bankLogoURL,
+			     date_format(o.create_date,'%Y-%m-%d %H:%i:%S') as createDate,
+			      o.order_status as orderStatus
+			
+			FROM
+					wj_order o ,wj_trade_account_card card 
+		    WHERE
+		        o.order_no = #{orderId}
+		    AND o.trade_account_card_id = card.id
+
+		</select>
+		
+		<!-- 工资 -->
+		<select id="getBatchApplyBillDetail" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.BatchApplyDetailDTO">
+			SELECT
+		      '金额' as billAmountLabel,
+			  TRUNCATE (o.total_price, 2) AS billAmount,
+		      '类型' as billTypeLabel,
+		      o.title as billType,
+		      date_format(o.create_date,'%Y-%m-%d %H:%i:%S') as createDate,
+		      o.order_status as orderStatus
+		  FROM
+			  wj_order o 
+          WHERE
+              o.order_no = #{orderId}
+
+		</select>
+		
+		<!-- 余额申购e账户 -->
+		<select id="getMaToEaBillDetail" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.BatchApplyDetailDTO">
+			SELECT
+		      '金额' as billAmountLabel,
+			  TRUNCATE (o.total_price, 2) AS billAmount,
+		      '类型' as billTypeLabel,
+		      o.title as billType,
+		      date_format(o.create_date,'%Y-%m-%d %H:%i:%S') as createDate,
+		      o.order_status as orderStatus
+		  FROM
+			  wj_order o 
+          WHERE
+              o.order_no = #{orderId}
+
+		</select>
+
+        <!-- 余额申购ta账户 -->
+        <select id="getMaToTaBillDetail" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.BatchApplyDetailDTO">
+            SELECT
+            '金额' as billAmountLabel,
+            TRUNCATE (o.total_price, 2) AS billAmount,
+            '类型' as billTypeLabel,
+            o.title as billType,
+            date_format(o.create_date,'%Y-%m-%d %H:%i:%S') as createDate,
+            o.order_status as orderStatus
+            FROM
+            wj_order o
+            WHERE
+            o.order_no = #{orderId}
+
+        </select>
+		
+		<!-- e账户转到余额 -->
+		<select id="getEaToMaBillDetail" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.EaToMaDetailDTO">
+			SELECT
+		       '金额' as billAmountLabel,
+			   TRUNCATE (o.total_price, 2) AS billAmount,
+		       '类型' as billTypeLabel,
+		       o.title as billType,
+		       '到账时间' as timeLabel,
+		       date_format(o.create_date,'%Y-%m-%d %H:%i:%S') as time
+		
+			FROM
+				wj_order o 
+		    WHERE
+		       o.order_no = #{orderId}
+
+		</select>
+
+		<!-- ta账户转到余额 -->
+		<select id="getTaToMaBillDetail" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.TaToMaDetailDTO">
+			SELECT
+			'金额' as billAmountLabel,
+			TRUNCATE (o.total_price, 2) AS billAmount,
+			'类型' as billTypeLabel,
+			o.title as billType,
+			'到账时间' as timeLabel,
+			date_format(o.create_date,'%Y-%m-%d %H:%i:%S') as time
+			FROM
+			wj_order o
+			WHERE
+			o.order_no = #{orderId}
+		</select>
+		
+		<!-- 余额申购v1账户 -->
+		<select id="getMaToV1BillDetail" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.V1BillDetailDTO">
+			SELECT
+		      '金额' as billAmountLabel,
+			  TRUNCATE (o.total_price, 2) AS billAmount,
+		      '类型' as billTypeLabel,
+		      o.title as billType,
+		      date_format(o.create_date,'%Y-%m-%d %H:%i:%S') as createDate,
+		      o.order_status as orderStatus
+		  FROM
+			  wj_order o 
+          WHERE
+              o.order_no = #{orderId}
+
+		</select>
+		
+		<!-- v1转账到余额 -->
+		<select id="getV1ToMaBillDetail" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.V1BillDetailDTO">
+			SELECT
+		      '金额' as billAmountLabel,
+			  TRUNCATE (o.total_price, 2) AS billAmount,
+		      '类型' as billTypeLabel,
+		      o.title as billType,
+		      date_format(o.create_date,'%Y-%m-%d %H:%i:%S') as createDate,
+		      o.order_status as orderStatus
+		  FROM
+			  wj_order o 
+          WHERE
+              o.order_no = #{orderId}
+
+		</select>
+		
+		
+		<!-- 余额申购v理财 -->
+		<select id="getMaToRfBillDetail" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.RfBillDetailDTO">
+			SELECT
+		      '金额' as billAmountLabel,
+			  TRUNCATE (o.total_price, 2) AS billAmount,
+		      '类型' as billTypeLabel,
+		      o.title as billType,
+		      date_format(o.create_date,'%Y-%m-%d %H:%i:%S') as createDate,
+		      o.order_status as orderStatus,
+		      IFNULL(QUERY_PARAM_VALUE("app_apply_rf_frozen_tip","wallet_frozen_rf"),'') as tip,
+		      IFNULL(QUERY_PARAM_VALUE("app_apply_rf_frozen_subTip","wallet_frozen_rf"),'') as subTip,
+		      IFNULL(QUERY_PARAM_VALUE("app_apply_rf_frozen_tipPhone","wallet_frozen_rf"),'') as tipPhone
+		  FROM
+			  wj_order o 
+          WHERE
+              o.order_no = #{orderId}
+
+		</select>
+
+
+	<!-- 查询流通宝、锦囊还款 -->
+	<select id="getLoanRepayBillDetail" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.LoanRepayBillDetailDTO">
+		SELECT
+		'金额' as billAmountLabel,
+		TRUNCATE (o.total_price, 2) AS billAmount,
+		'类型' as billTypeLabel,
+		o.title as billType,
+		o.order_type as orderType,
+		date_format(o.create_date,'%Y-%m-%d %H:%i:%S') as createDate,
+		o.order_status as orderStatus,
+		o.user_id as userId,
+		o.channel_trade_id as bizId,
+		o.rel_order_no as relOrderNo
+		FROM
+		wj_order o
+		WHERE
+		o.order_no = #{orderId}
+
+	</select>
+
+
+	<!-- 查询账单的对外业务编号 -->
+	<select id="queryOrderTradeChannelId" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT
+		channel_trade_id
+		FROM
+		wj_order
+		WHERE
+		order_no = #{orderId}
+		AND user_id = #{userId}
+
+	</select>
+
+	<!-- 查询定期理财的冻结金额相关信息 -->
+	<select id="queryOrderPlanInfo" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.VFinacialFrozenDetailInnerDTO">
+
+		SELECT
+		FORMAT(wp.repay_principal, 0) as principal,
+		FORMAT(wp.repay_interest+wp.greenhorn_interest+wp.other_fee,2) as interest,
+
+		wp.order_no AS orderNo,
+		FORMAT(wp.repay_principal+wp.repay_interest+wp.greenhorn_interest+wp.other_fee,2) as totalAmount,
+		CONCAT("定期理财(",wpf.product_name,wpf.product_id,")") as productCode,
+		IFNULL(QUERY_ITEM_NAME("repayments_type",wpf.repayments_type),"") as repaymentType,
+		CONCAT(DATE_FORMAT(wop.interest_start_time,"%Y/%m/%d"),"-",DATE_FORMAT(wop.interest_end_time,"%Y/%m/%d")) as investmentPeriods
+		FROM
+		wj_repayment_plan wp,wj_order wo,wj_product_finace wpf,wj_order_product wop
+		WHERE
+		wp.user_id = #{userId}
+		and wp.id = #{planId}
+		and wp.is_valid=0
+		and wop.order_no = wp.order_no
+		and wo.order_no = wp.order_no
+		and wo.product_id = wpf.product_id
+
+	</select>
+
+	<!-- 根据理财订单编号查询流通宝借款的贷款编号 -->
+	<select id="queryLoanIdByOrderNo" parameterType="java.lang.String" resultType="java.lang.String">
+       -- 一笔理财订单可能申请过多次贷款，所以取最新的一条
+		SELECT
+		wo.channel_trade_id as loanId
+		FROM
+		wj_order wo
+		WHERE
+		wo.rel_order_no = #{orderNo}
+		and wo.user_id = #{userId}
+		AND wo.order_type = 'apply_ltb_loan'
+		AND wo.order_status = 'apply_ltb_loan_confirm'
+		ORDER BY id DESC
+		LIMIT 0,1
+
+	</select>
+
+
+	<!-- 查询订单金额 -->
+	<select id="queryLoanApplyAmountByOrderNo" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT
+		TRUNCATE(total_price,2)
+		FROM
+		wj_order
+		WHERE
+		order_no = #{orderNo}
+
+	</select>
+
+	<!-- 查询本次还款之前的还款次数 -->
+	<select id="queryRepayCountByOrderNo" parameterType="java.lang.String" resultType="java.lang.Integer">
+		SELECT
+		count(1)
+		FROM
+		wj_order
+		WHERE
+		order_no > #{orderNo}
+		AND user_id = #{userId}
+		AND order_type in ('due_repay_wage_loan','early_repay_wage_loan')
+		AND rel_order_no = (SELECT rel_order_no from wj_order where order_no = #{orderNo})
+
+	</select>
+
+	<!-- 查询工资先享还款账单详情 -->
+	<select id="queryWageRepayBillDetail" parameterType="java.lang.String" resultType="com.zhuanyi.vjwealth.wallet.mobile.bill.server.dto.WageRepayOrderDTO">
+		select
+			TRUNCATE(o.total_price,2)as repayTotal,
+			CONCAT(TRUNCATE(h.principal,2),'元') as repayPrincipal,
+			CONCAT(TRUNCATE(h.interest,2),'元') as repayInterest,
+			CONCAT(TRUNCATE(h.fee,2),'元') as counterFee,
+			CONCAT(TRUNCATE(h.penalty,2),'元') as penalty,
+			o.create_date as repayTime,
+			CONCAT(c.bank_name,'(',RIGHT(c.bank_card_no,4),')') as cardNo
+		from wj_order o
+		left join wj_order_repay_history h on h.order_no = o.order_no
+		left join wj_trade_account_card c on c.id = o.trade_account_card_id
+		where o.user_id = #{userId} and o.order_no=#{orderId}
+
+	</select>
+		
+</mapper>

@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.unfreeze.mapper.UnfreezeMapper">
+
+	<!-- 查询MA的的用户 -->
+	<select id="selectIPSMa" resultType="java.util.Map">
+select id,user_id,available_amount,frozen_amount,trade_type,trade_account_status from  wj_user_trade_account where trade_type='ma' and  user_id=(
+		SELECT user_id FROM
+		wj_user_trade_account where id=#{ipsAcctNo} and trade_account_status='1'
+)		
+		
+		
+		
+	</select>
+	<!-- 目前报废 -->
+	<select id="IPSselectUser_id" resultType="java.util.Map">
+		SELECT user_id FROM
+		wj_user_trade_account where id=#{ipsAcctNo2}
+	</select>
+
+	<select id="selectTrdAmt" resultType="java.util.Map">
+		SELECT price FROM
+		`wj_order` where order_no=#{UnFreezeBillNo};
+	</select>
+
+	<insert id="insertOrder" parameterType="com.rqb.ips.depository.platform.beans.wj_orderIPS">
+		INSERT INTO rqb.wj_order
+		(user_id,order_no,title,total_price,price,
+		fee,virtual_amount,activity_amount,order_status,
+		product_id,
+		trade_account_id,trade_account_card_id,
+		order_type, order_token,
+		channel_trade_id,create_date,
+		create_by,
+		update_date,update_by,time_financial_approval,
+		time_confirm,contrast_flag,is_redeem,
+		is_apply, batch_no,freezeId)
+		VALUES (#{user_id},#{merBillNo}, #{title},
+		#{total_price},#{practical_price},#{fee}, '0.0000',
+		'0.0000',#{order_status},
+		NULL, #{trade_account_id},
+		NULL,#{order_type},NULL,
+		NULL,NOW(), NULL,NULL, NULL,
+		NULL,NULL,
+		'N','N', 'N', NULL,#{OfreezeIdRFreezeNo});
+	</insert>
+
+	<update id="unfreezeMoney">
+		update wj_user_trade_account
+		set
+		frozen_amount=frozen_amount-#{trdAmt},
+		available_amount=available_amount+#{trdAmt}
+		where id=#{IPSIDdeposit};
+	</update>
+	<insert id="saveTradehistory">
+		INSERT INTO rqb.wj_ebatong_trade_history
+		(customer_id, card_no,
+		real_name,cert_no,cert_type,out_trade_no,amount, bank_code,
+		card_bind_mobile_phone_no,result,error_message, send_json,
+		return_json, token, dynamic_code,create_by,
+		create_date,update_by,update_date,recharge_result,recharge_send_json,recharge_return_json,recharge_error_message,
+		user_id,notice_send_json,contrast_flag,mer_date,pay_type,plateform_id,bind_pay_type,
+		notice_error_message,status,source,
+		operation_type)VALUES (NULL, NULL,
+		NULL, NULL, NULL, NULL, NULL,NULL,NULL, NULL,NULL, NULL, NULL, NULL,
+		NULL, NULL,NOW(), NULL, NULL,
+		'F',#{iPSSendJson}, #{IPSReturnJson},
+		NULL, NULL, NULL, 'N',NULL,NULL,NULL, NULL, NULL, NULL, NULL,#{port});
+	</insert>
+
+	<update id="updateOrder" parameterType="com.rqb.ips.depository.platform.beans.wj_orderIPS">
+		UPDATE rqb.wj_order SET
+		order_status=#{order_status}
+		WHERE
+		order_no=#{merBillNo} AND
+		order_type=#{order_type};
+	</update>
+	
+	
+	
+	
+
+	<select id="selectFreezeId" resultType="java.util.Map">
+		SELECT order_no FROM
+		`wj_order` where channel_trade_id = #{freezeId};
+	</select>
+
+	<insert id="insertWj_payment_trade_record" parameterType="com.rqb.ips.depository.platform.beans.wj_orderIPS">
+		INSERT
+		INTO `rqb`.`wj_payment_trade_record`
+		(
+		`trade_no`,`total_price`,`price`,`fee`,`trade_stauts`,`rel_biz_order_no`,`rel_biz_mesage`,`bank_card_no`,`confrim_balance_flag`,`create_date`)
+		VALUES(#{OfreezeIdRFreezeNo},#{total_price},#{practical_price},#{fee},#{order_status},#{merBillNo},#{msg},#{trade_account_id},'N',NOW());
+	</insert>
+
+
+
+
+	<!-- 插入到投资最新动态 -->
+
+	<insert id="investmentManageMoney">
+		
+		
+insert into wj_newest_activity
+		 (
+		 		action_title,
+		 		action_type,
+		 		action_description,
+		 		user_id,
+		 		order_no,
+		        create_date
+		)
+		select 
+			IF (term = totalterm,(case when is_pre_expire='yes' then '回款到账(提前回款)' else '回款到账' end),concat('第', term, '期回款')),
+			'跑批还款计划',
+			concat(IF(repayment_type = 'repay_maturity',IF(is_pre_expire='yes','提前',''),IF(is_pre_expire='yes','提前',concat('第', term, '期'))),'回款到账，共计',sum(other_fee)+sum(repay_interest)+sum(greenhorn_interest)+sum(repay_principal),'元，其中本金', sum(repay_principal), '元，利息', sum(repay_interest)+sum(greenhorn_interest), '元',IF(sum(greenhorn_interest)>0,concat('（含新手专享活动收益',sum(greenhorn_interest), '元）'),''),IF(sum(other_fee)>0,concat('，其他收益',sum(other_fee), '元'),'')),
+			user_id, 
+			order_no,
+			now()
+		from 
+			wj_repayment_plan plan
+		where 
+		(product_category = 'v_financial' or product_category is null)
+			and is_repay = 'no'
+		    and if_frozen = 'N'
+			and is_valid=0
+		and id=(
+		SELECT rel_wj_repayment_plan_id from wj_order 
+		WHERE order_type='manager_ips_freeze'
+		and channel_trade_id=#{ipsAcctNoQueryChannel_trade_id}
+)
+	</insert>
+	
+	
+	
+	<!-- update 更新状态为已还款 -->
+	
+	<update id="updateRepayment">
+		update 
+			wj_repayment_plan
+		set
+			is_repay = 'yes',
+			update_by='batch_repaymentplan_receive',
+			update_date = now()
+		where
+			 (product_category = 'v_financial' or product_category is null)
+			and is_repay = 'no'
+		    and if_frozen = 'N'
+			and is_valid=0	
+			and id=(
+
+SELECT rel_wj_repayment_plan_id from wj_order WHERE  order_type='manager_ips_freeze'  AND  channel_trade_id=#{updateKeyFreezeId}
+)
+	</update>
+	
+	
+	<!--本金回款SQL语句  -->
+	<insert id="returnMoney">
+	insert into wj_order
+		(
+		        user_id,
+		        order_no,
+		        title,
+		        total_price,
+		        price,
+		        product_id,
+		        order_type,
+		        order_status,
+		        create_date,
+		        rel_order_no
+		)
+		select 
+			temp.user_id,
+			temp.orderno,
+			temp.title,
+			temp.total_price,
+			temp.price,
+			ord.product_id,
+			temp.order_type,
+			temp.order_status,
+			now(),
+			temp.old_order_no
+		from (
+			select 
+				user_id,
+				CONCAT('OR', date_format(now(), '%Y%m%d'),LPAD(seq_nextval('vj_order'),10,'0')) as orderno,
+				order_no as old_order_no,
+				'回款本金(定期理财)' as title,
+				sum(repay_principal) as total_price,
+				sum(repay_principal) as price,
+				'transfer_rf_to_ma' as order_type,
+				'transfer_rf_to_ma_confirm' as order_status
+			from 
+				wj_repayment_plan plan
+			where 
+				 (product_category = 'v_financial' or product_category is null)
+				and is_repay = 'no'
+		        and if_frozen = 'N'
+				and is_valid=0
+				and id=
+	(
+
+SELECT rel_wj_repayment_plan_id from wj_order WHERE  order_type='manager_ips_freeze'  and channel_trade_id=#{returnMoneyId}
+)
+		)temp, wj_order ord where temp.total_price != 0 and temp.old_order_no = ord.order_no 
+		
+	</insert>
+	
+	<!--插入用户收益记录 -->
+	<insert id="investmentEarningsManageMoney">
+	insert into fund_user_receive (
+			user_id,
+			trade_type,
+			receive_date,
+			user_retain_quantity,
+			product_receive,
+			real_receive,
+			trade_account_id,
+			batch_no,
+			batch_status,
+			create_date,
+			create_by,
+			rel_order_no
+		)
+		
+		select 
+			plan.user_id, 
+			'lf' as trade_type,  
+			date_sub(curdate(),interval 0 day) as receive_date, 
+			account.available_amount,
+			plan.product_receive,
+			plan.real_receive,
+			account.id,
+			'TR task_no_seq 12',
+			'success', 
+			now(), 
+			'IPS_repaymentplan_receive',
+			order_no 
+		from
+			(select 
+				user_id, 
+				order_no,
+				sum(repay_interest)+sum(greenhorn_interest)+sum(other_fee)-sum(repay_loan_interest) as product_receive, 
+				sum(repay_interest)+sum(greenhorn_interest)+sum(other_fee)-sum(repay_loan_interest) as real_receive 
+			from 
+				wj_repayment_plan plan
+			where 
+			
+				 is_valid=0
+				and product_category = 'loan_financial'
+				and (is_repay = 'no') 
+			  and plan.id=
+			(
+
+SELECT  rel_wj_repayment_plan_id from wj_order WHERE  order_type='manager_ips_freeze'   and channel_trade_id=#{earningsId}
+)
+			)plan, wj_user_trade_account account
+		where
+			plan.user_id = account.user_id
+			and account.trade_type='lf'
+
+	</insert>
+
+
+
+
+
+
+
+
+
+
+
+	<select id="selectUserId" resultType="java.util.Map">
+		SELECT user_id FROM `wj_user_trade_account` where id=#{ipsAcctNo};
+	</select>
+	
+	
+	<select id="selectOrder_no" resultType="java.util.Map">
+	SELECT rel_order_no from wj_order WHERE order_type='manager_ips_freeze' AND channel_trade_id=#{freezeId};
+	</select>	
+</mapper>

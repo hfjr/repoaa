@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.rqjf.server.mapper.ICKBMapper">
+		
+		
+		
+		
+	<select id="queryCKBStatus" parameterType="java.lang.String"  resultType="java.util.HashMap" >
+		SELECT
+			w.phone,
+			IFNULL(m.apply_status,'init') AS applyStatus,
+			case when IFNULL(m.apply_status ,'init') = 'init' then ''
+		  	when m.apply_status='process' then '尊敬的用户|您已成功申请,工作人员将会与你联系'
+			when m.apply_status='fail'  then m.error_message
+			end as 
+		   message
+		FROM
+			wj_user_info w
+		LEFT JOIN (
+			SELECT
+				m.user_id,
+				m.apply_status,
+				m.error_message
+			FROM
+				rqb_ckb_apply m
+			WHERE
+				m.user_id = #{userId} 
+				ORDER BY id DESC
+			LIMIT 0,1
+		) m ON w.id = m.user_id
+		WHERE
+			w.id = #{userId}
+
+	</select>
+	
+	
+	<insert id="doApply" parameterType="com.zhuanyi.vjwealth.wallet.mobile.rqjf.server.dto.CkbApplyDTO">
+		INSERT INTO
+			rqb_ckb_apply(		
+			trade_no,
+			real_name,
+			apply_time,
+			user_id,
+			id_no,
+			phone,
+			apply_status,
+			remark,
+			error_message,
+			create_by,
+			create_date
+		)
+		VALUES
+		(
+			get_full_seq_nextval('CA','rqb_ckb_apply_trade_no'),
+			#{realName},
+			now(),
+			#{userId},
+			#{idNo},
+			#{phone},
+			'process',
+			#{remark},
+			#{errorMessage},
+			'SYSTEM',
+			now()
+		)
+
+	</insert>
+	
+	
+	<select id="queryCKDetail" parameterType="java.lang.String"  resultType="java.util.HashMap" >
+		SELECT
+			t.level_name as career,
+			t.welfare_brief as treatmentList
+		FROM
+			rqb_ckb_welfare_info t,
+			wj_user_info m
+		WHERE
+			t.level_id = m.level_id
+		and m.id=#{userId}
+	</select>
+	
+	
+
+	<select id="queryIntroduceCareerList" parameterType="java.lang.String"  resultType="java.util.HashMap" >
+		SELECT
+			tt.level_name AS careerName,
+			tt.welfare_json AS standardList
+		FROM
+			rqb_ckb_welfare_info tt
+		ORDER BY tt.level_sort asc
+	</select>
+	
+	<select id="queryUserCommission" parameterType="java.lang.Object"  resultType="java.util.HashMap" >
+		SELECT
+			T.commission AS commissionAmt,
+			CONCAT(
+				LEFT (m.phone, 3),
+				'***',
+				RIGHT (m.phone, 4)
+			) AS recommendPhone,
+			DATE_FORMAT(t.create_date,'%Y-%m-%d') AS commissionDate
+		FROM
+			rqb_ckb_commission T,
+			wj_user_info m
+		WHERE
+			t.user_id = m.id
+		AND T.recommender_user_id = #{userId}
+		and T.apply_status='success'
+		limit #{page},10
+	</select>
+	
+	<select id="queryAchievementCommission" parameterType="java.lang.String"  resultType="java.util.HashMap" >
+		SELECT
+			T.commission AS commissionAmt,
+			CONCAT(
+				LEFT (m.phone, 3),
+				'***',
+				RIGHT (m.phone, 4)
+			) AS recommendPhone,
+			DATE_FORMAT(t.create_date,'%Y-%m-%d') AS commissionDate
+		FROM
+			rqb_ckb_commission T,
+			wj_user_info m
+		WHERE
+			t.user_id = m.id
+		AND T.recommender_user_id = #{userId}
+		and DATE_FORMAT(t.create_date,'%Y%m')&lt;= DATE_FORMAT(now(),'%Y%m')
+		and T.apply_status='success'
+		ORDER BY T.id desc
+	</select>
+	
+	<select id="queryUserCKScore" parameterType="java.lang.String"  resultType="java.util.HashMap" >
+		SELECT
+			IFNULL(tt.pfi_score, '350') AS point,
+			IFNULL(tt.pfi_description,'信用良好') as description
+		FROM
+			wj_user_info mm
+		LEFT JOIN rqb_ckb_welfare_info tt ON mm.level_id = tt.level_id
+		WHERE
+			mm.id = #{userId}
+	</select>
+	
+	
+	
+	<select id="queryUserCKVIP" parameterType="java.lang.String"  resultType="java.lang.Integer" >
+		select count(1) from wj_user_info w
+		where w.id=#{userId}
+		and w.is_ckb_vip='Y'
+	</select>
+	
+	
+	
+	<select id="queryUserExtraInfo" parameterType="java.lang.String"  resultType="java.util.HashMap" >
+		SELECT
+			CONCAT(LEFT(w.phone,3),'****',RIGHT(w.phone,4)) as phone,
+			w.head_sculpture_url as headCulpture,
+			(SELECT COUNT(p.package_id) from rqb_package_info p where p.user_id=#{userId} and p.is_valid='Y' and p.is_use='N' and p.end_time >now())as packageAmount,
+			(SELECT COUNT(p.coupons_id) from rqb_coupons_info p where p.user_id=#{userId} and p.is_valid='Y' and p.is_use='N' and p.end_time >now())as  couponAmount
+		FROM
+			wj_user_info w
+		WHERE
+			w.id = #{userId}
+	</select>
+	
+	<select id="queryMyinvite" parameterType="java.lang.String"  resultType="java.util.HashMap" >
+		select 
+			(select sum(package_Amount) as packageAmount from rqb_package_info t where t.user_id=#{userId} and  t.channel_from='recommend') as packageAmount,
+			(select count(1) from wj_user_invite_info cc where cc.recommended_user_id=#{userId}) as inviteNumber,
+			CONCAT(QUERY_PARAM_VALUE('rqb_project_url','rqb_param'),'/api/user/center/inviteqrcode.security?userId=',m.id,'&amp;uuid=',m.login_uuid,'&amp;phone=',m.phone) as qrCode,
+			'邀请人必须有一笔100元以上投资中的理财,被邀请人注册成功,邀请人获取3元现金奖励,50人封顶' as description
+		from 
+		wj_user_info m
+		where m.id=#{userId} 
+	</select>
+	
+	<update id="updateHeadCulptureUrl" parameterType="java.lang.String">
+		UPDATE wj_user_info
+		SET head_sculpture_url = #{url}
+		WHERE
+			id = #{userId}
+	</update>
+	
+	
+	<select id="queryAddressList" parameterType="java.lang.Object"  resultType="java.util.HashMap" useCache="false">
+			SELECT
+				T.user_id as  userId,
+				T.receive_name as receiveName,
+				T.address_id as  addressId,
+				T.phone as  phone,
+				T.province as  province,
+				T.city as  city,
+				T.area as area,
+				T.detail_address as  detailAddress,
+				T.first_choice as  firstChoice
+			FROM rqb_address_info T
+			where t.user_id=#{userId}
+			order by T.first_choice desc 
+			limit #{page},10
+	</select>
+	
+	
+	<insert id="insertRqbAddressInfo" parameterType="java.lang.String">
+		INSERT INTO
+		rqb_address_info(
+		user_id,
+		receive_name,
+		address_id,
+		phone,
+		province,
+		city,
+		area,
+		detail_address,
+		first_choice,
+		create_by,
+		create_date
+		)
+		VALUES(
+	 	#{userId},
+	 	#{receiveName},
+	 	get_full_seq_nextval('AD','rqb_address_info_address_id'),
+	 	#{phone},
+	 	#{province},
+	 	#{city},
+	 	#{area},
+	 	#{detailAddress},
+	 	#{firstChoice},
+		'SYSTEM',
+		now()
+		)
+	</insert>
+
+	<update id="updateRqbAddressInfo" parameterType="java.lang.String">
+		UPDATE rqb_address_info 
+			SET
+	 	<if test="@org.apache.commons.lang.StringUtils@isNotBlank(receiveName)">
+		 receive_name=#{receiveName},
+		 </if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(phone)">
+		 phone=#{phone},
+		 </if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(province)">
+		 province=#{province},
+		 </if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(city)">
+		 city=#{city},
+		 </if>
+	 	<if test="@org.apache.commons.lang.StringUtils@isNotBlank(area)">
+		 area=#{area},
+		 </if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(detailAddress)">
+		 detail_address=#{detailAddress},
+		 </if>
+		<if test="@org.apache.commons.lang.StringUtils@isNotBlank(firstChoice)">
+		 first_choice=#{firstChoice},
+		 </if>
+		 update_date=now()
+	 	WHERE address_id=#{addressId}
+	</update>
+	
+	
+	<update id="updateUnFirstChioce" parameterType="java.lang.String">
+		UPDATE rqb_address_info 
+			SET
+		 first_choice='no'
+	 	WHERE address_id !=#{addressId}
+	 	and user_id=#{userId}
+	</update>
+	
+	<update id="updateFirstChioce" parameterType="java.lang.String">
+		UPDATE rqb_address_info 
+			SET
+		 first_choice='yes'
+	 	WHERE address_id = #{addressId}
+	 	and user_id=#{userId}
+	</update>
+	
+	<update id="deleteAddress" parameterType="java.lang.String">
+		delete from rqb_address_info
+	 	WHERE address_id = #{addressId}
+	 	and user_id=#{userId}
+	</update>
+	
+	<select id="queryAllInviteList" parameterType="java.lang.String"  resultType="java.util.HashMap" >
+		SELECT
+			m.phone as invitedPhone,
+			DATE_FORMAT(m.create_date, '%Y-%m-%d') as createTime
+		FROM
+			wj_user_invite_info w,
+			wj_user_info m
+		WHERE
+			w.recommended_user_id = #{userId}
+		AND w.user_id = m.id
+	</select>
+</mapper>

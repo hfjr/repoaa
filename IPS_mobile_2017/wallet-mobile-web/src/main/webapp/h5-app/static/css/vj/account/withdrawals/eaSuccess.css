@@ -1,0 +1,16 @@
+@charset "utf-8";
+/*==提现申请成功==*/
+.box {border-bottom:1px solid #f2f2f2;}
+.box {padding:25px 0;background:#fff;}
+.box .item{padding-left:90px;}
+.box .item-1{background:url(../img/ea-suc-1.png) 30px 0 no-repeat; height:101px; background-size:39px 101px;}
+.box .item-3{background:url(../img/ea-suc-2.png) 30px 0 no-repeat;  height:45px; background-size:39px 45px;}
+.box .t-1{font-size:15px; color:#4AC0F0; padding-top:7px;}
+.box .s-1{font-size:12px; color:#9B9B9B;}
+
+
+
+.box .t-3{font-size:15px; color:#4ac0f0;   line-height:45px;}
+
+.btn-bar{padding:0 20px; margin-top:50px;}
+.btn-bar .ui-button{width:100%;}

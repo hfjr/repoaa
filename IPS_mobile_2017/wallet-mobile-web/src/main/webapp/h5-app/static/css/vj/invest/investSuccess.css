@@ -1,0 +1,14 @@
+@charset "utf-8";
+/*==投资成功==*/
+.btn-bar .btn-2{border:1px solid #4AC0F0;}
+
+.invest-success{background:#fff; padding:170px 0 60px; text-align:center;  background:url(../img/meiyuan-big.png) center 47px no-repeat #fff; background-size:80px 90px; }
+.invest-success .text-1{line-height:27px; font-size:16px; }
+.invest-success .text-2{line-height:22px; font-size:14px; color:#9B9B9B;}
+
+.wen{height:18px; overflow:hidden; background:url(../img/wen.png) 0 0 repeat-x; background-size:36px 18px;}
+
+.btn-bar{margin-top:35px; padding:0 20px;}
+.btn-bar .btn-1, .btn-bar .btn-2{border-radius:5px; display:block; height:40px; line-height:40px; box-sizing:border-box; text-align:center;}
+.btn-bar .btn-1{ background:#4AC0F0; color:#fff; }
+.btn-bar .btn-2{margin-top:10px; background:#fff; color:#4AC0F0;}

@@ -1,0 +1,63 @@
+@charset "utf-8";
+/**
+ * v信贷完善信息
+*/
+.border-box{-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;}
+.flex-box{display:-webkit-box;display:-moz-box;display:-ms-flexbox;display:-webkit-flex;display:flex}
+.f12{font-size: 12px;}
+.f20{font-size: 20px;}
+.f24{font-size:24px;}
+.color_blue{ color:#5d7a8d; }
+.color_blue2{color:#4ac0f0; }
+.color_gray2{ color:#c5c3c3; }
+.color_gray3{color: #9b9b9b;}
+.mt2{margin-top:2px;}
+.mt5{margin-top: 5px;}
+.mt10{margin-top: 10px;}
+.ptb7{padding:7px 0;}
+.mb5{margin-bottom: 5px;}
+.vm{vertical-align: middle;}
+.completeInfor{min-height: 100%;font-size:14px; color: #4a4a4a;}
+.completeInfor *{line-height: 1.5em;}
+.commonLinkUl{background-color: #fff;border-bottom: solid 1px #f2f2f2;border-top: solid 1px #f2f2f2;  }
+.commonLinkUl li{ position:relative; padding-left:20px; }
+.commonLinkUl li.g-act-taped{background:#f6f6f6;}
+.commonLinkUl li .table{ width:100%; display: table;border-bottom: solid 1px #f2f2f2;padding-right:20px;-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; }
+.commonLinkUl li:last-child .table{border-bottom: none;}
+.commonLinkUl li .cell{ display: table-cell; vertical-align: middle; height: 71px; }
+.commonLinkUl li.hasarrow:after{content: ""; background:url(../../../img/arrow-r.png) 100% 0 no-repeat; width:7px; height:15px; background-size:100% 100%; position: absolute;right:20px; top:50%;margin-top: -8px; }
+.commonLinkUl li.hasarrow .table{padding-right: 40px;}/*无箭头，又想与有箭头的行右对齐时用hasrightpad*/
+.smallpadul li .cell{height: 50px;}/*上下padding小时用smallpadul*/
+.commonLinkUl li.multirows{padding: 10px 20px 0 20px; height: auto;}
+.commonLinkUl li.loandetail{padding:0 20px 10px;}
+.commonLinkUl li.multirows .table{padding-right: 0;padding-bottom: 10px;}
+.commonLinkUl li.multirows .cell p{margin-bottom: 5px;}
+.commonLinkUl li.multirows p:last-child{margin-bottom: 0;}
+.commonLinkUl input{font-size:14px;color:#5d7a8d;text-align: right;display: block;width:100%;border:none;background: none;}
+.commonLinkUl li.noborder .table{border-bottom: none;}
+.line-dot{width:100%;height: 3px; background: url(../../../img/line.png) repeat-x;background-size:auto 3px;display: block; margin-bottom: 15px;}
+.line-dot2{height: 3px; background: url(../../../img/dot_w.png) repeat-x;background-size:4px 3px;display: block;}
+.innertt{border-top: solid 1px #f2f2f2;}
+.tabnav{ width:100%;border-bottom: solid 1px #f2f2f2;border-top:solid 1px #f2f2f2;background-color: #fff;display: table;margin-top: 5px;}
+.tabnav>div{ display:table-cell; width:50%; text-align: center; vertical-align:middle; height:50px;vertical-align: middle; position: relative;color:#bcbcbc;}
+.tabnav>div .inner{ display: block; position: relative;z-index: 1000;line-height: 36px}
+.tabnav>div .inner:nth-child(1){border-right:solid 1px #f2f2f2;}
+.tabnav>div .inner span{display: inline-block;position: relative;}
+.tabnav>div .inner span .redround{background-color:#f85361; position: absolute;right: -8px;top:0; width:4px;height:4px;border-radius: 100% 100%;}
+.tabnav>div hr{ display: none;border-top:solid 2px #4ac0f0; position: absolute; bottom: -2px; left: 0;width:100%; }
+.tabnav>div.active{color: #4ac0f0; }
+.tabnav>div.active hr{ display: block; }
+.topinforwrap{padding:0 20px;color: #fff;background:#42c0f2 url(../../../img/wen-blue.png) repeat-x 0 100%;background-size: auto 11px;padding-bottom: 10px;}
+.topinfor{flex-flow:row nowrap;flex-direction:row;flex-wrap: nowrap;width:100%;padding:15px 0;position: relative;}
+.topinfor>div{width:50%;}
+.topinfor .midline{border-left: solid 1px #40b6e6;height: 36px; position: absolute;top:50%;margin-top:-18px;font-size:0;left: 50%;}
+.topinfor>div p:nth-child(2){margin-top: 5px;}
+.sign_state{width:60px;font-size: 12px; line-height:22px; background: url(../../../img/round_border.png) no-repeat;background-size: 100% 100%; color:#ffbd30;text-align: center; display: inline-block;}
+.state_done{background-image:url(../../../img/round_border2.png); color:#c3c3c3;}
+.bigPersent{ color:#ffbd30; font-size:36px; }
+.downtips{padding:10px 20px 20px; color:#f5a623; font-size: 12px;}
+.icon_tips{ width:12px; height:12px; background:url(../../../img/icon-tips.png) no-repeat; background-size:100% 100%; display:inline-block; margin-right:2px;position: relative;top:1px;}
+.loanDetail li .cell{height: 25px;}
+.loanDetail li:nth-child(1){padding:15px 0 15px 20px;}
+.table_loanList{color:#5d7a8d;padding-right:0px !important;}
+

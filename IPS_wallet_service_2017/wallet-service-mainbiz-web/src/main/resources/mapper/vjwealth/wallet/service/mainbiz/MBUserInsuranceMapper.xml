@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Mapper接口 -->
+<mapper namespace="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.server.integration.mapper.IMBUserInsuranceMapper">
+
+	<!-- 查询购买人保险信息-->
+	<select id="queryPICCInsuranceInfo" resultType="com.zhuanyi.vjwealth.wallet.service.mainbiz.user.dto.MBUserInsuranceDTO">
+		SELECT
+			T.start_time as  startTime,<!-- 开始时间 -->
+			T.end_time as  endTime,<!-- 结束时间 -->
+			T.safe_term as  safeTerm,<!-- 保障期限 -->
+			T.safe_money as  safeMoney,<!-- 保障金 -->
+			T.compensate_times as  compensateTimes,<!-- 可赔次数 -->
+			T.pay_money as  payMoney,<!-- 购买金额 -->
+			T.hotline as  hotline<!-- 热线 -->
+		FROM
+		    wj_insurance_order_info T
+		WHERE
+		    T.user_id = #{userId}
+		  and T.insurance_type='PICC'
+		  order by T.end_time DESC
+		  limit 0,1
+	</select>
+	
+	
+	<!-- 查询是否购买过人保且保险未过期-->
+	<select id="countBuyPICCInsurance" resultType="java.lang.Integer">
+		SELECT
+			count(1)
+		FROM
+		    wj_insurance_order_info T
+		WHERE
+		    T.user_id = #{userId}
+		  and T.insurance_type='PICC'
+		  and T.end_time &gt;= current_date()
+	</select>
+
+	<insert id="buyPICCInsurance" >
+		INSERT INTO
+				wj_insurance_order_info(
+				user_id,
+				start_time,
+				end_time,
+				safe_term,
+				safe_money,
+				compensate_times,
+				pay_money,
+				hotline,
+				insurance_type,
+				create_date
+		)
+		VALUES(
+			 	#{userId},
+			 	#{startTime},
+			 	#{endTime},
+			 	'12个月',
+			 	'100万',
+			 	'1次',
+			 	'免费',
+			 	'95518',
+			 	'PICC',
+				now()
+		)
+	</insert>
+	
+</mapper>

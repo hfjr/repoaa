@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhuanyi.vjwealth.wallet.mobile.user.server.integration.mapper.IReportMapper">
+	
+	<!-- 查询e账户万份收益列表 -->
+	<select id="queryEaWanReceiveList" resultType="java.util.Map">
+		select * from (
+		        select 
+		                wr.wan_receive_date as 'wanReceiveDateString',
+		                DATE_FORMAT(wr.wan_receive_date, '%m/%d') as 'wanReceiveDate',
+		                wr.wan_receive         as 'wanReceive',
+		                wr.week_receive_rate as 'weekReceiveRate'
+		                         from
+		                        fund_wan_receive wr
+		                        where wr.trade_type = 'ea'
+		                        order by wr.wan_receive_date desc
+		        limit 0, #{count}
+		        ) abc
+		order by abc.wanReceiveDateString
+	</select>
+
+	<!-- 查询e账户万份收益列表 -->
+	<select id="queryTaWanReceiveList" resultType="java.util.Map">
+		select * from (
+		select
+		wr.wan_receive_date as 'wanReceiveDateString',
+		DATE_FORMAT(wr.wan_receive_date, '%m/%d') as 'wanReceiveDate',
+		wr.wan_receive         as 'wanReceive',
+		wr.week_receive_rate as 'weekReceiveRate'
+		from
+		fund_wan_receive wr
+		where wr.trade_type = 'ta'
+		order by wr.wan_receive_date desc
+		limit 0, #{count}
+		) abc
+		order by abc.wanReceiveDateString
+	</select>
+
+</mapper>

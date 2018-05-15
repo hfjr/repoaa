@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.rqb.ips.depository.platform.mapper.ExcuteIpsPlatLogMapper">
+
+     <!--ips接口交互的日志  -->
+	 <insert id="insertIpsPlatformLogInfor" parameterType="java.util.Map" >
+		
+		
+	INSERT INTO wj_ebatong_trade_history (customer_id,status,source,operation_type,create_date,recharge_send_json,recharge_return_json)
+	VALUES
+	(#{orderId},#{status},#{source},#{operationType},now(),#{sendJson},#{returnJson});
+
+
+
+	</insert>
+	
+	<insert id="insertIpsPlatformLog" parameterType="java.lang.String" >
+		
+		
+
+	INSERT INTO wj_ebatong_trade_history (source, operation_type)
+	VALUES
+	(#{source}, #{operationType});
+
+
+
+
+	</insert>
+
+
+		<insert id="saveRechargeHistoryIPS" parameterType="java.lang.String">
+		INSERT INTO wj_ebatong_trade_history (
+				customer_id,
+				card_no,
+				out_trade_no,
+				amount,
+				result,
+				error_message,
+				create_date,
+				recharge_result,
+				recharge_send_json,
+				recharge_return_json,
+				user_id,
+				notice_send_json,
+				contrast_flag,
+				mer_date,
+				status,
+				source,
+				operation_type
+			)
+			VALUES
+			(
+				#{cardId},
+				#{cardNo},
+				#{tradeNo},
+				#{amount},
+				#{result},
+				#{message},
+				now(),
+				'F',
+				#{requestJson},
+				#{responseJson},
+				#{userId},
+				'',
+				'N',
+				DATE_FORMAT(now(),'%Y%m%d'),
+				#{status},
+				#{source},
+				#{operationType}
+			)
+	</insert>
+	
+	<update	id="updateHistoryIPS" parameterType="java.lang.String">
+		update wj_ebatong_trade_history set 
+		notice_send_json = #{sendJson},
+		status = #{status},
+		out_trade_no = #{tradeNo},
+		error_message = #{message}
+		where card_no = #{orderNo}
+ 	</update>
+
+
+</mapper>
